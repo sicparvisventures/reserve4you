@@ -1,0 +1,114 @@
+import { NextResponse } from 'next/server';
+import { verifyApiSession } from '@/lib/auth/dal';
+import { getTenant } from '@/lib/auth/tenant-dal';
+import { checkTenantRole } from '@/lib/auth/tenant-dal';
+import { createServiceClient } from '@/lib/supabase/server';
+import Stripe from 'stripe';
+import { config } from '@/lib/config';
+import { subscriptionCreateSchema } from '@/lib/validation/manager';
+
+const stripe = new Stripe(config.stripe.secretKey, {
+  apiVersion: '2025-02-24.acacia',
+});
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: Request) {
+  try {
+    const session = await verifyApiSession();
+    const body = await request.json();
+    const validated = subscriptionCreateSchema.parse(body);
+
+    // Verify user has access to tenant
+    const hasAccess = await checkTenantRole(session.userId, validated.tenantId, ['OWNER']);
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const tenant = await getTenant(validated.tenantId);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+    }
+
+    const supabase = await createServiceClient();
+
+    // Get or create customer
+    let customerId: string;
+    const { data: billingState } = await supabase
+      .from('billing_state')
+      .select('stripe_customer_id')
+      .eq('tenant_id', validated.tenantId)
+      .single();
+
+    if (billingState?.stripe_customer_id) {
+      customerId = billingState.stripe_customer_id;
+    } else {
+      // Create new Stripe customer
+      const { data: user } = await supabase
+        .from('users')
+        .select('email')
+        .eq('id', session.userId)
+        .single();
+
+      const customer = await stripe.customers.create({
+        email: user?.email || undefined,
+        metadata: {
+          tenantId: validated.tenantId,
+          userId: session.userId,
+        },
+      });
+
+      customerId = customer.id;
+
+      // Save customer ID to billing_state
+      await supabase
+        .from('billing_state')
+        .upsert({
+          tenant_id: validated.tenantId,
+          stripe_customer_id: customerId,
+          plan: validated.plan,
+          status: 'INACTIVE',
+        });
+    }
+
+    // Get price ID for selected plan
+    const priceId = config.stripe.priceIds[validated.plan];
+    if (!priceId) {
+      throw new Error('Invalid plan selected');
+    }
+
+    // Create Checkout session
+    const checkoutSession = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: 'subscription',
+      payment_method_types: ['card', 'ideal'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: body.successUrl,
+      cancel_url: body.cancelUrl,
+      metadata: {
+        tenantId: validated.tenantId,
+        plan: validated.plan,
+      },
+      subscription_data: {
+        metadata: {
+          tenantId: validated.tenantId,
+          plan: validated.plan,
+        },
+      },
+    });
+
+    return NextResponse.json({ url: checkoutSession.url });
+  } catch (error: any) {
+    console.error('Error creating subscription checkout:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to create checkout session' },
+      { status: 500 }
+    );
+  }
+}
+
