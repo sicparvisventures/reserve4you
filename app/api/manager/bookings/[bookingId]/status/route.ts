@@ -8,11 +8,11 @@ import { createServiceClient } from '@/lib/supabase/server';
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
     const session = await verifyApiSession();
-    const { bookingId } = params;
+    const { bookingId } = await params;
     const { status, notes } = await request.json();
 
     if (!status) {
