@@ -23,18 +23,26 @@ export async function POST(request: Request) {
       })
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error('Error calling create_tenant_with_membership:', error);
-      throw error;
+      throw error || new Error('No data returned from create_tenant_with_membership');
     }
 
     // Transform the returned data to match expected format
+    const tenantData = data as {
+      tenant_id: string;
+      tenant_name: string;
+      tenant_brand_color: string;
+      tenant_owner_user_id: string;
+      tenant_created_at: string;
+    };
+    
     const tenant = {
-      id: data.tenant_id,
-      name: data.tenant_name,
-      brand_color: data.tenant_brand_color,
-      owner_user_id: data.tenant_owner_user_id,
-      created_at: data.tenant_created_at,
+      id: tenantData.tenant_id,
+      name: tenantData.tenant_name,
+      brand_color: tenantData.tenant_brand_color,
+      owner_user_id: tenantData.tenant_owner_user_id,
+      created_at: tenantData.tenant_created_at,
     };
 
     // Create FREE trial billing state for the new tenant
