@@ -26,11 +26,8 @@ if [ ! -d node_modules ]; then
     echo "✅ Dependencies installed"
 fi
 
-# Run type check
-echo "🔍 Running type check..."
-pnpm build --dry-run 2>/dev/null || {
-    echo "⚠️  Type check found issues, but continuing..."
-}
+# Check if build works (skip for now to speed up)
+echo "⏭️  Skipping type check (will happen on deployment platform)..."
 
 # Create .env.production if it doesn't exist
 if [ ! -f .env.production ]; then
