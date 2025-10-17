@@ -132,19 +132,23 @@ async function handleTableStatusChange(body: any, locationId: string) {
   console.log(`   Table ${tableExternalId} status: ${status} (stub mode)`);
   
   // Store event log for debugging
-  const { error } = await supabase
-    .from('pos_integration_logs')
-    .insert({
-      location_id: locationId,
-      vendor: 'LIGHTSPEED',
-      event_type: 'table.status_changed',
-      payload: body,
-      processed_at: new Date().toISOString(),
-    })
-    .catch(() => ({ error: 'Table does not exist yet' })); // Fail silently in MVP
-  
-  if (!error) {
-    console.log('   Event logged to database');
+  try {
+    const { error } = await supabase
+      .from('pos_integration_logs')
+      .insert({
+        location_id: locationId,
+        vendor: 'LIGHTSPEED',
+        event_type: 'table.status_changed',
+        payload: body,
+        processed_at: new Date().toISOString(),
+      });
+    
+    if (!error) {
+      console.log('   Event logged to database');
+    }
+  } catch (err) {
+    // Fail silently in MVP - table might not exist yet
+    console.log('   Unable to log event (table may not exist)');
   }
 }
 
