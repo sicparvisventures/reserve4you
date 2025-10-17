@@ -341,7 +341,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
             <Label className="text-base font-medium">Openingstijden</Label>
           </div>
           <div className="space-y-3">
-            {formData.openingHours.map((hours, index) => (
+            {formData.openingHours.map((hours: any, index: number) => (
               <div key={index} className="flex items-center gap-4">
                 <div className="w-24 text-sm font-medium">
                   {DAYS_OF_WEEK[index]}

@@ -105,14 +105,14 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    const variants: Record<string, any> = {
       CONFIRMED: 'default',
       PENDING: 'secondary',
       CANCELLED: 'destructive',
       NO_SHOW: 'destructive',
       WAITLIST: 'outline',
     };
-    return <Badge variant={variants[status] || 'outline'}>{status}</Badge>;
+    return <Badge variant={variants[status] || 'outline' as any}>{status}</Badge>;
   };
 
   return (

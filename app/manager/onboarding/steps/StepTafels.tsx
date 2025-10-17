@@ -33,7 +33,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
   };
 
   const removeTable = (index: number) => {
-    setTables(tables.filter((_, i) => i !== index));
+    setTables(tables.filter((_: any, i: number) => i !== index));
   };
 
   const updateTable = (index: number, field: string, value: any) => {
@@ -47,7 +47,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
   };
 
   const removeShift = (index: number) => {
-    setShifts(shifts.filter((_, i) => i !== index));
+    setShifts(shifts.filter((_: any, i: number) => i !== index));
   };
 
   const updateShift = (index: number, field: string, value: any) => {
@@ -156,7 +156,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
             </Button>
           </div>
           <div className="space-y-3">
-            {tables.map((table, index) => (
+            {tables.map((table: any, index: number) => (
               <Card key={index} className="p-4">
                 <div className="flex items-center gap-4">
                   <Input
@@ -209,7 +209,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
             </Button>
           </div>
           <div className="space-y-4">
-            {shifts.map((shift, index) => (
+            {shifts.map((shift: any, index: number) => (
               <Card key={index} className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-4">

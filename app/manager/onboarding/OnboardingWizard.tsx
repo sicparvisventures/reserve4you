@@ -70,7 +70,7 @@ export function OnboardingWizard() {
     }
   }, [data]);
 
-  const updateData = (key: keyof OnboardingData, value: any) => {
+  const updateData = (key: string, value: any) => {
     setData(prev => ({ ...prev, [key]: value }));
   };
 

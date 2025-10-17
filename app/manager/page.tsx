@@ -4,6 +4,14 @@ import { getUserTenants } from '@/lib/auth/tenant-dal';
 import { ManagerClient } from './ManagerClient';
 import type { Metadata } from 'next';
 
+interface Tenant {
+  id: string;
+  name: string;
+  brand_color: string | null;
+  role: string;
+  location_count: number;
+}
+
 export const metadata: Metadata = {
   title: 'Manager Portal - Reserve4You',
   description: 'Beheer je restaurant(s) met Reserve4You Manager Portal',
@@ -11,7 +19,7 @@ export const metadata: Metadata = {
 
 export default async function ManagerPage() {
   const session = await verifySession();
-  const tenants = await getUserTenants(session.userId);
+  const tenants = await getUserTenants(session.userId) as unknown as Tenant[];
 
   // If user has no tenants, redirect to onboarding
   if (tenants.length === 0) {

@@ -312,16 +312,18 @@ export async function getTenantUsage(tenantId: string): Promise<{
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+  // Get location IDs for this tenant
+  const { data: locations } = await supabase
+    .from('locations')
+    .select('id')
+    .eq('tenant_id', tenantId);
+  
+  const locationIds = (locations || []).map(l => l.id);
+  
   const { count: bookingCount } = await supabase
     .from('bookings')
     .select('id', { count: 'exact', head: true })
-    .in(
-      'location_id',
-      supabase
-        .from('locations')
-        .select('id')
-        .eq('tenant_id', tenantId)
-    )
+    .in('location_id', locationIds)
     .gte('created_at', startOfMonth.toISOString())
     .lte('created_at', endOfMonth.toISOString());
 
