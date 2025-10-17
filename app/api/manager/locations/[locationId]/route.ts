@@ -10,11 +10,11 @@ import { checkTenantRole } from '@/lib/auth/tenant-dal';
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { locationId: string } }
+  { params }: { params: Promise<{ locationId: string }> }
 ) {
   try {
     const session = await verifyApiSession();
-    const { locationId } = params;
+    const { locationId } = await params;
 
     // Get location to find tenant_id
     const supabase = await createServiceClient();

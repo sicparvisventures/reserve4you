@@ -10,11 +10,11 @@ import { checkTenantRole } from '@/lib/auth/tenant-dal';
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     const session = await verifyApiSession();
-    const { tenantId } = params;
+    const { tenantId } = await params;
 
     // Verify user is OWNER of this tenant
     const hasAccess = await checkTenantRole(session.userId, tenantId, ['OWNER']);
