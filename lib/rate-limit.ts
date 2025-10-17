@@ -4,15 +4,18 @@ import { config } from '@/lib/config';
 // Simple in-memory rate limiting store
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-// Cleanup expired entries every 5 minutes
-setInterval(() => {
+/**
+ * Cleanup expired entries from the rate limit store
+ * Called on each rate limit check (Edge Runtime compatible)
+ */
+function cleanupExpiredEntries() {
   const now = Date.now();
   for (const [key, entry] of rateLimitStore.entries()) {
     if (now > entry.resetTime) {
       rateLimitStore.delete(key);
     }
   }
-}, 5 * 60 * 1000);
+}
 
 export interface RateLimitResult {
   success: boolean;
@@ -25,6 +28,9 @@ export interface RateLimitResult {
  * Check if an IP address is within rate limits
  */
 export function checkRateLimit(ip: string): RateLimitResult {
+  // Cleanup expired entries (Edge Runtime compatible)
+  cleanupExpiredEntries();
+  
   if (!config.rateLimit.enabled) {
     return { 
       success: true, 
