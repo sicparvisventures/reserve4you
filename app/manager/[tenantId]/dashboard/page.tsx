@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
   const session = await verifySession();
-  const { tenant, role } = await getTenant(params.tenantId);
-  const locations = await getTenantLocations(params.tenantId);
-  const billing = await getTenantBilling(params.tenantId);
+  const { tenantId } = await params;
+  const { tenant, role } = await getTenant(tenantId);
+  const locations = await getTenantLocations(tenantId);
+  const billing = await getTenantBilling(tenantId);
 
   // Get bookings for all locations (if any exist)
   let bookings = [];

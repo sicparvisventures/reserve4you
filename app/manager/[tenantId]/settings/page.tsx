@@ -5,38 +5,40 @@ import { SettingsWizard } from '@/app/manager/[tenantId]/settings/SettingsWizard
 import { createServiceClient } from '@/lib/supabase/server';
 
 interface SettingsPageProps {
-  params: {
+  params: Promise<{
     tenantId: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     locationId?: string;
-  };
+  }>;
 }
 
 export default async function SettingsPage({ params, searchParams }: SettingsPageProps) {
   const session = await verifySession();
+  const { tenantId } = await params;
+  const search = await searchParams;
   
   // Verify user has access to this tenant
-  const hasAccess = await checkTenantRole(session.userId, params.tenantId, ['OWNER', 'MANAGER']);
+  const hasAccess = await checkTenantRole(session.userId, tenantId, ['OWNER', 'MANAGER']);
   if (!hasAccess) {
     redirect('/manager');
   }
 
   // Load tenant data
-  const tenant = await getTenant(params.tenantId);
+  const tenant = await getTenant(tenantId);
   if (!tenant) {
     redirect('/manager');
   }
 
   // Load all locations for this tenant
-  const locations = await getTenantLocations(params.tenantId);
+  const locations = await getTenantLocations(tenantId);
   
   // Use specified locationId or first location
-  const targetLocationId = searchParams.locationId || locations[0]?.id;
+  const targetLocationId = search.locationId || locations[0]?.id;
   const location = locations.find(l => l.id === targetLocationId) || locations[0] || null;
 
   // Load billing info
-  const billing = await getTenantBilling(params.tenantId);
+  const billing = await getTenantBilling(tenantId);
 
   // Load all related data for the location if it exists
   const supabase = await createServiceClient();
@@ -83,7 +85,7 @@ export default async function SettingsPage({ params, searchParams }: SettingsPag
   return (
     <div className="min-h-screen bg-background">
       <SettingsWizard 
-        tenantId={params.tenantId}
+        tenantId={tenantId}
         initialTenant={tenant}
         initialLocation={location}
         initialTables={tables}
