@@ -118,8 +118,13 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white/25 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl">
                 <UtensilsCrossed className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight drop-shadow-lg">
-                Welkom bij<br />Reserve<span className="text-white">4</span>You
+              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight">
+                <span className="text-white drop-shadow-lg">Welkom bij</span>
+                <br />
+                <span className="text-[#111111] drop-shadow-lg">Reserve</span>
+                <span className="inline-flex items-center rounded-lg bg-white/20 backdrop-blur-sm px-2 py-1 ml-1 border border-white/30">
+                  <span className="text-primary drop-shadow-lg">4You</span>
+                </span>
               </h1>
               <p className="text-lg text-white leading-relaxed animate-fade-in delay-200 max-w-md drop-shadow-md">
                 Het intelligente reserveringssysteem voor professioneel restaurantbeheer.
