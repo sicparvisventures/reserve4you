@@ -6,10 +6,13 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UtensilsCrossed, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { UtensilsCrossed, Loader2, ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
 // Using semantic Tailwind classes and @apply helpers
 import { useAuth } from '@/lib/auth/auth-provider';
 import { config } from '@/lib/config';
+import dynamic from 'next/dynamic';
+
+const Plasma = dynamic(() => import('@/components/plasma/Plasma'), { ssr: false });
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
@@ -87,51 +90,97 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
       </div>
 
       <div className="relative min-h-screen flex">
-        {/* Left side - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden">
-          <div className="absolute inset-0 gradient-bg opacity-90"></div>
-          <div className="absolute inset-0 opacity-10">
-            <div className="w-full h-full bg-gradient-to-br from-background/5 to-transparent"></div>
+        {/* Left side - Branding with Plasma */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          {/* Plasma Background */}
+          <div className="absolute inset-0">
+            <Plasma 
+              color="#FF5A5F"
+              speed={0.5}
+              direction="forward"
+              scale={1.2}
+              opacity={0.85}
+              mouseInteractive={true}
+            />
           </div>
+          
+          {/* Gradient Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A5F]/20 via-transparent to-[#FF5A5F]/10"></div>
         
-          <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-primary-foreground animate-slide-up">
-            <div className="mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-background/20 backdrop-blur-sm rounded-2xl mb-6 animate-scale-in">
-                <UtensilsCrossed className="h-8 w-8 text-primary-foreground" />
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-white animate-slide-up">
+            <div className="mb-12">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur-md rounded-3xl mb-8 animate-scale-in shadow-2xl">
+                <UtensilsCrossed className="h-10 w-10 text-white" />
               </div>
-              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 text-foreground">
-                Welkom bij R4Y
+              <h1 className="text-5xl font-bold mb-6 animate-fade-in delay-100 leading-tight">
+                Welkom bij<br />Reserve<span className="text-white/90">4</span>You
               </h1>
-              <p className="text-xl text-primary-foreground/80 leading-relaxed animate-fade-in delay-200">
-                Het slimme reserveringsplatform dat je restaurant naar een hoger niveau tilt. Eenvoudig beheer, tevreden gasten.
+              <p className="text-xl text-white/90 leading-relaxed animate-fade-in delay-200 max-w-lg">
+                Het intelligente reserveringssysteem waarmee restaurants hun operatie professionaliseren. 
+                Verhoog efficiency, verbeter gastbeleving en maximaliseer omzet.
               </p>
             </div>
             
-            <div className="space-y-4 animate-fade-in delay-300">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-primary-foreground rounded-full mr-3"></div>
-                <span className="text-primary-foreground/80">Real-time beschikbaarheid & automatische tafeltoewijzing</span>
+            <div className="space-y-6 animate-fade-in delay-300 max-w-lg">
+              <div className="flex items-start group">
+                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Smart Reserveringssysteem</h3>
+                  <p className="text-white/80 text-sm">Real-time beschikbaarheid met automatische capaciteitsoptimalisatie en intelligente tafeltoewijzing</p>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-primary-foreground rounded-full mr-3"></div>
-                <span className="text-primary-foreground/80">Multi-locatie beheer met teamrollen</span>
+              <div className="flex items-start group">
+                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Multi-Locatie Platform</h3>
+                  <p className="text-white/80 text-sm">Centraliseer beheer over meerdere vestigingen met geavanceerde teamrollen en toegangscontrole</p>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-primary-foreground rounded-full mr-3"></div>
-                <span className="text-primary-foreground/80">Geïntegreerde betalingen & aanbetalingen</span>
+              <div className="flex items-start group">
+                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Geïntegreerde Betalingen</h3>
+                  <p className="text-white/80 text-sm">Naadloze integratie met aanbetalingen, no-show bescherming en volledige financiële rapportage</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-12 pt-8 border-t border-white/20 animate-fade-in delay-500">
+              <p className="text-white/60 text-sm mb-4">Vertrouwd door toonaangevende restaurants</p>
+              <div className="flex items-center space-x-8">
+                <div className="text-white/80">
+                  <span className="text-3xl font-bold text-white">500+</span>
+                  <p className="text-sm">Restaurants</p>
+                </div>
+                <div className="text-white/80">
+                  <span className="text-3xl font-bold text-white">50K+</span>
+                  <p className="text-sm">Reserveringen/maand</p>
+                </div>
+                <div className="text-white/80">
+                  <span className="text-3xl font-bold text-white">4.9</span>
+                  <p className="text-sm">Waardering</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right side - Form */}
-        <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+        <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 bg-gradient-to-br from-[#F7F7F9] to-white">
           <div className="w-full max-w-md mx-auto animate-slide-up delay-100">
             {/* Back to home link */}
             <div className="mb-8">
               <Link 
                 href="/" 
-                className="inline-flex items-center text-sm text-gray-600 hover:text-primary transition-colors group hover-scale"
+                className="inline-flex items-center text-sm text-gray-600 hover:text-[#FF5A5F] transition-colors group"
                 style={{ transitionDuration: 'var(--duration-fast)' }}
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" style={{ transitionDuration: 'var(--duration-fast)' }} />
@@ -140,30 +189,28 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </div>
 
             {/* Header */}
-            <div className="mb-8 animate-fade-in delay-200">
-              <div className="flex items-center mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 gradient-bg rounded-xl shadow-lg hover-scale">
-                  <UtensilsCrossed className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div className="ml-4">
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {mode === 'signin' ? 'Welkom terug' : 'Aan de slag'}
-                  </h1>
-                  <p className="text-gray-600 text-sm">
-                    {mode === 'signin' 
-                      ? 'Log in om door te gaan met R4Y' 
-                      : 'Maak je account aan en start met reserveren'
-                    }
-                  </p>
+            <div className="mb-10 animate-fade-in delay-200">
+              <div className="mb-6">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#FF5A5F] to-[#FF7A7F] rounded-2xl shadow-xl mb-6">
+                  <UtensilsCrossed className="h-7 w-7 text-white" />
                 </div>
               </div>
+              <h1 className="text-3xl font-bold text-[#111111] mb-2">
+                {mode === 'signin' ? 'Welkom terug' : 'Start vandaag'}
+              </h1>
+              <p className="text-[#555555] text-base leading-relaxed">
+                {mode === 'signin' 
+                  ? 'Log in op je Reserve4You account om verder te gaan' 
+                  : 'Creëer je account en transformeer je reserveringsbeheer'
+                }
+              </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in delay-300">
+            <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in delay-300">
               {/* Email Field */}
               <div>
-                <Label htmlFor="email" className="text-gray-700 font-medium">
+                <Label htmlFor="email" className="text-[#111111] font-semibold text-sm mb-2 block">
                   E-mailadres
                 </Label>
                 <Input
@@ -172,30 +219,30 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="mt-1 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary hover-scale"
-                  placeholder="Voer je e-mailadres in"
+                  className="h-12 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] bg-white shadow-sm hover:shadow-md transition-all duration-200"
+                  placeholder="jouw@email.nl"
                 />
               </div>
 
               {/* Password Field */}
               <div>
-                <Label htmlFor="password" className="text-gray-700 font-medium">
+                <Label htmlFor="password" className="text-[#111111] font-semibold text-sm mb-2 block">
                   Wachtwoord
                 </Label>
-                <div className="relative mt-1">
+                <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
-                    className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary pr-12 hover-scale"
-                    placeholder="Voer je wachtwoord in"
+                    className="h-12 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] pr-12 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors hover-scale"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#A0A0A0] hover:text-[#555555] transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -205,7 +252,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   </button>
                 </div>
                 {mode === 'signup' && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[#555555] mt-2 leading-relaxed">
                     Minimaal {config.auth.passwordMinLength} karakters met hoofdletters, kleine letters, cijfer en speciaal teken (!@#$%^&*)
                   </p>
                 )}
@@ -213,15 +260,15 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive rounded-xl animate-scale-in">
-                  <p className="text-destructive text-sm">{error}</p>
+                <div className="p-4 bg-[#E11D48]/5 border border-[#E11D48]/20 rounded-xl animate-scale-in">
+                  <p className="text-[#E11D48] text-sm font-medium">{error}</p>
                 </div>
               )}
 
               {/* Success Message */}
               {success && (
-                <div className="p-3 bg-success/10 border border-success rounded-xl animate-scale-in">
-                  <p className="text-success text-sm">{success}</p>
+                <div className="p-4 bg-[#18C964]/5 border border-[#18C964]/20 rounded-xl animate-scale-in">
+                  <p className="text-[#18C964] text-sm font-medium">{success}</p>
                 </div>
               )}
 
@@ -229,8 +276,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               <Button
                 type="submit"
                 disabled={pending}
-                className="w-full h-12 gradient-bg hover:from-primary/90 hover:to-primary/80 text-primary-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hover-lift disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:opacity-70"
-                style={{ transitionDuration: 'var(--duration-fast)' }}
+                className="w-full h-13 bg-gradient-to-r from-[#FF5A5F] to-[#FF7A7F] hover:from-[#FF4A4F] hover:to-[#FF6A6F] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {pending ? (
                   <>
@@ -247,11 +293,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             <div className="my-8 animate-fade-in delay-400">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="w-full border-t border-[#E7E7EC]"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 gradient-bg-subtle text-gray-500">
-                    of ga verder met
+                  <span className="px-4 bg-gradient-to-br from-[#F7F7F9] to-white text-[#555555] font-medium">
+                    Of ga verder met
                   </span>
                 </div>
               </div>
@@ -263,8 +309,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               variant="outline"
               onClick={handleGoogleSignIn}
               disabled={googleLoading || pending}
-              className="w-full h-12 mb-6 border-2 border-gray-200 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-semibold transition-all hover:border-gray-300 hover:shadow-md disabled:opacity-70 hover-scale animate-fade-in delay-500"
-              style={{ transitionDuration: 'var(--duration-fast)' }}
+              className="w-full h-12 mb-6 border-2 border-[#E7E7EC] rounded-xl bg-white hover:bg-[#FAFAFC] text-[#111111] font-semibold transition-all duration-200 hover:border-[#FF5A5F]/30 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed animate-fade-in delay-500"
             >
               {googleLoading ? (
                 <>
@@ -273,7 +318,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -298,24 +343,28 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
             {/* Switch mode */}
             <div className="text-center mt-6 animate-fade-in delay-600">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[#555555]">
                 {mode === 'signin' ? "Nog geen account?" : 'Heb je al een account?'}
                 {' '}
                 <Link 
                   href={mode === 'signin' ? '/sign-up' : '/sign-in'}
-                  className="font-semibold text-primary hover:opacity-80 transition-opacity hover-scale"
-                  style={{ transitionDuration: 'var(--duration-fast)' }}
+                  className="font-semibold text-[#FF5A5F] hover:text-[#FF7A7F] transition-colors duration-200"
                 >
-                  {mode === 'signin' ? 'Registreer' : 'Log in'}
+                  {mode === 'signin' ? 'Maak een account aan' : 'Log hier in'}
                 </Link>
               </p>
             </div>
 
             {/* Trust indicator */}
-            <div className="text-center mt-8 animate-fade-in delay-700">
-              <p className="text-xs text-muted-foreground">
-                Beveiligd met industriestandaard encryptie
-              </p>
+            <div className="text-center mt-10 animate-fade-in delay-700">
+              <div className="inline-flex items-center space-x-2 text-[#A0A0A0]">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <p className="text-xs font-medium">
+                  Beveiligd met 256-bit SSL encryptie
+                </p>
+              </div>
             </div>
           </div>
         </div>
