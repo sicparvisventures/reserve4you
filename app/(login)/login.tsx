@@ -91,76 +91,76 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
       <div className="relative min-h-screen flex">
         {/* Left side - Branding with Particles */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#1a0c0d] via-[#2d1517] to-[#1f0d0e]">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#FF5A5F] via-[#FF7A7F] to-[#FF6B70]">
           {/* Particles Background */}
           <div className="absolute inset-0">
             <Particles 
-              particleColors={['#FF5A5F', '#FF7A7F', '#FF9095', '#FFA5AA']}
-              particleCount={150}
-              particleSpread={12}
-              speed={0.08}
-              particleBaseSize={80}
+              particleColors={['#FFFFFF', '#FFF5F5', '#FFE8E8', '#FFD4D4']}
+              particleCount={200}
+              particleSpread={15}
+              speed={0.12}
+              particleBaseSize={100}
               moveParticlesOnHover={true}
-              particleHoverFactor={0.5}
+              particleHoverFactor={0.8}
               alphaParticles={true}
               disableRotation={false}
-              sizeRandomness={1.2}
-              cameraDistance={18}
+              sizeRandomness={1.5}
+              cameraDistance={16}
             />
           </div>
           
-          {/* Subtle Dark Coral Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a0c0d]/40 via-transparent to-[#2d1517]/30"></div>
+          {/* Subtle Light Overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-[#FF4A4F]/20"></div>
         
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white animate-slide-up">
             <div className="mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/15 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/25 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl">
                 <UtensilsCrossed className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight">
-                Welkom bij<br />Reserve<span className="text-white/90">4</span>You
+              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight drop-shadow-lg">
+                Welkom bij<br />Reserve<span className="text-white">4</span>You
               </h1>
-              <p className="text-lg text-white/90 leading-relaxed animate-fade-in delay-200 max-w-md">
+              <p className="text-lg text-white leading-relaxed animate-fade-in delay-200 max-w-md drop-shadow-md">
                 Het intelligente reserveringssysteem voor professioneel restaurantbeheer.
               </p>
             </div>
             
             <div className="space-y-4 animate-fade-in delay-300 max-w-md">
               <div className="flex items-center group">
-                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/40 transition-all duration-300">
                   <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <span className="text-white/90 text-sm font-medium">Real-time beschikbaarheid & tafeltoewijzing</span>
+                <span className="text-white text-sm font-medium drop-shadow">Real-time beschikbaarheid & tafeltoewijzing</span>
               </div>
               <div className="flex items-center group">
-                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/40 transition-all duration-300">
                   <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <span className="text-white/90 text-sm font-medium">Multi-locatie beheer met teamrollen</span>
+                <span className="text-white text-sm font-medium drop-shadow">Multi-locatie beheer met teamrollen</span>
               </div>
               <div className="flex items-center group">
-                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/40 transition-all duration-300">
                   <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <span className="text-white/90 text-sm font-medium">Geïntegreerde betalingen & aanbetalingen</span>
+                <span className="text-white text-sm font-medium drop-shadow">Geïntegreerde betalingen & aanbetalingen</span>
               </div>
             </div>
 
             {/* Trust Indicators - Compact */}
-            <div className="mt-10 pt-6 border-t border-white/20 animate-fade-in delay-500">
+            <div className="mt-10 pt-6 border-t border-white/30 animate-fade-in delay-500">
               <div className="flex items-center space-x-6">
-                <div className="text-white/80">
-                  <span className="text-2xl font-bold text-white">500+</span>
-                  <p className="text-xs">Restaurants</p>
+                <div className="text-white">
+                  <span className="text-2xl font-bold text-white drop-shadow-lg">500+</span>
+                  <p className="text-xs drop-shadow">Restaurants</p>
                 </div>
-                <div className="text-white/80">
-                  <span className="text-2xl font-bold text-white">50K+</span>
-                  <p className="text-xs">Reserveringen</p>
+                <div className="text-white">
+                  <span className="text-2xl font-bold text-white drop-shadow-lg">50K+</span>
+                  <p className="text-xs drop-shadow">Reserveringen</p>
                 </div>
-                <div className="text-white/80">
-                  <span className="text-2xl font-bold text-white">4.9</span>
-                  <p className="text-xs">Waardering</p>
+                <div className="text-white">
+                  <span className="text-2xl font-bold text-white drop-shadow-lg">4.9</span>
+                  <p className="text-xs drop-shadow">Waardering</p>
                 </div>
               </div>
             </div>
