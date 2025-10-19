@@ -11,7 +11,19 @@ interface StepAbonnementProps {
   onNext: () => void;
 }
 
-const PLANS = [
+interface Plan {
+  id: string;
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  limitations: string[];
+  popular?: boolean;
+  isContactUs?: boolean;
+}
+
+const PLANS: Plan[] = [
   {
     id: 'FREE',
     name: 'Free',
