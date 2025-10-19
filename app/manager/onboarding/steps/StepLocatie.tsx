@@ -3,12 +3,14 @@
 // TEMPORARY DEBUG VERSION - Add this to see what's happening
 // Replace StepLocatie.tsx with this temporarily to debug
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { locationCreateSchema } from '@/lib/validation/manager';
-import { MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { uploadLocationImage, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
 
 interface StepLocatieProps {
   data: any;
@@ -19,6 +21,7 @@ interface StepLocatieProps {
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 
 export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: data.location?.name || '',
     slug: data.location?.slug || '',
@@ -43,6 +46,9 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
       isClosed: index === 0, // Sunday closed by default
     })),
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(data.location?.imageUrl || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
@@ -66,6 +72,46 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
     const newOpeningHours = [...formData.openingHours];
     newOpeningHours[index] = { ...newOpeningHours[index], [field]: value };
     setFormData({ ...formData, openingHours: newOpeningHours });
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setErrors({ ...errors, image: '' });
+
+    try {
+      // Validate image dimensions
+      const validation = await validateImageDimensions(file, 400, 300);
+      if (!validation.valid) {
+        setErrors({ ...errors, image: validation.error || 'Invalid image dimensions' });
+        return;
+      }
+
+      // Compress image
+      addDebug('📸 Compressing image...');
+      const compressed = await compressImage(file);
+      addDebug(`✅ Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressed.size / 1024).toFixed(0)}KB`);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(compressed);
+
+      setImageFile(compressed);
+    } catch (error: any) {
+      setErrors({ ...errors, image: error.message || 'Failed to process image' });
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,6 +169,40 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
       const location = await response.json();
       addDebug(`✅ Location created: ${location.id}`);
       console.log('🎉 Created location:', location);
+      
+      // Upload image if provided
+      if (imageFile && location.id) {
+        addDebug('📸 Uploading location image...');
+        setUploadingImage(true);
+        
+        const uploadResult = await uploadLocationImage(imageFile, location.id);
+        
+        if ('error' in uploadResult) {
+          addDebug(`⚠️ Image upload failed: ${uploadResult.error}`);
+          // Continue anyway, image is optional
+        } else {
+          addDebug(`✅ Image uploaded: ${uploadResult.url}`);
+          
+          // Update location with image URL
+          const updateResponse = await fetch('/api/manager/locations', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: location.id,
+              image_url: uploadResult.url,
+              image_public_id: uploadResult.publicId,
+            }),
+          });
+
+          if (updateResponse.ok) {
+            const updatedLocation = await updateResponse.json();
+            location.image_url = updatedLocation.image_url;
+            addDebug('✅ Location updated with image');
+          }
+        }
+        
+        setUploadingImage(false);
+      }
       
       // Save location data
       updateData('location', location);
@@ -219,6 +299,77 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
           </div>
           {errors.slug && (
             <p className="text-sm text-destructive mt-1">{errors.slug}</p>
+          )}
+        </div>
+
+        {/* Location Image */}
+        <div>
+          <Label className="text-base font-medium">
+            Restaurant foto
+            <span className="text-muted-foreground font-normal ml-2">(optioneel)</span>
+          </Label>
+          <p className="text-sm text-muted-foreground mt-1 mb-3">
+            Upload een foto van je restaurant. Deze wordt getoond op de homepage en discover pagina.
+          </p>
+          
+          {imagePreview ? (
+            <Card className="p-4">
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Restaurant preview"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 rounded-full"
+                  onClick={handleRemoveImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                {imageFile && `${(imageFile.size / 1024).toFixed(0)}KB`}
+              </p>
+            </Card>
+          ) : (
+            <Card className="p-8 border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <ImageIcon className="h-8 w-8 text-primary" />
+                </div>
+                <p className="text-sm font-medium mb-1">
+                  Klik om een foto te uploaden
+                </p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  of sleep een bestand hierheen
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG of WebP • Max 5MB • Min 400x300px
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+            </Card>
+          )}
+          
+          {errors.image && (
+            <p className="text-sm text-destructive mt-2">{errors.image}</p>
+          )}
+          
+          {uploadingImage && (
+            <p className="text-sm text-primary mt-2 flex items-center gap-2">
+              <span className="animate-spin">⏳</span>
+              Foto uploaden...
+            </p>
           )}
         </div>
 

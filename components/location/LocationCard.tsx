@@ -7,12 +7,14 @@
 'use client';
 
 import * as React from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, Euro, Heart, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ReserveBookingModal } from '@/components/booking/ReserveBookingModal';
 
 interface LocationCardProps {
   location: {
@@ -27,6 +29,7 @@ interface LocationCardProps {
     city?: string;
     address_json?: { city?: string; street?: string; postalCode?: string }; // JSON format
     hero_image_url?: string;
+    image_url?: string; // New: Supabase storage image
   };
   onFavoriteToggle?: (locationId: string) => void;
   isFavorite?: boolean;
@@ -39,22 +42,32 @@ export function LocationCard({
   isFavorite = false,
   showBookButton = true,
 }: LocationCardProps) {
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  
   // Get city from either direct field or address_json
   const city = location.city || location.address_json?.city;
   
   // Get cuisine from either field name
   const cuisine = location.cuisine_type || location.cuisine;
   
+  // Get image URL (prioritize image_url from Supabase storage)
+  const imageUrl = location.image_url || location.hero_image_url;
+  
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <Link href={`/p/${location.slug}`} className="block">
         {/* Image */}
         <div className="relative h-48 bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
-          {location.hero_image_url ? (
+          {imageUrl ? (
             <img
-              src={location.hero_image_url}
+              src={imageUrl}
               alt={location.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                // Fallback to emoji if image fails to load
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><span class="text-6xl">🍽️</span></div>';
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -130,7 +143,7 @@ export function LocationCard({
                 className="flex-1"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Will open booking sheet on location page
+                  setIsBookingModalOpen(true);
                 }}
               >
                 <Calendar className="mr-2 h-4 w-4" />
@@ -140,6 +153,18 @@ export function LocationCard({
           )}
         </div>
       </Link>
+
+      {/* Booking Modal */}
+      <ReserveBookingModal
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+        location={{
+          id: location.id,
+          name: location.name,
+          address_line1: location.address_line1,
+          city: city,
+        }}
+      />
     </Card>
   );
 }

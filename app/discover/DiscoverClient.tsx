@@ -1,0 +1,220 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, X, SlidersHorizontal } from 'lucide-react';
+
+interface DiscoverClientProps {
+  initialQuery?: string;
+  initialCuisine?: string;
+  initialPrice?: number;
+}
+
+const CUISINE_TYPES = [
+  'Italiaans',
+  'Frans',
+  'Sushi',
+  'Grieks',
+  'Mexicaans',
+  'Thais',
+  'Indiaas',
+  'Chinees',
+  'Belgisch',
+  'Mediterraans',
+  'Vegetarisch',
+  'Vegan',
+];
+
+const PRICE_RANGES = [
+  { value: 1, label: '€', description: 'Budget' },
+  { value: 2, label: '€€', description: 'Betaalbaar' },
+  { value: 3, label: '€€€', description: 'Middel' },
+  { value: 4, label: '€€€€', description: 'Premium' },
+];
+
+export function DiscoverClient({
+  initialQuery = '',
+  initialCuisine = '',
+  initialPrice,
+}: DiscoverClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  
+  const [query, setQuery] = useState(initialQuery);
+  const [selectedCuisine, setSelectedCuisine] = useState(initialCuisine);
+  const [selectedPrice, setSelectedPrice] = useState<number | undefined>(initialPrice);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const updateFilters = () => {
+    const params = new URLSearchParams();
+    
+    if (query) params.set('query', query);
+    if (selectedCuisine) params.set('cuisine', selectedCuisine);
+    if (selectedPrice) params.set('price', selectedPrice.toString());
+    
+    startTransition(() => {
+      router.push(`/discover${params.toString() ? `?${params.toString()}` : ''}`);
+    });
+  };
+
+  const clearFilters = () => {
+    setQuery('');
+    setSelectedCuisine('');
+    setSelectedPrice(undefined);
+    
+    startTransition(() => {
+      router.push('/discover');
+    });
+  };
+
+  const hasActiveFilters = query || selectedCuisine || selectedPrice;
+
+  return (
+    <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Zoek restaurants, gerechten, locatie..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && updateFilters()}
+            className="pl-12 h-12 text-base"
+          />
+        </div>
+        
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
+          >
+            <SlidersHorizontal className="h-5 w-5" />
+            Filters
+          </Button>
+          
+          <Button
+            size="lg"
+            onClick={updateFilters}
+            disabled={isPending}
+            className="min-w-[120px]"
+          >
+            {isPending ? 'Zoeken...' : 'Zoeken'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Active Filters */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Actieve filters:</span>
+          
+          {selectedCuisine && (
+            <button
+              onClick={() => {
+                setSelectedCuisine('');
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              {selectedCuisine}
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          
+          {selectedPrice && (
+            <button
+              onClick={() => {
+                setSelectedPrice(undefined);
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              {PRICE_RANGES.find(p => p.value === selectedPrice)?.label}
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          
+          <button
+            onClick={clearFilters}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+          >
+            Wis alle filters
+          </button>
+        </div>
+      )}
+
+      {/* Expanded Filters */}
+      {showFilters && (
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-6 animate-slide-up">
+          {/* Cuisine Type */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Type keuken</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+              {CUISINE_TYPES.map((cuisine) => (
+                <button
+                  key={cuisine}
+                  onClick={() => setSelectedCuisine(cuisine === selectedCuisine ? '' : cuisine)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedCuisine === cuisine
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {cuisine}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price Range */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Prijsklasse</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {PRICE_RANGES.map((price) => (
+                <button
+                  key={price.value}
+                  onClick={() => setSelectedPrice(price.value === selectedPrice ? undefined : price.value)}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    selectedPrice === price.value
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <div className="text-lg font-bold text-foreground mb-1">{price.label}</div>
+                  <div className="text-xs text-muted-foreground">{price.description}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Apply Filters Button */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button
+              variant="ghost"
+              onClick={() => setShowFilters(false)}
+            >
+              Annuleren
+            </Button>
+            <Button
+              onClick={() => {
+                updateFilters();
+                setShowFilters(false);
+              }}
+              disabled={isPending}
+            >
+              Filters toepassen
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

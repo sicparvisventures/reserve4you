@@ -1,22 +1,21 @@
 import { verifySession } from '@/lib/auth/dal';
 import { checkTenantRole, getTenant, getTenantLocations, getTenantBilling } from '@/lib/auth/tenant-dal';
 import { redirect } from 'next/navigation';
-import { SettingsWizard } from '@/app/manager/[tenantId]/settings/SettingsWizard';
+import { SettingsClient } from './SettingsClient';
 import { createServiceClient } from '@/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface SettingsPageProps {
   params: Promise<{
     tenantId: string;
   }>;
-  searchParams: Promise<{
-    locationId?: string;
-  }>;
 }
 
-export default async function SettingsPage({ params, searchParams }: SettingsPageProps) {
+export default async function SettingsPage({ params }: SettingsPageProps) {
   const session = await verifySession();
   const { tenantId } = await params;
-  const search = await searchParams;
   
   // Verify user has access to this tenant
   const hasAccess = await checkTenantRole(session.userId, tenantId, ['OWNER', 'MANAGER']);
@@ -32,70 +31,26 @@ export default async function SettingsPage({ params, searchParams }: SettingsPag
 
   // Load all locations for this tenant
   const locations = await getTenantLocations(tenantId);
-  
-  // Use specified locationId or first location
-  const targetLocationId = search.locationId || locations[0]?.id;
-  const location = locations.find(l => l.id === targetLocationId) || locations[0] || null;
 
   // Load billing info
   const billing = await getTenantBilling(tenantId);
 
-  // Load all related data for the location if it exists
+  // Load team members
   const supabase = await createServiceClient();
-  
-  let tables = [];
-  let shifts = [];
-  let policy = null;
-  let posIntegration = null;
-
-  if (location) {
-    // Load tables
-    const { data: tablesData } = await supabase
-      .from('tables')
-      .select('*')
-      .eq('location_id', location.id)
-      .order('name');
-    tables = tablesData || [];
-
-    // Load shifts
-    const { data: shiftsData } = await supabase
-      .from('shifts')
-      .select('*')
-      .eq('location_id', location.id)
-      .order('name');
-    shifts = shiftsData || [];
-
-    // Load policy
-    const { data: policyData } = await supabase
-      .from('policies')
-      .select('*')
-      .eq('location_id', location.id)
-      .single();
-    policy = policyData || null;
-
-    // Load POS integration
-    const { data: posData } = await supabase
-      .from('pos_integrations')
-      .select('*')
-      .eq('location_id', location.id)
-      .single();
-    posIntegration = posData || null;
-  }
+  const { data: memberships } = await supabase
+    .from('memberships')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .order('created_at');
 
   return (
-    <div className="min-h-screen bg-background">
-      <SettingsWizard 
-        tenantId={tenantId}
-        initialTenant={tenant}
-        initialLocation={location}
-        initialTables={tables}
-        initialShifts={shifts}
-        initialPolicy={policy}
-        initialBilling={billing}
-        initialPosIntegration={posIntegration}
-        allLocations={locations}
-      />
-    </div>
+    <SettingsClient
+      tenantId={tenantId}
+      tenant={tenant}
+      locations={locations}
+      billing={billing}
+      memberships={memberships || []}
+    />
   );
 }
 

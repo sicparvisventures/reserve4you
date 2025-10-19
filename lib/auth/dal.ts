@@ -67,22 +67,43 @@ export const getUser = cache(async (redirectTo?: string) => {
   try {
     const supabase = await createClient();
     
-    const { data: dbUser, error } = await supabase
+    let { data: dbUser, error } = await supabase
       .from('users')
       .select('*')
       .eq('supabase_user_id', session.userId)
       .single();
     
     if (error) {
-       if (error.code === 'PGRST116') {
-         // User doesn't exist in database yet - this can happen for new users
-         // For now, redirect to sign-in - in production you might want a setup flow
-         console.log('User not found in database:', session.userId);
-         redirect(redirectTo || config.auth.paths.signIn);
-       }
-      
-      console.error('Error fetching user from database:', error);
-      throw new Error('Failed to fetch user data');
+      if (error.code === 'PGRST116') {
+        // User doesn't exist in database yet - create them automatically
+        console.log('User not found in database, creating profile:', session.userId);
+        
+        try {
+          // Call the secure function to create user profile
+          await supabase.rpc('create_user_profile');
+          
+          // Fetch the newly created user
+          const { data: newDbUser, error: fetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('supabase_user_id', session.userId)
+            .single();
+          
+          if (fetchError) {
+            console.error('Error fetching newly created user:', fetchError);
+            throw new Error('Failed to create user profile');
+          }
+          
+          dbUser = newDbUser;
+          console.log('✅ User profile created successfully');
+        } catch (createError) {
+          console.error('Error creating user profile:', createError);
+          throw new Error('Failed to initialize user account');
+        }
+      } else {
+        console.error('Error fetching user from database:', error);
+        throw new Error('Failed to fetch user data');
+      }
     }
     
     return {

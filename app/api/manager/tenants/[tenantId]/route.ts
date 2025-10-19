@@ -1,54 +1,51 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { verifyApiSession } from '@/lib/auth/dal';
-import { createServiceClient } from '@/lib/supabase/server';
 import { checkTenantRole } from '@/lib/auth/tenant-dal';
+import { createServiceClient } from '@/lib/supabase/server';
 
-/**
- * DELETE /api/manager/tenants/[tenantId]
- * Delete a tenant and all associated data (cascade)
- * Only OWNER can delete
- */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ tenantId: string }> }
-) {
+export const dynamic = 'force-dynamic';
+
+interface RouteParams {
+  params: Promise<{
+    tenantId: string;
+  }>;
+}
+
+export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const session = await verifyApiSession();
     const { tenantId } = await params;
+    const body = await request.json();
 
-    // Verify user is OWNER of this tenant
+    // Verify user has OWNER access
     const hasAccess = await checkTenantRole(session.userId, tenantId, ['OWNER']);
     if (!hasAccess) {
-      return NextResponse.json(
-        { error: 'Only tenant owners can delete tenants' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Use service client to bypass RLS for cascade delete
     const supabase = await createServiceClient();
 
-    // Call the cascade delete function
-    const { data, error } = await supabase.rpc('delete_tenant_cascade', {
-      p_tenant_id: tenantId,
-      p_requesting_user_id: session.userId,
-    });
+    // Update tenant
+    const { data: tenant, error: updateError } = await supabase
+      .from('tenants')
+      .update({
+        name: body.name,
+        brand_color: body.brand_color,
+        logo_url: body.logo_url,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', tenantId)
+      .select()
+      .single();
 
-    if (error) {
-      console.error('Error deleting tenant:', error);
-      return NextResponse.json(
-        { error: error.message || 'Failed to delete tenant' },
-        { status: 500 }
-      );
-    }
+    if (updateError) throw updateError;
 
-    return NextResponse.json({ success: true, message: 'Tenant deleted successfully' });
+    return NextResponse.json(tenant);
   } catch (error: any) {
-    console.error('Error in DELETE /api/manager/tenants/[tenantId]:', error);
+    console.error('Error updating tenant:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error.message || 'Failed to update tenant' },
       { status: 500 }
     );
   }
 }
-

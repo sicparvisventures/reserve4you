@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,21 +20,36 @@ import {
   Users,
   ChevronRight,
   Building2,
+  CreditCard,
+  Check,
+  Zap,
+  ArrowUpCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { SubscriptionSection } from './SubscriptionSection';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface ProfileClientProps {
   user: any;
   consumer: any;
   bookings: any[];
   favorites: any[];
+  tenants: any[];
 }
 
-export function ProfileClient({ user, consumer, bookings, favorites }: ProfileClientProps) {
+export function ProfileClient({ user, consumer, bookings, favorites, tenants }: ProfileClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'bookings' | 'favorites'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'bookings' | 'favorites' | 'subscription'>('info');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -42,6 +57,28 @@ export function ProfileClient({ user, consumer, bookings, favorites }: ProfileCl
     name: consumer?.name || '',
     phone: consumer?.phone || '',
   });
+  const [upgradingTenant, setUpgradingTenant] = useState<string | null>(null);
+  const [upgradeSuccess, setUpgradeSuccess] = useState<{ plan: string; testMode: boolean } | null>(null);
+
+  // Check for upgrade success in URL
+  useEffect(() => {
+    const upgraded = searchParams.get('upgraded');
+    const plan = searchParams.get('plan');
+    const testmode = searchParams.get('testmode');
+    
+    if (upgraded === 'true' && plan) {
+      setUpgradeSuccess({ plan, testMode: testmode === 'true' });
+      setActiveTab('subscription');
+      
+      // Refresh data to show new plan
+      router.refresh();
+      
+      // Clean URL (remove query params) after a short delay
+      setTimeout(() => {
+        router.replace('/profile', { scroll: false });
+      }, 100);
+    }
+  }, [searchParams, router]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -158,12 +195,82 @@ export function ProfileClient({ user, consumer, bookings, favorites }: ProfileCl
               <Heart className="h-4 w-4 inline mr-2" />
               Favorieten ({favorites.length})
             </button>
+            {tenants.length > 0 && (
+              <button
+                onClick={() => setActiveTab('subscription')}
+                className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === 'subscription'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <CreditCard className="h-4 w-4 inline mr-2" />
+                Abonnementen ({tenants.length})
+              </button>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Upgrade Success Modal */}
+      <Dialog open={!!upgradeSuccess} onOpenChange={(open) => !open && setUpgradeSuccess(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
+              <Check className="h-8 w-8 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-2xl font-bold">
+              Abonnement geactiveerd
+            </DialogTitle>
+            <DialogDescription className="text-center text-base pt-2">
+              Je bent nu upgraded naar het{' '}
+              <strong className="text-foreground">
+                {upgradeSuccess?.plan === 'START' && 'Start'}
+                {upgradeSuccess?.plan === 'PRO' && 'Pro'}
+                {upgradeSuccess?.plan === 'PLUS' && 'Plus'}
+                {!['START', 'PRO', 'PLUS'].includes(upgradeSuccess?.plan || '') && upgradeSuccess?.plan}
+              </strong>{' '}
+              plan.
+              {upgradeSuccess?.testMode && (
+                <span className="block mt-2 text-sm text-muted-foreground">
+                  Test mode - geen betaling vereist
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-4 bg-muted/30 rounded-xl border border-border">
+            <p className="text-sm text-muted-foreground text-center">
+              Al je nieuwe features zijn nu direct beschikbaar in het dashboard.
+            </p>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-col gap-2">
+            {tenants.length > 0 && (
+              <Button 
+                className="w-full h-12 rounded-xl gradient-bg text-white font-semibold"
+                asChild
+              >
+                <Link href={`/manager/${tenants[0].id}/dashboard`}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Ga naar dashboard
+                </Link>
+              </Button>
+            )}
+            <Button 
+              variant="outline"
+              className="w-full h-12 rounded-xl"
+              onClick={() => setUpgradeSuccess(null)}
+            >
+              Sluiten
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
+
         {/* Personal Info Tab */}
         {activeTab === 'info' && (
           <div className="space-y-6">
@@ -414,6 +521,11 @@ export function ProfileClient({ user, consumer, bookings, favorites }: ProfileCl
               </Card>
             )}
           </div>
+        )}
+
+        {/* Subscription Tab */}
+        {activeTab === 'subscription' && (
+          <SubscriptionSection tenants={tenants} />
         )}
       </div>
     </div>

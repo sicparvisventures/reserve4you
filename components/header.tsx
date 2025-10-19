@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Search, Heart, User, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 
 interface HeaderProps {
   userData: {
@@ -38,12 +39,14 @@ export function Header({ userData, pathname }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-xl font-bold text-primary-foreground">R</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="sm:hidden">
+              <RotatingLogoMobile />
             </div>
-            <span className="text-xl font-bold text-foreground hidden sm:inline">R4Y</span>
-          </Link>
+            <div className="hidden sm:block">
+              <RotatingLogo />
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
@@ -96,9 +99,6 @@ export function Header({ userData, pathname }: HeaderProps) {
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/sign-in">Inloggen</Link>
-                </Button>
                 <Button size="sm" asChild>
                   <Link href="/sign-up">Aanmelden</Link>
                 </Button>
@@ -185,17 +185,10 @@ export function Header({ userData, pathname }: HeaderProps) {
               ) : (
                 <>
                   <Link
-                    href="/sign-in"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  >
-                    Inloggen
-                  </Link>
-                  <Link
                     href="/sign-up"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Button className="w-full mt-2">Aanmelden</Button>
+                    <Button className="w-full">Aanmelden</Button>
                   </Link>
                   
                   <div className="h-px bg-border my-2" />

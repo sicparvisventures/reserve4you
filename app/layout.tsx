@@ -8,7 +8,7 @@ import { AnalyticsWrapper } from '@/components/analytics-wrapper';
 import { getOptionalUser } from '@/lib/auth/dal';
 
 export const metadata: Metadata = {
-  title: 'Reserve4You - Reserveer je volgende tafel',
+  title: 'Reserve4You - Stop guessing Start booking',
   description: 'Ontdek en reserveer bij de beste restaurants in België. Direct online reserveren bij jouw favoriete restaurant.'
 };
 

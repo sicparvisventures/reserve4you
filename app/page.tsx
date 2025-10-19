@@ -17,7 +17,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Reserve4You - Reserveer je volgende tafel',
+  title: 'Reserve4You - Stop guessing Start booking',
   description: 'Ontdek en reserveer bij de beste restaurants in België. Direct online reserveren bij jouw favoriete restaurant.',
 };
 
@@ -39,8 +39,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <div className="bg-gradient-to-br from-primary/10 via-background to-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-            Reserveer je{' '}
-            <span className="text-primary">volgende tafel</span>
+            Stop guessing{' '}
+            <span className="text-primary">Start booking</span>
           </h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
             Ontdek de beste restaurants bij jou in de buurt en reserveer direct online.

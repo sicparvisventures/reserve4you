@@ -33,116 +33,66 @@ const PLANS = [
     ],
   },
   {
-    id: 'STARTER',
-    name: 'Starter',
-    price: '€29',
+    id: 'START',
+    name: 'Start',
+    price: '€49',
     period: 'per maand',
-    description: 'Ideaal om mee te beginnen',
+    description: 'Basis reserveringssysteem',
     features: [
-      '1 locatie',
-      '200 reserveringen per maand',
-      'Geavanceerd reserveringssysteem',
-      'E-mail & SMS bevestigingen',
-      'Basisstatistieken',
-      'Annuleringsbeleid',
-      'Geen setup kosten',
+      'Basis reserveringssysteem',
+      'Kalender overzicht',
+      'Email notificaties',
+      'Basis support',
     ],
     limitations: [
       'Geen aanbetalingen',
-      'Geen POS integratie',
+      'Geen wachtlijst',
+      'Geen team members',
+      'Geen SMS notificaties',
     ],
   },
   {
-    id: 'GROWTH',
-    name: 'Growth',
-    price: '€79',
+    id: 'PRO',
+    name: 'Pro',
+    price: '€99',
     period: 'per maand',
     description: 'Voor groeiende restaurants',
-    features: [
-      '3 locaties',
-      '1.000 reserveringen per maand',
-      'Aanbetalingen & no-show fees',
-      'SMS & e-mail bevestigingen',
-      'Geavanceerde statistieken',
-      'Multi-gebruiker support (3 personen)',
-      'Prioriteit e-mail support',
-      'Custom domeinnaam mogelijk',
-    ],
     popular: true,
+    features: [
+      'Alles van Start',
+      'Aanbetalingen',
+      'Wachtlijst',
+      'Team members (3)',
+      'SMS notificaties',
+      'Prioriteit support',
+    ],
+    limitations: [],
   },
   {
-    id: 'BUSINESS',
-    name: 'Business',
+    id: 'PLUS',
+    name: 'Plus',
     price: '€149',
     period: 'per maand',
     description: 'Voor professionele horeca',
     features: [
-      '5 locaties',
-      '3.000 reserveringen per maand',
-      'Alles van Growth, plus:',
-      'Lightspeed POS integratie (basis)',
-      'White-label (verwijder R4Y branding)',
-      'Multi-gebruiker support (10 personen)',
+      'Alles van Pro',
+      'Onbeperkte team members',
       'Geavanceerde rapportages',
-      'Prioriteit telefoon support',
-      'Onboarding sessie',
-    ],
-  },
-  {
-    id: 'PREMIUM',
-    name: 'Premium',
-    price: '€299',
-    period: 'per maand',
-    description: 'Voor restaurant groepen',
-    features: [
-      'Onbeperkte locaties',
-      'Onbeperkte reserveringen',
-      'Alles van Business, plus:',
-      'Volledige POS integratie',
-      'API toegang voor integraties',
-      'Custom features op aanvraag',
+      'API toegang',
+      'White-label opties',
       'Dedicated account manager',
-      '24/7 prioriteit support',
-      'Maandelijkse strategie calls',
-      'Custom white-label branding',
+      '24/7 support',
     ],
-  },
-  {
-    id: 'ENTERPRISE',
-    name: 'Enterprise',
-    price: 'Op aanvraag',
-    period: 'vanaf €500/maand',
-    description: 'Maatwerk voor grote organisaties',
-    features: [
-      'Alles uit Premium',
-      'Onbeperkte alles',
-      'Dedicated infrastructure',
-      'SLA garanties (99.9% uptime)',
-      'Custom ontwikkeling',
-      'Data export & migratie hulp',
-      'Juridisch contract & facturatie',
-      '24/7 dedicated support team',
-      'Maandelijkse performance reviews',
-      'Strategisch advies',
-    ],
-    isContactUs: true,
+    limitations: [],
   },
 ];
 
 export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps) {
-  const [selectedPlan, setSelectedPlan] = useState<string>(data.subscription?.plan || 'GROWTH');
+  const [selectedPlan, setSelectedPlan] = useState<string>(data.subscription?.plan || 'PRO');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const handleSelectPlan = async () => {
-    const plan = PLANS.find(p => p.id === selectedPlan);
-    
-    // If Enterprise, show contact message
-    if (plan?.isContactUs) {
-      alert('Neem contact met ons op via sales@reserve4you.com voor een Enterprise abonnement.');
-      return;
-    }
-
     // If FREE, skip Stripe and just activate
     if (selectedPlan === 'FREE') {
       updateData('subscription', { plan: 'FREE', status: 'ACTIVE' });
@@ -207,7 +157,6 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
           {PLANS.map((plan) => {
             const isSelected = selectedPlan === plan.id;
             const isPopular = plan.popular;
-            const isEnterprise = plan.isContactUs;
 
             return (
               <Card
@@ -217,7 +166,7 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                     ? 'border-2 border-primary shadow-xl scale-[1.02]'
                     : 'border border-border hover:border-primary/50 hover:shadow-lg'
                 } ${isPopular ? 'ring-2 ring-primary/20' : ''}`}
-                onClick={() => !isEnterprise && setSelectedPlan(plan.id)}
+                onClick={() => setSelectedPlan(plan.id)}
               >
                 {/* Popular Badge */}
                 {isPopular && (
@@ -234,7 +183,7 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                     <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
-                  {isSelected && !isEnterprise && (
+                  {isSelected && (
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <Check className="h-4 w-4 text-white" />
                     </div>
@@ -271,18 +220,6 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                       </li>
                     ))}
                   </ul>
-                )}
-
-                {/* Enterprise CTA */}
-                {isEnterprise && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <a
-                      href="mailto:sales@reserve4you.com"
-                      className="block w-full py-2.5 text-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/5 rounded-lg"
-                    >
-                      Neem Contact Op
-                    </a>
-                  </div>
                 )}
               </Card>
             );

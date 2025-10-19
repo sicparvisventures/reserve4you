@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { UtensilsCrossed, Plus, ArrowRight, Store, Trash2 } from 'lucide-react';
+import { UtensilsCrossed, Plus, ArrowRight, Store, Trash2, ArrowLeft } from 'lucide-react';
 
 interface Tenant {
   id: string;
@@ -62,6 +62,20 @@ export function ManagerClient({ tenants }: ManagerClientProps) {
     <div className="min-h-screen gradient-bg-subtle">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <div className="mb-8 animate-fade-in">
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Terug naar home
+              </Button>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-12 animate-slide-up">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-6">

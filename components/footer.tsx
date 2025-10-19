@@ -72,8 +72,8 @@ export function Footer() {
                 <span className="text-lg font-bold text-primary-foreground">R</span>
               </div>
               <div>
-                <div className="text-sm font-semibold text-foreground">R4Y</div>
-                <div className="text-xs text-muted-foreground">Reserveer je volgende tafel</div>
+                <div className="text-sm font-semibold text-foreground">Reserve4You</div>
+                <div className="text-xs text-muted-foreground">Stop guessing Start booking</div>
               </div>
             </div>
 

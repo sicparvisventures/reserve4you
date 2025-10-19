@@ -84,10 +84,24 @@ export function OnboardingWizard() {
   };
 
   const handleNext = () => {
+    // If adding new location (tenantId exists), skip certain steps
+    if (data.tenantId) {
+      // From step 5, go directly to step 8 (skip 6 and 7)
+      if (currentStep === 5) {
+        goToStep(8);
+        return;
+      }
+      // From step 8, go back to dashboard
+      if (currentStep === 8) {
+        router.push(`/manager/${data.tenantId}/dashboard`);
+        return;
+      }
+    }
+    
+    // Normal flow
     if (currentStep < STEPS.length) {
       goToStep(currentStep + 1);
     } else if (data.tenantId) {
-      // If adding new location, go back to dashboard
       router.push(`/manager/${data.tenantId}/dashboard`);
     }
   };
@@ -116,10 +130,25 @@ export function OnboardingWizard() {
   };
 
   const renderStep = () => {
-    // If tenantId exists and user is on step 1, skip to step 2
-    if (data.tenantId && currentStep === 1) {
-      router.push(`/manager/onboarding?step=2&tenantId=${data.tenantId}`);
-      return <div>Redirecting...</div>;
+    // If tenantId exists (adding new location), skip certain steps
+    if (data.tenantId) {
+      // Redirect from step 1 to step 2
+      if (currentStep === 1) {
+        router.push(`/manager/onboarding?step=2&tenantId=${data.tenantId}`);
+        return <div>Redirecting...</div>;
+      }
+      
+      // Skip step 6 (subscription) - redirect to step 8 (preview)
+      if (currentStep === 6) {
+        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
+        return <div>Redirecting...</div>;
+      }
+      
+      // Skip step 7 (integrations) - redirect to step 8 (preview)
+      if (currentStep === 7) {
+        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
+        return <div>Redirecting...</div>;
+      }
     }
 
     switch (currentStep) {
@@ -144,9 +173,9 @@ export function OnboardingWizard() {
     }
   };
 
-  // Filter steps: hide step 1 if adding new location (tenantId exists)
+  // Filter steps: hide step 1, 6, and 7 if adding new location (tenantId exists)
   const visibleSteps = data.tenantId 
-    ? STEPS.filter(s => s.number > 1) 
+    ? STEPS.filter(s => s.number > 1 && s.number !== 6 && s.number !== 7) 
     : STEPS;
 
   return (

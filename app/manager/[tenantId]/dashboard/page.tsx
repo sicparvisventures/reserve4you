@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   description: 'Beheer je reserveringen, locaties en instellingen',
 };
 
+// Force dynamic rendering - no cache for billing data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardPage({
   params,
 }: {
@@ -23,20 +27,42 @@ export default async function DashboardPage({
 
   // Get bookings for all locations (if any exist)
   let bookings = [];
+  let stats: any = {};
+  
   if (locations.length > 0) {
     const supabase = await createClient();
-    const { data } = await supabase
+    
+    // Get all bookings for tenant's locations
+    const { data: bookingsData } = await supabase
       .from('bookings')
       .select(`
         *,
-        location:locations(name, slug),
-        table:tables(name)
+        location:locations(id, name, slug),
+        table:tables(id, table_number, seats)
       `)
       .in('location_id', locations.map(l => l.id))
-      .gte('start_ts', new Date().toISOString())
-      .order('start_ts', { ascending: true })
+      .gte('booking_date', new Date().toISOString().split('T')[0])
+      .order('booking_date', { ascending: true })
+      .order('booking_time', { ascending: true })
       .limit(100);
-    bookings = data || [];
+    
+    bookings = bookingsData || [];
+    
+    // Calculate combined stats for all locations
+    const today = new Date().toISOString().split('T')[0];
+    const todayBookings = bookings.filter(b => b.booking_date === today);
+    const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
+    const pendingBookings = bookings.filter(b => b.status === 'pending');
+    
+    stats = {
+      totalBookings: bookings.length,
+      todayBookings: todayBookings.length,
+      confirmedBookings: confirmedBookings.length,
+      pendingBookings: pendingBookings.length,
+      totalGuests: todayBookings.reduce((sum, b) => sum + b.number_of_guests, 0),
+      totalLocations: locations.length,
+      activeLocations: locations.filter(l => l.is_published).length,
+    };
   }
 
   return (
@@ -46,6 +72,7 @@ export default async function DashboardPage({
       locations={locations}
       bookings={bookings}
       billing={billing}
+      stats={stats}
     />
   );
 }

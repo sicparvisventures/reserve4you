@@ -21,10 +21,24 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
     { name: 'Tafel 1', seats: 2, combinable: false, groupId: '' },
     { name: 'Tafel 2', seats: 2, combinable: false, groupId: '' },
   ]);
-  const [shifts, setShifts] = useState(data.shifts || [
-    { name: 'Lunch', startTime: '12:00', endTime: '15:00', daysOfWeek: [1, 2, 3, 4, 5], maxParallel: 20 },
-    { name: 'Diner', startTime: '18:00', endTime: '22:00', daysOfWeek: [1, 2, 3, 4, 5, 6], maxParallel: 30 },
-  ]);
+  
+  // Ensure shifts always have daysOfWeek array
+  const [shifts, setShifts] = useState(() => {
+    const defaultShifts = [
+      { name: 'Lunch', startTime: '12:00', endTime: '15:00', daysOfWeek: [1, 2, 3, 4, 5], maxParallel: 20 },
+      { name: 'Diner', startTime: '18:00', endTime: '22:00', daysOfWeek: [1, 2, 3, 4, 5, 6], maxParallel: 30 },
+    ];
+    
+    if (!data.shifts || data.shifts.length === 0) {
+      return defaultShifts;
+    }
+    
+    // Ensure each shift has daysOfWeek array
+    return data.shifts.map((shift: any) => ({
+      ...shift,
+      daysOfWeek: Array.isArray(shift.daysOfWeek) ? shift.daysOfWeek : [1, 2, 3, 4, 5],
+    }));
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,9 +72,10 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
 
   const toggleDayOfWeek = (shiftIndex: number, day: number) => {
     const shift = shifts[shiftIndex];
-    const newDaysOfWeek = shift.daysOfWeek.includes(day)
-      ? shift.daysOfWeek.filter((d: number) => d !== day)
-      : [...shift.daysOfWeek, day].sort();
+    const currentDays = Array.isArray(shift.daysOfWeek) ? shift.daysOfWeek : [1, 2, 3, 4, 5];
+    const newDaysOfWeek = currentDays.includes(day)
+      ? currentDays.filter((d: number) => d !== day)
+      : [...currentDays, day].sort();
     updateShift(shiftIndex, 'daysOfWeek', newDaysOfWeek);
   };
 
@@ -248,20 +263,23 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground mr-2">Dagen:</span>
-                    {DAYS_OF_WEEK.map((day, dayIndex) => (
-                      <button
-                        key={dayIndex}
-                        type="button"
-                        onClick={() => toggleDayOfWeek(index, dayIndex)}
-                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                          shift.daysOfWeek.includes(dayIndex)
-                            ? 'bg-primary text-white'
-                            : 'bg-card border border-border text-muted-foreground hover:border-primary'
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    ))}
+                    {DAYS_OF_WEEK.map((day, dayIndex) => {
+                      const daysOfWeek = Array.isArray(shift.daysOfWeek) ? shift.daysOfWeek : [1, 2, 3, 4, 5];
+                      return (
+                        <button
+                          key={dayIndex}
+                          type="button"
+                          onClick={() => toggleDayOfWeek(index, dayIndex)}
+                          className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                            daysOfWeek.includes(dayIndex)
+                              ? 'bg-primary text-white'
+                              : 'bg-card border border-border text-muted-foreground hover:border-primary'
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </Card>

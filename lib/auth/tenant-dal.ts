@@ -242,8 +242,9 @@ export const searchLocations = cache(async (params: {
 
 /**
  * Get billing state for tenant
+ * Note: No cache() to ensure fresh billing data after upgrades
  */
-export const getTenantBilling = cache(async (tenantId: string) => {
+export async function getTenantBilling(tenantId: string) {
   const supabase = await createClient();
   
   const { data: billing, error } = await supabase
@@ -258,7 +259,7 @@ export const getTenantBilling = cache(async (tenantId: string) => {
   }
   
   return billing;
-});
+}
 
 /**
  * Check if location can be published (all requirements met)

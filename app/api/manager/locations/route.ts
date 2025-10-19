@@ -103,3 +103,56 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const session = await verifyApiSession();
+    const body = await request.json();
+    const { id, image_url, image_public_id } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Location ID is required' }, { status: 400 });
+    }
+
+    const supabase = await createServiceClient();
+
+    // Get location to verify tenant access
+    const { data: location } = await supabase
+      .from('locations')
+      .select('tenant_id')
+      .eq('id', id)
+      .single();
+
+    if (!location) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 });
+    }
+
+    // Verify user has access to tenant
+    const hasAccess = await checkTenantRole(session.userId, location.tenant_id, ['OWNER', 'MANAGER']);
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    // Update location with image
+    const { data: updatedLocation, error: updateError } = await supabase
+      .from('locations')
+      .update({
+        image_url,
+        image_public_id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    return NextResponse.json(updatedLocation);
+  } catch (error: any) {
+    console.error('Error updating location:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update location' },
+      { status: 500 }
+    );
+  }
+}
+

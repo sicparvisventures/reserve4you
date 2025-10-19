@@ -47,6 +47,7 @@ interface ProfessionalDashboardProps {
   locations: any[];
   bookings: any[];
   billing: any;
+  stats?: any;
 }
 
 export function ProfessionalDashboard({ 
@@ -54,12 +55,13 @@ export function ProfessionalDashboard({
   role, 
   locations: initialLocations, 
   bookings: initialBookings, 
-  billing 
+  billing,
+  stats: initialStats
 }: ProfessionalDashboardProps) {
   const router = useRouter();
   const [locations, setLocations] = useState(initialLocations);
   const [bookings, setBookings] = useState(initialBookings);
-  const [selectedLocationId, setSelectedLocationId] = useState(initialLocations[0]?.id || null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('list');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,36 +69,34 @@ export function ProfessionalDashboard({
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<any>(initialStats || {});
 
-  const selectedLocation = locations.find(l => l.id === selectedLocationId);
+  const selectedLocation = selectedLocationId && selectedLocationId !== 'all' 
+    ? locations.find(l => l.id === selectedLocationId) 
+    : null;
   
   // Filter bookings
   const filteredBookings = bookings.filter(b => {
-    const matchesLocation = !selectedLocationId || b.location_id === selectedLocationId;
+    const matchesLocation = selectedLocationId === 'all' || !selectedLocationId || b.location_id === selectedLocationId;
     const matchesStatus = filterStatus === 'all' || b.status === filterStatus;
     const matchesSearch = !searchQuery || 
-      b.guest_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.guest_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.guest_phone?.includes(searchQuery);
+      b.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.customer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.customer_phone?.includes(searchQuery);
     return matchesLocation && matchesStatus && matchesSearch;
   });
 
   // Calculate stats
-  const todayBookings = filteredBookings.filter(b => {
-    const bookingDate = new Date(b.start_ts);
-    const today = new Date();
-    return bookingDate.toDateString() === today.toDateString();
-  });
+  const today = new Date().toISOString().split('T')[0];
+  const todayBookings = filteredBookings.filter(b => b.booking_date === today);
 
   const upcomingBookings = filteredBookings.filter(b => {
-    const bookingDate = new Date(b.start_ts);
-    return bookingDate > new Date();
+    return b.booking_date >= today;
   });
 
-  const confirmedCount = upcomingBookings.filter(b => b.status === 'CONFIRMED').length;
-  const pendingCount = upcomingBookings.filter(b => b.status === 'PENDING').length;
-  const totalGuests = todayBookings.reduce((sum, b) => sum + (b.party_size || 0), 0);
+  const confirmedCount = upcomingBookings.filter(b => b.status === 'confirmed').length;
+  const pendingCount = upcomingBookings.filter(b => b.status === 'pending').length;
+  const totalGuests = todayBookings.reduce((sum, b) => sum + (b.number_of_guests || 0), 0);
 
   // Handle logout
   const handleLogout = async () => {
@@ -184,22 +184,27 @@ export function ProfessionalDashboard({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'CONFIRMED': return 'bg-success/10 text-success border-success/20';
-      case 'PENDING': return 'bg-warning/10 text-warning border-warning/20';
-      case 'CANCELLED': return 'bg-destructive/10 text-destructive border-destructive/20';
-      case 'NO_SHOW': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'confirmed': return 'bg-success/10 text-success border-success/20';
+      case 'seated': return 'bg-success/10 text-success border-success/20';
+      case 'completed': return 'bg-muted text-muted-foreground border-border';
+      case 'pending': return 'bg-warning/10 text-warning border-warning/20';
+      case 'cancelled': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'no_show': return 'bg-destructive/10 text-destructive border-destructive/20';
       default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'CONFIRMED':
+      case 'confirmed':
+      case 'seated':
         return <CheckCircle2 className="h-4 w-4" />;
-      case 'PENDING':
+      case 'completed':
+        return <Check className="h-4 w-4" />;
+      case 'pending':
         return <Clock className="h-4 w-4" />;
-      case 'CANCELLED':
-      case 'NO_SHOW':
+      case 'cancelled':
+      case 'no_show':
         return <XCircle className="h-4 w-4" />;
       default:
         return <AlertCircle className="h-4 w-4" />;
@@ -312,42 +317,66 @@ export function ProfessionalDashboard({
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+              {/* All Locations Option */}
+              <button
+                onClick={() => setSelectedLocationId('all')}
+                className={`block p-3 rounded-lg border-2 transition-all text-left ${
+                  selectedLocationId === 'all'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                }`}
+              >
+                <div className="flex items-start gap-2 flex-1 min-w-0">
+                  <LayoutGrid className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">Alle Vestigingen</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      Gecombineerd overzicht
+                    </p>
+                  </div>
+                </div>
+              </button>
+
               {locations.map((location) => (
-                <button
+                <div
                   key={location.id}
-                  onClick={() => setSelectedLocationId(location.id)}
-                  className={`p-3 rounded-lg border-2 transition-all text-left ${
-                    selectedLocationId === location.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                  }`}
+                  className="relative group"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                  <Link
+                    href={`/manager/${tenant.id}/location/${location.id}`}
+                    className={`block p-3 rounded-lg border-2 transition-all ${
+                      selectedLocationId === location.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                    }`}
+                    onClick={() => setSelectedLocationId(location.id)}
+                  >
+                    <div className="flex items-start gap-2 flex-1 min-w-0 pr-8">
                       <Store className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium text-sm truncate">{location.name}</p>
                         <p className="text-xs text-muted-foreground truncate">
                           {location.is_public ? 'Gepubliceerd' : 'Concept'}
                         </p>
                       </div>
                     </div>
-                    {(role === 'OWNER' || role === 'MANAGER') && locations.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteLocation(location.id, location.name);
-                        }}
-                        disabled={deletingId === location.id}
-                        className="h-6 w-6 p-0 hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-3 w-3 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
-                </button>
+                  </Link>
+                  
+                  {/* Delete button - outside Link to avoid nesting */}
+                  {(role === 'OWNER' || role === 'MANAGER') && locations.length > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteLocation(location.id, location.name);
+                      }}
+                      disabled={deletingId === location.id}
+                      className="absolute top-2 right-2 h-6 w-6 p-0 rounded hover:bg-destructive/10 transition-colors flex items-center justify-center z-10"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           </Card>
@@ -536,7 +565,7 @@ export function ProfessionalDashboard({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold text-foreground truncate">
-                          {booking.guest_name || 'Gast'}
+                          {booking.customer_name || 'Gast'}
                         </p>
                         <Badge 
                           variant="outline" 
@@ -549,32 +578,32 @@ export function ProfessionalDashboard({
                       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {new Date(booking.start_ts).toLocaleString('nl-NL', {
+                          {new Date(booking.booking_date + 'T' + booking.booking_time).toLocaleString('nl-NL', {
                             dateStyle: 'short',
                             timeStyle: 'short',
                           })}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          {booking.party_size} personen
+                          {booking.number_of_guests} personen
                         </span>
                         {booking.table && (
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
-                            {booking.table.name}
+                            Tafel {booking.table.table_number}
                           </span>
                         )}
-                        {booking.guest_phone && (
+                        {booking.customer_phone && (
                           <span className="flex items-center gap-1">
                             <Phone className="h-3 w-3" />
-                            {booking.guest_phone}
+                            {booking.customer_phone}
                           </span>
                         )}
                       </div>
                       
-                      {booking.special_notes && (
+                      {booking.special_requests && (
                         <p className="text-xs text-muted-foreground mt-2 truncate">
-                          {booking.special_notes}
+                          {booking.special_requests}
                         </p>
                       )}
                     </div>

@@ -18,6 +18,9 @@ export async function POST(request: Request) {
     const session = await verifyApiSession();
     const body = await request.json();
     const validated = subscriptionCreateSchema.parse(body);
+    
+    // Get the origin from the request
+    const origin = request.headers.get('origin') || request.headers.get('referer')?.split('/').slice(0, 3).join('/') || config.app.url;
 
     // Verify user has access to tenant
     const hasAccess = await checkTenantRole(session.userId, validated.tenantId, ['OWNER']);
@@ -75,6 +78,33 @@ export async function POST(request: Request) {
     const priceId = config.stripe.priceIds[validated.plan];
     if (!priceId) {
       throw new Error('Invalid plan selected');
+    }
+
+    // TEST MODE: If using default/placeholder price IDs, activate plan directly (bypass Stripe)
+    const isPlaceholderPrice = 
+      priceId === 'price_starter' || 
+      priceId === 'price_growth' || 
+      priceId === 'price_premium' ||
+      priceId === 'free' ||
+      priceId === 'contact' ||
+      !priceId.startsWith('price_1');
+    
+    if (isPlaceholderPrice) {
+      // Update billing state directly (bypass Stripe)
+      await supabase
+        .from('billing_state')
+        .upsert({
+          tenant_id: validated.tenantId,
+          plan: validated.plan,
+          status: 'ACTIVE',
+          stripe_customer_id: customerId,
+          updated_at: new Date().toISOString(),
+        });
+
+      // Redirect back with success (test mode)
+      return NextResponse.json({ 
+        url: `${body.successUrl}&testmode=true` 
+      });
     }
 
     // Create Checkout session
