@@ -91,7 +91,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
       <div className="relative min-h-screen flex">
         {/* Left side - Branding with Plasma */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1a1a1a]">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1a0c0d]">
           {/* Plasma Background */}
           <div className="absolute inset-0">
             <Plasma 
@@ -99,13 +99,13 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               speed={0.5}
               direction="forward"
               scale={1.2}
-              opacity={0.65}
+              opacity={0.7}
               mouseInteractive={true}
             />
           </div>
           
-          {/* Dark Gradient Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/60"></div>
+          {/* Dark Coral Gradient Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d1517]/80 via-[#1f0d0e]/70 to-[#2a1315]/75"></div>
         
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white animate-slide-up">
