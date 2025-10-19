@@ -91,7 +91,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
       <div className="relative min-h-screen flex">
         {/* Left side - Branding with Plasma */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1a1a1a]">
           {/* Plasma Background */}
           <div className="absolute inset-0">
             <Plasma 
@@ -99,74 +99,63 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               speed={0.5}
               direction="forward"
               scale={1.2}
-              opacity={0.85}
+              opacity={0.65}
               mouseInteractive={true}
             />
           </div>
           
-          {/* Gradient Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A5F]/20 via-transparent to-[#FF5A5F]/10"></div>
+          {/* Dark Gradient Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/60"></div>
         
           {/* Content */}
-          <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-white animate-slide-up">
-            <div className="mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur-md rounded-3xl mb-8 animate-scale-in shadow-2xl">
-                <UtensilsCrossed className="h-10 w-10 text-white" />
+          <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white animate-slide-up">
+            <div className="mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/15 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl">
+                <UtensilsCrossed className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-5xl font-bold mb-6 animate-fade-in delay-100 leading-tight">
+              <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight">
                 Welkom bij<br />Reserve<span className="text-white/90">4</span>You
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed animate-fade-in delay-200 max-w-lg">
-                Het intelligente reserveringssysteem waarmee restaurants hun operatie professionaliseren. 
-                Verhoog efficiency, verbeter gastbeleving en maximaliseer omzet.
+              <p className="text-lg text-white/90 leading-relaxed animate-fade-in delay-200 max-w-md">
+                Het intelligente reserveringssysteem voor professioneel restaurantbeheer.
               </p>
             </div>
             
-            <div className="space-y-6 animate-fade-in delay-300 max-w-lg">
-              <div className="flex items-start group">
-                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
-                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+            <div className="space-y-4 animate-fade-in delay-300 max-w-md">
+              <div className="flex items-center group">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Smart Reserveringssysteem</h3>
-                  <p className="text-white/80 text-sm">Real-time beschikbaarheid met automatische capaciteitsoptimalisatie en intelligente tafeltoewijzing</p>
-                </div>
+                <span className="text-white/90 text-sm font-medium">Real-time beschikbaarheid & tafeltoewijzing</span>
               </div>
-              <div className="flex items-start group">
-                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
-                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+              <div className="flex items-center group">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Multi-Locatie Platform</h3>
-                  <p className="text-white/80 text-sm">Centraliseer beheer over meerdere vestigingen met geavanceerde teamrollen en toegangscontrole</p>
-                </div>
+                <span className="text-white/90 text-sm font-medium">Multi-locatie beheer met teamrollen</span>
               </div>
-              <div className="flex items-start group">
-                <div className="flex-shrink-0 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-all duration-300">
-                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+              <div className="flex items-center group">
+                <div className="flex-shrink-0 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3 group-hover:bg-white/30 transition-all duration-300">
+                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Geïntegreerde Betalingen</h3>
-                  <p className="text-white/80 text-sm">Naadloze integratie met aanbetalingen, no-show bescherming en volledige financiële rapportage</p>
-                </div>
+                <span className="text-white/90 text-sm font-medium">Geïntegreerde betalingen & aanbetalingen</span>
               </div>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="mt-12 pt-8 border-t border-white/20 animate-fade-in delay-500">
-              <p className="text-white/60 text-sm mb-4">Vertrouwd door toonaangevende restaurants</p>
-              <div className="flex items-center space-x-8">
+            {/* Trust Indicators - Compact */}
+            <div className="mt-10 pt-6 border-t border-white/20 animate-fade-in delay-500">
+              <div className="flex items-center space-x-6">
                 <div className="text-white/80">
-                  <span className="text-3xl font-bold text-white">500+</span>
-                  <p className="text-sm">Restaurants</p>
+                  <span className="text-2xl font-bold text-white">500+</span>
+                  <p className="text-xs">Restaurants</p>
                 </div>
                 <div className="text-white/80">
-                  <span className="text-3xl font-bold text-white">50K+</span>
-                  <p className="text-sm">Reserveringen/maand</p>
+                  <span className="text-2xl font-bold text-white">50K+</span>
+                  <p className="text-xs">Reserveringen</p>
                 </div>
                 <div className="text-white/80">
-                  <span className="text-3xl font-bold text-white">4.9</span>
-                  <p className="text-sm">Waardering</p>
+                  <span className="text-2xl font-bold text-white">4.9</span>
+                  <p className="text-xs">Waardering</p>
                 </div>
               </div>
             </div>
@@ -174,10 +163,10 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
         </div>
 
         {/* Right side - Form */}
-        <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 bg-gradient-to-br from-[#F7F7F9] to-white">
+        <div className="flex-1 flex flex-col justify-center px-6 py-8 sm:px-12 lg:px-16 bg-gradient-to-br from-[#F7F7F9] to-white">
           <div className="w-full max-w-md mx-auto animate-slide-up delay-100">
             {/* Back to home link */}
-            <div className="mb-8">
+            <div className="mb-6">
               <Link 
                 href="/" 
                 className="inline-flex items-center text-sm text-gray-600 hover:text-[#FF5A5F] transition-colors group"
@@ -189,28 +178,28 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </div>
 
             {/* Header */}
-            <div className="mb-10 animate-fade-in delay-200">
-              <div className="mb-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#FF5A5F] to-[#FF7A7F] rounded-2xl shadow-xl mb-6">
-                  <UtensilsCrossed className="h-7 w-7 text-white" />
+            <div className="mb-6 animate-fade-in delay-200">
+              <div className="mb-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#FF5A5F] to-[#FF7A7F] rounded-xl shadow-lg mb-4">
+                  <UtensilsCrossed className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-[#111111] mb-2">
+              <h1 className="text-2xl font-bold text-[#111111] mb-2">
                 {mode === 'signin' ? 'Welkom terug' : 'Start vandaag'}
               </h1>
-              <p className="text-[#555555] text-base leading-relaxed">
+              <p className="text-[#555555] text-sm">
                 {mode === 'signin' 
-                  ? 'Log in op je Reserve4You account om verder te gaan' 
-                  : 'Creëer je account en transformeer je reserveringsbeheer'
+                  ? 'Log in op je account' 
+                  : 'Creëer je account'
                 }
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in delay-300">
+            <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in delay-300">
               {/* Email Field */}
               <div>
-                <Label htmlFor="email" className="text-[#111111] font-semibold text-sm mb-2 block">
+                <Label htmlFor="email" className="text-[#111111] font-semibold text-sm mb-1.5 block">
                   E-mailadres
                 </Label>
                 <Input
@@ -219,14 +208,14 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="h-12 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] bg-white shadow-sm hover:shadow-md transition-all duration-200"
+                  className="h-11 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] bg-white shadow-sm hover:shadow-md transition-all duration-200"
                   placeholder="jouw@email.nl"
                 />
               </div>
 
               {/* Password Field */}
               <div>
-                <Label htmlFor="password" className="text-[#111111] font-semibold text-sm mb-2 block">
+                <Label htmlFor="password" className="text-[#111111] font-semibold text-sm mb-1.5 block">
                   Wachtwoord
                 </Label>
                 <div className="relative">
@@ -236,7 +225,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
-                    className="h-12 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] pr-12 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+                    className="h-11 rounded-xl border-[#E7E7EC] focus:border-[#FF5A5F] focus:ring-[#FF5A5F] pr-12 bg-white shadow-sm hover:shadow-md transition-all duration-200"
                     placeholder="••••••••"
                   />
                   <button
@@ -252,22 +241,22 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   </button>
                 </div>
                 {mode === 'signup' && (
-                  <p className="text-xs text-[#555555] mt-2 leading-relaxed">
-                    Minimaal {config.auth.passwordMinLength} karakters met hoofdletters, kleine letters, cijfer en speciaal teken (!@#$%^&*)
+                  <p className="text-xs text-[#555555] mt-1.5">
+                    Min. {config.auth.passwordMinLength} karakters met hoofdletter, cijfer en speciaal teken
                   </p>
                 )}
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="p-4 bg-[#E11D48]/5 border border-[#E11D48]/20 rounded-xl animate-scale-in">
+                <div className="p-3 bg-[#E11D48]/5 border border-[#E11D48]/20 rounded-xl animate-scale-in">
                   <p className="text-[#E11D48] text-sm font-medium">{error}</p>
                 </div>
               )}
 
               {/* Success Message */}
               {success && (
-                <div className="p-4 bg-[#18C964]/5 border border-[#18C964]/20 rounded-xl animate-scale-in">
+                <div className="p-3 bg-[#18C964]/5 border border-[#18C964]/20 rounded-xl animate-scale-in">
                   <p className="text-[#18C964] text-sm font-medium">{success}</p>
                 </div>
               )}
@@ -276,7 +265,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               <Button
                 type="submit"
                 disabled={pending}
-                className="w-full h-13 bg-gradient-to-r from-[#FF5A5F] to-[#FF7A7F] hover:from-[#FF4A4F] hover:to-[#FF6A6F] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-11 bg-gradient-to-r from-[#FF5A5F] to-[#FF7A7F] hover:from-[#FF4A4F] hover:to-[#FF6A6F] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {pending ? (
                   <>
@@ -290,7 +279,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </form>
 
             {/* Divider */}
-            <div className="my-8 animate-fade-in delay-400">
+            <div className="my-5 animate-fade-in delay-400">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-[#E7E7EC]"></div>
@@ -309,7 +298,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               variant="outline"
               onClick={handleGoogleSignIn}
               disabled={googleLoading || pending}
-              className="w-full h-12 mb-6 border-2 border-[#E7E7EC] rounded-xl bg-white hover:bg-[#FAFAFC] text-[#111111] font-semibold transition-all duration-200 hover:border-[#FF5A5F]/30 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed animate-fade-in delay-500"
+              className="w-full h-11 mb-4 border-2 border-[#E7E7EC] rounded-xl bg-white hover:bg-[#FAFAFC] text-[#111111] font-semibold transition-all duration-200 hover:border-[#FF5A5F]/30 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed animate-fade-in delay-500"
             >
               {googleLoading ? (
                 <>
@@ -342,7 +331,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </Button>
 
             {/* Switch mode */}
-            <div className="text-center mt-6 animate-fade-in delay-600">
+            <div className="text-center mt-4 animate-fade-in delay-600">
               <p className="text-sm text-[#555555]">
                 {mode === 'signin' ? "Nog geen account?" : 'Heb je al een account?'}
                 {' '}
@@ -350,19 +339,19 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                   href={mode === 'signin' ? '/sign-up' : '/sign-in'}
                   className="font-semibold text-[#FF5A5F] hover:text-[#FF7A7F] transition-colors duration-200"
                 >
-                  {mode === 'signin' ? 'Maak een account aan' : 'Log hier in'}
+                  {mode === 'signin' ? 'Maak account aan' : 'Log in'}
                 </Link>
               </p>
             </div>
 
             {/* Trust indicator */}
-            <div className="text-center mt-10 animate-fade-in delay-700">
+            <div className="text-center mt-6 animate-fade-in delay-700">
               <div className="inline-flex items-center space-x-2 text-[#A0A0A0]">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <p className="text-xs font-medium">
-                  Beveiligd met 256-bit SSL encryptie
+                <p className="text-xs">
+                  Beveiligd met SSL encryptie
                 </p>
               </div>
             </div>
