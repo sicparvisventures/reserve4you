@@ -93,6 +93,14 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
   const [error, setError] = useState('');
 
   const handleSelectPlan = async () => {
+    const plan = PLANS.find(p => p.id === selectedPlan);
+    
+    // If Enterprise, show contact message
+    if (plan?.isContactUs) {
+      alert('Neem contact met ons op via sales@reserve4you.com voor een Enterprise abonnement.');
+      return;
+    }
+
     // If FREE, skip Stripe and just activate
     if (selectedPlan === 'FREE') {
       updateData('subscription', { plan: 'FREE', status: 'ACTIVE' });
@@ -157,6 +165,7 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
           {PLANS.map((plan) => {
             const isSelected = selectedPlan === plan.id;
             const isPopular = plan.popular;
+            const isEnterprise = plan.isContactUs;
 
             return (
               <Card
@@ -166,7 +175,7 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                     ? 'border-2 border-primary shadow-xl scale-[1.02]'
                     : 'border border-border hover:border-primary/50 hover:shadow-lg'
                 } ${isPopular ? 'ring-2 ring-primary/20' : ''}`}
-                onClick={() => setSelectedPlan(plan.id)}
+                onClick={() => !isEnterprise && setSelectedPlan(plan.id)}
               >
                 {/* Popular Badge */}
                 {isPopular && (
@@ -183,7 +192,7 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                     <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
-                  {isSelected && (
+                  {isSelected && !isEnterprise && (
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <Check className="h-4 w-4 text-white" />
                     </div>
@@ -220,6 +229,18 @@ export function StepAbonnement({ data, updateData, onNext }: StepAbonnementProps
                       </li>
                     ))}
                   </ul>
+                )}
+
+                {/* Enterprise CTA */}
+                {isEnterprise && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <a
+                      href="mailto:sales@reserve4you.com"
+                      className="block w-full py-2.5 text-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/5 rounded-lg"
+                    >
+                      Neem Contact Op
+                    </a>
+                  </div>
                 )}
               </Card>
             );

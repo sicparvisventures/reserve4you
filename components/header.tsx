@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, Search, Heart, User, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
+import { CardNav } from '@/components/card-nav/CardNav';
 
 interface HeaderProps {
   userData: {
@@ -34,18 +35,63 @@ export function Header({ userData, pathname }: HeaderProps) {
     { href: '/favorites', label: 'Favorieten' },
   ];
 
+  // CardNav items with routing to current structure - Reserve4You branding
+  const cardNavItems = [
+    {
+      label: "Verkennen",
+      bgColor: "#FFFFFF",
+      textColor: "#111111",
+      links: [
+        { label: "Home", href: "/", ariaLabel: "Ga naar Home" },
+        { label: "Ontdek Restaurants", href: "/discover", ariaLabel: "Ontdek restaurants" }
+      ]
+    },
+    {
+      label: "Jouw Account", 
+      bgColor: "#FAFAFC",
+      textColor: "#111111",
+      links: userData ? [
+        { label: "Favorieten", href: "/favorites", ariaLabel: "Bekijk je favorieten" },
+        { label: "Profiel", href: "/profile", ariaLabel: "Ga naar je profiel" }
+      ] : [
+        { label: "Aanmelden", href: "/sign-up", ariaLabel: "Meld je aan" },
+        { label: "Inloggen", href: "/sign-in", ariaLabel: "Log in" }
+      ]
+    },
+    {
+      label: "Voor Restaurants",
+      bgColor: "#FF5A5F", 
+      textColor: "#FFFFFF",
+      links: [
+        { label: "Manager Portal", href: "/manager", ariaLabel: "Ga naar Manager Portal" },
+        { label: "Start Gratis", href: "/manager", ariaLabel: "Start gratis" }
+      ]
+    }
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        {/* CardNav for animated menu */}
+        <div className="md:hidden">
+          <CardNav
+            logo={<RotatingLogoMobile />}
+            logoAlt="Reserve4You Logo"
+            items={cardNavItems}
+            baseColor="#FFFFFF"
+            menuColor="#111111"
+            buttonBgColor="#FF5A5F"
+            buttonTextColor="#FFFFFF"
+            ctaHref={userData ? "/profile" : "/sign-up"}
+            ctaLabel={userData ? "Profiel" : "Aanmelden"}
+            ease="power3.out"
+          />
+        </div>
+
+        <div className="hidden md:flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="sm:hidden">
-              <RotatingLogoMobile />
-            </div>
-            <div className="hidden sm:block">
-              <RotatingLogo />
-            </div>
+            <RotatingLogo />
           </div>
 
           {/* Desktop Navigation */}
@@ -110,102 +156,7 @@ export function Header({ userData, pathname }: HeaderProps) {
             )}
           </div>
 
-          {/* Mobile Actions */}
-          <div className="flex md:hidden items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/search">
-                <Search className="h-5 w-5" />
-              </Link>
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
-          </div>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                    pathname === link.href
-                      ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              
-              <div className="h-px bg-border my-2" />
-              
-              {userData ? (
-                <>
-                  <Link
-                    href="/favorites"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-3"
-                  >
-                    <Heart className="h-4 w-4" />
-                    Favorieten
-                  </Link>
-                  <Link
-                    href="/profile"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-3"
-                  >
-                    <User className="h-4 w-4" />
-                    Profiel
-                  </Link>
-                  
-                  <div className="h-px bg-border my-2" />
-                  
-                  <Link
-                    href="/manager"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button className="w-full gradient-bg text-white">Manager Portal</Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/sign-up"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button className="w-full">Aanmelden</Button>
-                  </Link>
-                  
-                  <div className="h-px bg-border my-2" />
-                  
-                  <Link
-                    href="/manager"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="outline" className="w-full border-primary text-primary">
-                      Manager Portal
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );

@@ -1,0 +1,234 @@
+/* CardNav Styles - Reserve4You Branding */
+.card-nav-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 50;
+}
+
+.card-nav {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #E7E7EC;
+}
+
+.card-nav.open {
+  box-shadow: 0 8px 24px rgba(255, 90, 95, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 90, 95, 0.2);
+}
+
+.card-nav-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 20px;
+  gap: 16px;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.hamburger-menu:hover {
+  background-color: rgba(255, 90, 95, 0.08);
+}
+
+.hamburger-menu:active {
+  background-color: rgba(255, 90, 95, 0.15);
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu.open .hamburger-line:first-child {
+  transform: rotate(45deg) translateY(8px);
+}
+
+.hamburger-menu.open .hamburger-line:last-child {
+  transform: rotate(-45deg) translateY(-8px);
+}
+
+/* Logo Container */
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.logo {
+  max-height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* CTA Button - Reserve4You Coral */
+.card-nav-cta-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(255, 90, 95, 0.2);
+}
+
+.card-nav-cta-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 90, 95, 0.3);
+}
+
+.card-nav-cta-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(255, 90, 95, 0.2);
+}
+
+/* Content Area */
+.card-nav-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 0 20px 16px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.card-nav.open .card-nav-content {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Nav Cards */
+.nav-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #E7E7EC;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 90, 95, 0.15);
+  border-color: #FF5A5F;
+}
+
+.nav-card-label {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.nav-card-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-card-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  background-color: rgba(17, 17, 17, 0.03);
+  border: 1px solid transparent;
+}
+
+.nav-card-link:hover {
+  background-color: rgba(255, 90, 95, 0.08);
+  border-color: #FF5A5F;
+  transform: translateX(4px);
+}
+
+/* Special styling for coral/primary card links */
+.nav-card[style*="background-color: rgb(255, 90, 95)"] .nav-card-link,
+.nav-card[style*="background-color:#FF5A5F"] .nav-card-link {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-card[style*="background-color: rgb(255, 90, 95)"] .nav-card-link:hover,
+.nav-card[style*="background-color:#FF5A5F"] .nav-card-link:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-card-link-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Desktop Styles */
+@media (min-width: 768px) {
+  .card-nav-content {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 20px 20px;
+  }
+
+  .card-nav-top {
+    padding: 0 24px;
+  }
+
+  .nav-card {
+    padding: 24px;
+  }
+
+  .card-nav-cta-button {
+    padding: 10px 24px;
+    font-size: 15px;
+  }
+}
+
+/* Sticky Header Support */
+.sticky-card-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Animation Support */
+.card-nav * {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-nav * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

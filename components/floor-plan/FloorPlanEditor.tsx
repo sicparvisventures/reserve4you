@@ -66,15 +66,10 @@ export function FloorPlanEditor({ locationId, locationName }: FloorPlanEditorPro
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // New table form
-  const [newTable, setNewTable] = useState<{
-    table_number: string;
-    seats: number;
-    shape: 'circle' | 'square' | 'rectangle';
-    description: string;
-  }>({
+  const [newTable, setNewTable] = useState({
     table_number: '',
     seats: 2,
-    shape: 'circle',
+    shape: 'circle' as const,
     description: '',
   });
 

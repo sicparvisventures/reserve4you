@@ -24,6 +24,9 @@ import {
   Check,
   Zap,
   ArrowUpCircle,
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
@@ -45,20 +48,35 @@ interface ProfileClientProps {
   tenants: any[];
 }
 
+const NAVIGATION = [
+  { id: 'info', label: 'Mijn gegevens', icon: Settings, description: 'Persoonlijke informatie' },
+  { id: 'bookings', label: 'Reserveringen', icon: Calendar, description: 'Je boekingen' },
+  { id: 'favorites', label: 'Favorieten', icon: Heart, description: 'Opgeslagen restaurants' },
+];
+
 export function ProfileClient({ user, consumer, bookings, favorites, tenants }: ProfileClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'bookings' | 'favorites' | 'subscription'>('info');
+  const [activeSection, setActiveSection] = useState<'info' | 'bookings' | 'favorites' | 'subscription'>('info');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
     name: consumer?.name || '',
     phone: consumer?.phone || '',
   });
   const [upgradingTenant, setUpgradingTenant] = useState<string | null>(null);
   const [upgradeSuccess, setUpgradeSuccess] = useState<{ plan: string; testMode: boolean } | null>(null);
+
+  // Add subscription to navigation if user has tenants
+  const navigation = tenants.length > 0
+    ? [...NAVIGATION, { id: 'subscription', label: 'Abonnementen', icon: CreditCard, description: 'Beheer je plannen' }]
+    : NAVIGATION;
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 5000);
+  };
 
   // Check for upgrade success in URL
   useEffect(() => {
@@ -68,7 +86,7 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
     
     if (upgraded === 'true' && plan) {
       setUpgradeSuccess({ plan, testMode: testmode === 'true' });
-      setActiveTab('subscription');
+      setActiveSection('subscription');
       
       // Refresh data to show new plan
       router.refresh();
@@ -95,8 +113,6 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
-    setSaveError('');
-    setSaveSuccess(false);
 
     try {
       const response = await fetch('/api/profile/update', {
@@ -113,13 +129,12 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
         throw new Error(data.error || 'Failed to update profile');
       }
 
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      showMessage('success', 'Wijzigingen succesvol opgeslagen!');
       
       // Refresh the page to show updated data
       router.refresh();
     } catch (error: any) {
-      setSaveError(error.message);
+      showMessage('error', error.message || 'Fout bij opslaan');
     } finally {
       setIsSaving(false);
     }
@@ -131,86 +146,59 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="flex items-start justify-between">
+      <div className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                <User className="h-10 w-10 text-white" />
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/')}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Home</span>
+              </Button>
+              <div className="h-8 w-px bg-border" />
               <div>
-                <h1 className="text-3xl font-bold text-foreground mb-1">
-                  {consumer?.name || user?.email?.split('@')[0] || 'Gast'}
-                </h1>
-                <p className="text-muted-foreground">{user?.email}</p>
+                <h1 className="text-2xl font-bold text-foreground">Mijn Profiel</h1>
+                <p className="text-sm text-muted-foreground hidden sm:block">{user?.email}</p>
               </div>
             </div>
             <Button
               variant="outline"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="rounded-xl"
+              className="gap-2"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              {isLoggingOut ? 'Uitloggen...' : 'Uitloggen'}
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">{isLoggingOut ? 'Uitloggen...' : 'Uitloggen'}</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b bg-card">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex gap-1">
-            <button
-              onClick={() => setActiveTab('info')}
-              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'info'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Settings className="h-4 w-4 inline mr-2" />
-              Mijn gegevens
-            </button>
-            <button
-              onClick={() => setActiveTab('bookings')}
-              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'bookings'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Calendar className="h-4 w-4 inline mr-2" />
-              Reserveringen ({bookings.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'favorites'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Heart className="h-4 w-4 inline mr-2" />
-              Favorieten ({favorites.length})
-            </button>
-            {tenants.length > 0 && (
-              <button
-                onClick={() => setActiveTab('subscription')}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                  activeTab === 'subscription'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <CreditCard className="h-4 w-4 inline mr-2" />
-                Abonnementen ({tenants.length})
-              </button>
-            )}
+      {/* Message Banner */}
+      {message && (
+        <div className="sticky top-[73px] z-10">
+          <div className={`px-4 sm:px-6 lg:px-8 py-3 ${
+            message.type === 'success' 
+              ? 'bg-green-50 border-b border-green-200' 
+              : 'bg-red-50 border-b border-red-200'
+          }`}>
+            <div className="max-w-[1800px] mx-auto flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              )}
+              <span className={message.type === 'success' ? 'text-green-800' : 'text-red-800'}>
+                {message.text}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Upgrade Success Modal */}
       <Dialog open={!!upgradeSuccess} onOpenChange={(open) => !open && setUpgradeSuccess(null)}>
@@ -268,130 +256,185 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
         </DialogContent>
       </Dialog>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Main Content */}
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex gap-8">
+          {/* Sidebar Navigation */}
+          <aside className="w-64 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-32 space-y-1">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id as any)}
+                    className={`w-full flex items-start gap-3 px-4 py-3 rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isActive ? 'text-primary-foreground' : ''}`} />
+                    <div className="text-left flex-1">
+                      <div className={`font-medium text-sm ${isActive ? 'text-primary-foreground' : ''}`}>
+                        {item.label}
+                      </div>
+                      <div className={`text-xs mt-0.5 ${
+                        isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                      }`}>
+                        {item.description}
+                      </div>
+                    </div>
+                    {isActive && <ChevronRight className="h-4 w-4" />}
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
 
-        {/* Personal Info Tab */}
-        {activeTab === 'info' && (
-          <div className="space-y-6">
-            {/* Success Message */}
-            {saveSuccess && (
-              <div className="p-4 bg-success/10 border border-success/20 rounded-xl">
-                <p className="text-success font-medium">Wijzigingen succesvol opgeslagen!</p>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {saveError && (
-              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-                <p className="text-destructive font-medium">{saveError}</p>
-              </div>
-            )}
-
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-6">Persoonlijke informatie</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name" className="text-base font-medium">
-                    Naam
-                  </Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Je volledige naam"
-                    className="mt-2 h-12 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-base font-medium">
-                    E-mailadres
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    defaultValue={user?.email || ''}
-                    disabled
-                    className="mt-2 h-12 rounded-xl bg-muted"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Je e-mailadres kan niet worden gewijzigd
-                  </p>
-                </div>
-                <div>
-                  <Label htmlFor="phone" className="text-base font-medium">
-                    Telefoonnummer
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+31 6 12345678"
-                    className="mt-2 h-12 rounded-xl"
-                  />
-                </div>
-                <Button 
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="w-full h-12 gradient-bg text-white rounded-xl font-semibold"
-                >
-                  {isSaving ? 'Opslaan...' : 'Wijzigingen opslaan'}
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Voorkeuren</h2>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-3 border-b">
-                  <div>
-                    <p className="font-medium">E-mail notificaties</p>
-                    <p className="text-sm text-muted-foreground">Ontvang updates over je reserveringen</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
-                </div>
-                <div className="flex items-center justify-between py-3 border-b">
-                  <div>
-                    <p className="font-medium">SMS notificaties</p>
-                    <p className="text-sm text-muted-foreground">Ontvang SMS herinneringen</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium">Marketing communicatie</p>
-                    <p className="text-sm text-muted-foreground">Ontvang aanbiedingen en nieuws</p>
-                  </div>
-                  <input type="checkbox" className="w-5 h-5 rounded" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Restaurant manager?</h2>
-              <p className="text-muted-foreground mb-4">
-                Beheer je eigen restaurant met R4Y's krachtige reserveringssysteem
-              </p>
-              <Button variant="outline" asChild className="w-full h-12 rounded-xl">
-                <Link href="/manager">
-                  <Building2 className="h-4 w-4 mr-2" />
-                  Ga naar Manager Portal
-                </Link>
-              </Button>
-            </Card>
+          {/* Mobile Navigation */}
+          <div className="lg:hidden w-full mb-6">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id as any)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        )}
 
-        {/* Bookings Tab */}
-        {activeTab === 'bookings' && (
-          <div className="space-y-6">
-            {/* Upcoming Bookings */}
-            {upcomingBookings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Aankomende reserveringen</h2>
-                <div className="space-y-3">
+          {/* Content Area */}
+          <main className="flex-1 min-w-0">
+            {/* Personal Info Section */}
+            {activeSection === 'info' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Persoonlijke Informatie</h2>
+                  <p className="text-sm text-muted-foreground">Beheer je account gegevens</p>
+                </div>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Account Gegevens</h3>
+                  <div className="space-y-5">
+                    <div>
+                      <Label htmlFor="name">Naam</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Je volledige naam"
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">E-mailadres</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        defaultValue={user?.email || ''}
+                        disabled
+                        className="mt-1.5 bg-muted"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Je e-mailadres kan niet worden gewijzigd
+                      </p>
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Telefoonnummer</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="+32 9 123 45 67"
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div className="pt-4 border-t flex justify-end">
+                      <Button onClick={handleSaveProfile} disabled={isSaving}>
+                        {isSaving ? 'Opslaan...' : 'Wijzigingen Opslaan'}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Voorkeuren</h3>
+                  <div className="space-y-4">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <input type="checkbox" defaultChecked className="w-5 h-5 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium">E-mail notificaties</p>
+                        <p className="text-sm text-muted-foreground">
+                          Ontvang updates over je reserveringen
+                        </p>
+                      </div>
+                    </label>
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <input type="checkbox" defaultChecked className="w-5 h-5 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium">SMS notificaties</p>
+                        <p className="text-sm text-muted-foreground">
+                          Ontvang SMS herinneringen
+                        </p>
+                      </div>
+                    </label>
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <input type="checkbox" className="w-5 h-5 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium">Marketing communicatie</p>
+                        <p className="text-sm text-muted-foreground">
+                          Ontvang aanbiedingen en nieuws
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-2">Restaurant manager?</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Beheer je eigen restaurant met R4Y's krachtige reserveringssysteem
+                  </p>
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href="/manager">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      Ga naar Manager Portal
+                    </Link>
+                  </Button>
+                </Card>
+              </div>
+            )}
+
+            {/* Bookings Section */}
+            {activeSection === 'bookings' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Reserveringen</h2>
+                  <p className="text-sm text-muted-foreground">Bekijk en beheer je boekingen</p>
+                </div>
+
+                {/* Upcoming Bookings */}
+                {upcomingBookings.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Aankomende reserveringen</h3>
+                    <div className="space-y-3">
                   {upcomingBookings.map((booking) => (
                     <Card key={booking.id} className="p-4 hover:border-primary transition-colors">
                       <div className="flex items-start justify-between">
@@ -430,16 +473,16 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                         </Button>
                       </div>
                     </Card>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Past Bookings */}
-            {pastBookings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Eerdere reserveringen</h2>
-                <div className="space-y-3">
+                {/* Past Bookings */}
+                {pastBookings.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Eerdere reserveringen</h3>
+                    <div className="space-y-3">
                   {pastBookings.map((booking) => (
                     <Card key={booking.id} className="p-4 opacity-75">
                       <div className="flex items-start justify-between">
@@ -454,33 +497,39 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                         <Badge variant="outline">{booking.status}</Badge>
                       </div>
                     </Card>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+              )}
+
+                {bookings.length === 0 && (
+                  <Card className="p-12 text-center">
+                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Nog geen reserveringen</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Begin met het verkennen van restaurants en maak je eerste reservering
+                    </p>
+                    <Button asChild>
+                      <Link href="/discover">
+                        Ontdek restaurants
+                      </Link>
+                    </Button>
+                  </Card>
+                )}
               </div>
             )}
 
-            {bookings.length === 0 && (
-              <Card className="p-12 text-center">
-                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nog geen reserveringen</h3>
-                <p className="text-muted-foreground mb-6">
-                  Begin met het verkennen van restaurants en maak je eerste reservering
-                </p>
-                <Button asChild className="rounded-xl">
-                  <Link href="/discover">
-                    Ontdek restaurants
-                  </Link>
-                </Button>
-              </Card>
-            )}
-          </div>
-        )}
+            {/* Favorites Section */}
+            {activeSection === 'favorites' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Favorieten</h2>
+                  <p className="text-sm text-muted-foreground">Je opgeslagen restaurants</p>
+                </div>
 
-        {/* Favorites Tab */}
-        {activeTab === 'favorites' && (
-          <div className="space-y-4">
-            {favorites.length > 0 ? (
-              favorites.map((favorite) => (
+                {favorites.length > 0 ? (
+                  <div className="space-y-3">
+                    {favorites.map((favorite) => (
                 <Card key={favorite.id} className="p-4 hover:border-primary transition-colors">
                   <div className="flex items-start justify-between">
                     <div>
@@ -503,30 +552,39 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                         </Link>
                       </Button>
                     </div>
+                    </div>
+                  </Card>
+                ))}
                   </div>
-                </Card>
-              ))
-            ) : (
-              <Card className="p-12 text-center">
-                <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nog geen favorieten</h3>
-                <p className="text-muted-foreground mb-6">
-                  Voeg restaurants toe aan je favorieten om ze snel terug te vinden
-                </p>
-                <Button asChild className="rounded-xl">
-                  <Link href="/discover">
-                    Ontdek restaurants
-                  </Link>
-                </Button>
-              </Card>
+                ) : (
+                  <Card className="p-12 text-center">
+                    <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Nog geen favorieten</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Voeg restaurants toe aan je favorieten om ze snel terug te vinden
+                    </p>
+                    <Button asChild>
+                      <Link href="/discover">
+                        Ontdek restaurants
+                      </Link>
+                    </Button>
+                  </Card>
+                )}
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Subscription Tab */}
-        {activeTab === 'subscription' && (
-          <SubscriptionSection tenants={tenants} />
-        )}
+            {/* Subscription Section */}
+            {activeSection === 'subscription' && tenants.length > 0 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Abonnementen</h2>
+                  <p className="text-sm text-muted-foreground">Beheer je abonnementen</p>
+                </div>
+                <SubscriptionSection tenants={tenants} />
+              </div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
