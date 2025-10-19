@@ -123,7 +123,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 <br />
                 <span className="text-[#111111] drop-shadow-lg">Reserve</span>
                 <span className="inline-flex items-center rounded-lg bg-white/20 backdrop-blur-sm px-2 py-1 ml-1 border border-white/30">
-                  <span className="text-primary drop-shadow-lg">4You</span>
+                  <span className="text-white drop-shadow-lg">4You</span>
                 </span>
               </h1>
               <p className="text-lg text-white leading-relaxed animate-fade-in delay-200 max-w-md drop-shadow-md">
