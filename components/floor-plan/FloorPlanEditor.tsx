@@ -34,13 +34,15 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
+type TableShape = 'circle' | 'square' | 'rectangle';
+
 interface Table {
   id: string;
   table_number: string;
   seats: number;
   position_x: number;
   position_y: number;
-  shape: 'circle' | 'square' | 'rectangle';
+  shape: TableShape;
   rotation: number;
   is_active: boolean;
   description?: string;
@@ -66,10 +68,15 @@ export function FloorPlanEditor({ locationId, locationName }: FloorPlanEditorPro
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // New table form
-  const [newTable, setNewTable] = useState({
+  const [newTable, setNewTable] = useState<{
+    table_number: string;
+    seats: number;
+    shape: TableShape;
+    description: string;
+  }>({
     table_number: '',
     seats: 2,
-    shape: 'circle' as const,
+    shape: 'circle',
     description: '',
   });
 
