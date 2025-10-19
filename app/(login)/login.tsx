@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth/auth-provider';
 import { config } from '@/lib/config';
 import dynamic from 'next/dynamic';
 
-const Plasma = dynamic(() => import('@/components/plasma/Plasma'), { ssr: false });
+const Particles = dynamic(() => import('@/components/particles/Particles'), { ssr: false });
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
@@ -90,22 +90,27 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
       </div>
 
       <div className="relative min-h-screen flex">
-        {/* Left side - Branding with Plasma */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1a0c0d]">
-          {/* Plasma Background */}
+        {/* Left side - Branding with Particles */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#1a0c0d] via-[#2d1517] to-[#1f0d0e]">
+          {/* Particles Background */}
           <div className="absolute inset-0">
-            <Plasma 
-              color="#FF5A5F"
-              speed={0.5}
-              direction="forward"
-              scale={1.2}
-              opacity={0.7}
-              mouseInteractive={true}
+            <Particles 
+              particleColors={['#FF5A5F', '#FF7A7F', '#FF9095', '#FFA5AA']}
+              particleCount={150}
+              particleSpread={12}
+              speed={0.08}
+              particleBaseSize={80}
+              moveParticlesOnHover={true}
+              particleHoverFactor={0.5}
+              alphaParticles={true}
+              disableRotation={false}
+              sizeRandomness={1.2}
+              cameraDistance={18}
             />
           </div>
           
-          {/* Dark Coral Gradient Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d1517]/80 via-[#1f0d0e]/70 to-[#2a1315]/75"></div>
+          {/* Subtle Dark Coral Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a0c0d]/40 via-transparent to-[#2d1517]/30"></div>
         
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white animate-slide-up">
