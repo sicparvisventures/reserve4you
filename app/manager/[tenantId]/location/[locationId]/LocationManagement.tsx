@@ -152,7 +152,7 @@ export function LocationManagement({
       
       // Update selected booking if it's the one being updated
       if (selectedBooking?.id === bookingId) {
-        setSelectedBooking(prev => ({ ...prev, status: newStatus }));
+        setSelectedBooking((prev: any) => ({ ...prev, status: newStatus }));
       }
     } catch (err) {
       console.error('Error updating booking:', err);
