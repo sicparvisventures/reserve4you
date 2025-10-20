@@ -287,9 +287,9 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
 
       {/* Main Content */}
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
-          <aside className="w-64 flex-shrink-0 hidden lg:block">
+          <aside className="w-full lg:w-64 flex-shrink-0 hidden lg:block">
             <div className="sticky top-32 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -347,7 +347,7 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
           </div>
 
           {/* Content Area */}
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 w-full lg:min-w-0">
             {/* Personal Info Section */}
             {activeSection === 'info' && (
               <div className="space-y-6">
