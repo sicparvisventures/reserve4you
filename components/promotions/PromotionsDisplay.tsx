@@ -147,7 +147,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                       {/* Expiring Soon Badge */}
                       {isExpiringSoon && (
                         <div className="absolute top-3 left-3">
-                          <Badge variant="destructive" className="gap-1">
+                          <Badge variant="warning" className="gap-1">
                             <Clock className="h-3 w-3" />
                             Eindigt Binnenkort
                           </Badge>

@@ -667,7 +667,7 @@ export function PromotionsManager({ locationId, locationName }: PromotionsManage
                             <Badge variant="secondary">Inactief</Badge>
                           )}
                           {isExpired && (
-                            <Badge variant="destructive">Verlopen</Badge>
+                            <Badge variant="error">Verlopen</Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
