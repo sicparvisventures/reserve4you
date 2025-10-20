@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
-import { verifySession, getTenantMembership } from '@/lib/auth/dal';
+import { verifySession } from '@/lib/auth/dal';
+import { checkTenantRole } from '@/lib/auth/tenant-dal';
 import { createClient } from '@/lib/supabase/server';
 import { NotificationSettings } from '@/components/manager/NotificationSettings';
 import { ArrowLeft } from 'lucide-react';
@@ -7,21 +8,22 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 interface NotificationSettingsPageProps {
-  params: {
+  params: Promise<{
     tenantId: string;
-  };
+  }>;
 }
 
 export default async function NotificationSettingsPage({ params }: NotificationSettingsPageProps) {
   const session = await verifySession();
+  const { tenantId } = await params;
   
   if (!session) {
     redirect('/login');
   }
 
-  const membership = await getTenantMembership(params.tenantId);
+  const hasAccess = await checkTenantRole(session.userId, tenantId, ['OWNER', 'MANAGER']);
 
-  if (!membership) {
+  if (!hasAccess) {
     redirect('/manager');
   }
 
@@ -30,7 +32,7 @@ export default async function NotificationSettingsPage({ params }: NotificationS
   const { data: tenant } = await supabase
     .from('tenants')
     .select('*')
-    .eq('id', params.tenantId)
+    .eq('id', tenantId)
     .single();
 
   if (!tenant) {
@@ -41,7 +43,7 @@ export default async function NotificationSettingsPage({ params }: NotificationS
   const { data: settings } = await supabase
     .from('notification_settings')
     .select('*')
-    .eq('tenant_id', params.tenantId)
+    .eq('tenant_id', tenantId)
     .is('location_id', null)
     .single();
 
@@ -57,7 +59,7 @@ export default async function NotificationSettingsPage({ params }: NotificationS
               asChild
               className="gap-2"
             >
-              <Link href={`/manager/${params.tenantId}/dashboard`}>
+              <Link href={`/manager/${tenantId}/dashboard`}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Terug naar Dashboard</span>
               </Link>
@@ -74,7 +76,7 @@ export default async function NotificationSettingsPage({ params }: NotificationS
       {/* Main Content */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <NotificationSettings
-          tenantId={params.tenantId}
+          tenantId={tenantId}
           initialSettings={settings}
         />
       </div>

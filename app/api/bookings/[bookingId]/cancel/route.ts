@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
     const supabase = await createClient();
@@ -18,7 +18,7 @@ export async function POST(
       );
     }
 
-    const bookingId = params.bookingId;
+    const { bookingId } = await params;
 
     // Fetch the booking to verify ownership
     const { data: booking, error: fetchError } = await supabase
