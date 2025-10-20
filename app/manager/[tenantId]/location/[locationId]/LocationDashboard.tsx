@@ -104,12 +104,22 @@ export function LocationDashboard({
               </Button>
               <div className="h-8 w-px bg-border" />
               <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md"
-                  style={{ backgroundColor: tenant.brand_color || '#FF5A5F' }}
-                >
-                  {location.name.charAt(0).toUpperCase()}
-                </div>
+                {tenant.logo_url ? (
+                  <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-white flex items-center justify-center border border-border">
+                    <img 
+                      src={tenant.logo_url} 
+                      alt={tenant.name}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
+                ) : (
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md"
+                    style={{ backgroundColor: tenant.brand_color || '#FF5A5F' }}
+                  >
+                    {location.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h1 className="text-lg font-bold text-foreground">{location.name}</h1>
                   <p className="text-xs text-muted-foreground">

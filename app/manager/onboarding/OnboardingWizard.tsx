@@ -121,11 +121,8 @@ export function OnboardingWizard() {
     setIsSaving(true);
     // Data is already saved to localStorage
     setTimeout(() => {
-      if (data.tenantId) {
-        router.push(`/manager/${data.tenantId}/dashboard`);
-      } else {
-        router.push('/manager');
-      }
+      // Always go to homepage when saving and exiting
+      router.push('/');
     }, 500);
   };
 

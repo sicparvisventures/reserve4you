@@ -56,6 +56,61 @@ export async function uploadLocationImage(
 }
 
 /**
+ * Upload a tenant logo to Supabase Storage
+ */
+export async function uploadTenantLogo(
+  file: File,
+  tenantId: string
+): Promise<{ url: string; publicId: string } | { error: string }> {
+  try {
+    const supabase = createClient();
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      return { error: 'Ongeldig bestandstype. Upload een JPEG, PNG, WebP of GIF afbeelding.' };
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return { error: 'Bestand te groot. Maximum grootte is 5MB.' };
+    }
+
+    // Generate unique filename
+    const fileExt = file.name.split('.').pop();
+    const fileName = `logo-${Date.now()}.${fileExt}`;
+    const filePath = `${tenantId}/${fileName}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('tenant-logos')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Upload error:', error);
+      return { error: error.message || 'Fout bij uploaden logo' };
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('tenant-logos')
+      .getPublicUrl(filePath);
+
+    return {
+      url: urlData.publicUrl,
+      publicId: filePath,
+    };
+  } catch (error: any) {
+    console.error('Logo upload error:', error);
+    return { error: error.message || 'Fout bij uploaden logo' };
+  }
+}
+
+/**
  * Delete an image from Supabase Storage
  */
 export async function deleteLocationImage(publicId: string): Promise<{ success: boolean; error?: string }> {
@@ -64,6 +119,27 @@ export async function deleteLocationImage(publicId: string): Promise<{ success: 
 
     const { error } = await supabase.storage
       .from('location-images')
+      .remove([publicId]);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Delete a tenant logo from Supabase Storage
+ */
+export async function deleteTenantLogo(publicId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createClient();
+
+    const { error } = await supabase.storage
+      .from('tenant-logos')
       .remove([publicId]);
 
     if (error) {

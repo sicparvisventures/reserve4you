@@ -222,12 +222,22 @@ export function ProfessionalDashboard({
           <div className="flex items-center justify-between h-16">
             {/* Left: Tenant Info */}
             <div className="flex items-center gap-4">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md"
-                style={{ backgroundColor: tenant.brand_color || '#FF5A5F' }}
-              >
-                {tenant.name.charAt(0).toUpperCase()}
-              </div>
+              {tenant.logo_url ? (
+                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-white flex items-center justify-center border border-border">
+                  <img 
+                    src={tenant.logo_url} 
+                    alt={tenant.name}
+                    className="w-full h-full object-contain p-1"
+                  />
+                </div>
+              ) : (
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md"
+                  style={{ backgroundColor: tenant.brand_color || '#FF5A5F' }}
+                >
+                  {tenant.name.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div>
                 <h1 className="text-lg font-bold text-foreground">{tenant.name}</h1>
                 <p className="text-xs text-muted-foreground">

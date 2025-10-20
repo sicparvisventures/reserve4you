@@ -26,12 +26,14 @@ import {
   Tag,
   Save,
   Building2,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { FloorPlanEditor } from '@/components/floor-plan/FloorPlanEditor';
 import { PromotionsManager } from '@/components/manager/PromotionsManager';
 import { LocationImageUpload } from '@/components/manager/LocationImageUpload';
+import { GuestMessagingPanel } from '@/components/manager/GuestMessagingPanel';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -238,7 +240,10 @@ export function LocationManagement({
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  {location.city || 'Geen stad ingesteld'}
+                  {location.address_json?.street && location.address_json?.number 
+                    ? `${location.address_json.street} ${location.address_json.number}${location.address_json?.city ? `, ${location.address_json.city}` : ''}`
+                    : location.city || 'Geen adres ingesteld'
+                  }
                 </p>
               </div>
             </div>
@@ -295,24 +300,33 @@ export function LocationManagement({
 
         {/* Main Content with Tabs */}
         <Tabs defaultValue="floorplan" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
-            <TabsTrigger value="floorplan" className="gap-2">
-              <Grid3x3 className="h-4 w-4" />
-              Plattegrond
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="gap-2">
-              <ListOrdered className="h-4 w-4" />
-              Reserveringen
-            </TabsTrigger>
-            <TabsTrigger value="promotions" className="gap-2">
-              <Tag className="h-4 w-4" />
-              Promoties
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Instellingen
-            </TabsTrigger>
-          </TabsList>
+          <div className="w-full overflow-x-auto pb-2">
+            <TabsList className="inline-flex h-auto w-auto">
+              <TabsTrigger value="floorplan" className="gap-1.5 px-4 whitespace-nowrap">
+                <Grid3x3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Plattegrond</span>
+                <span className="sm:hidden">Plan</span>
+              </TabsTrigger>
+              <TabsTrigger value="bookings" className="gap-1.5 px-4 whitespace-nowrap">
+                <ListOrdered className="h-4 w-4" />
+                <span className="hidden sm:inline">Reserveringen</span>
+                <span className="sm:hidden">Boekingen</span>
+              </TabsTrigger>
+              <TabsTrigger value="messaging" className="gap-1.5 px-4 whitespace-nowrap">
+                <MessageSquare className="h-4 w-4" />
+                Berichten
+              </TabsTrigger>
+              <TabsTrigger value="promotions" className="gap-1.5 px-4 whitespace-nowrap">
+                <Tag className="h-4 w-4" />
+                Promoties
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="gap-1.5 px-4 whitespace-nowrap">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Instellingen</span>
+                <span className="sm:hidden">Settings</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Floor Plan Tab */}
           <TabsContent value="floorplan" className="space-y-4">
@@ -504,6 +518,15 @@ export function LocationManagement({
           </TabsContent>
 
           {/* Promotions Tab */}
+          {/* Messaging Tab */}
+          <TabsContent value="messaging" className="space-y-4">
+            <GuestMessagingPanel
+              locationId={location.id}
+              locationName={location.name}
+              tenantId={tenant.id}
+            />
+          </TabsContent>
+
           <TabsContent value="promotions" className="space-y-4">
             <PromotionsManager 
               locationId={location.id}

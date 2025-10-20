@@ -31,7 +31,7 @@ import {
   ChevronRight,
   UtensilsCrossed
 } from 'lucide-react';
-import { uploadLocationImage, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
+import { uploadLocationImage, uploadTenantLogo, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
 import { MenuManager } from '@/components/manager/MenuManager';
 
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
@@ -108,6 +108,22 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
   const [imagePreview, setImagePreview] = useState<string | null>(selectedLocation?.image_url || null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Logo upload state
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(tenant?.logo_url || null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Update tenant data when tenant prop changes (fixes refresh issue)
+  useEffect(() => {
+    setTenantData({
+      name: tenant.name || '',
+      brand_color: tenant.brand_color || '#FF5A5F',
+      logo_url: tenant.logo_url || '',
+    });
+    setLogoPreview(tenant.logo_url || null);
+  }, [tenant]);
 
   // Update location data when selected location changes
   useEffect(() => {
@@ -155,24 +171,81 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
     }
   };
 
+  const handleLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Voor logo's willen we een vierkant formaat (minder strict)
+      const validation = await validateImageDimensions(file, 200, 200);
+      if (!validation.valid) {
+        showMessage('error', validation.error || 'Ongeldige afbeelding afmetingen');
+        return;
+      }
+
+      const compressed = await compressImage(file, 800, 800);
+      setLogoFile(compressed);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(compressed);
+    } catch (error) {
+      console.error('Error processing logo:', error);
+      showMessage('error', 'Fout bij verwerken logo');
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
   const saveTenant = async () => {
     setSaving(true);
     try {
+      let logoUrl = tenantData.logo_url;
+
+      // Upload logo als er een nieuw bestand is geselecteerd
+      if (logoFile) {
+        setUploadingLogo(true);
+        const uploadResult = await uploadTenantLogo(logoFile, tenantId);
+        
+        if ('error' in uploadResult) {
+          showMessage('error', uploadResult.error);
+          setUploadingLogo(false);
+          setSaving(false);
+          return;
+        }
+
+        logoUrl = uploadResult.url;
+        setUploadingLogo(false);
+      }
+
       const response = await fetch(`/api/manager/tenants/${tenantId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tenantData),
+        body: JSON.stringify({
+          ...tenantData,
+          logo_url: logoUrl,
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to save tenant');
 
       showMessage('success', 'Bedrijfsinformatie opgeslagen!');
+      setLogoFile(null);
       router.refresh();
     } catch (error) {
       console.error('Error saving tenant:', error);
       showMessage('error', 'Fout bij opslaan bedrijfsinformatie');
     } finally {
       setSaving(false);
+      setUploadingLogo(false);
     }
   };
 
@@ -350,7 +423,69 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                   <p className="text-sm text-muted-foreground">Algemene instellingen voor je organisatie</p>
                 </div>
 
+                {/* Logo Upload */}
                 <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <Camera className="h-5 w-5" />
+                    Bedrijfslogo
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Dit logo wordt getoond in de dashboard sidebar en op je reserveringspagina's
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {logoPreview ? (
+                      <div className="relative inline-block">
+                        <div className="w-48 h-48 rounded-lg border-2 border-border overflow-hidden bg-muted flex items-center justify-center">
+                          <img
+                            src={logoPreview}
+                            alt="Logo preview"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveLogo}
+                          className="absolute -top-2 -right-2 p-2 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors shadow-lg"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => logoInputRef.current?.click()}
+                        className="border-2 border-dashed border-border rounded-lg p-12 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all w-64"
+                      >
+                        <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                        <p className="text-sm font-medium mb-1">Klik om logo te uploaden</p>
+                        <p className="text-xs text-muted-foreground">
+                          Vierkant • Min 200x200px • Max 5MB
+                        </p>
+                      </div>
+                    )}
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleLogoSelect}
+                      className="hidden"
+                    />
+                    {logoPreview && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => logoInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Ander logo kiezen
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Basic Info */}
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Algemene Informatie</h3>
                   <div className="space-y-6">
                     <div>
                       <Label htmlFor="tenant-name">Bedrijfsnaam</Label>
@@ -386,15 +521,16 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                         Deze kleur wordt gebruikt in je reserveringspagina's en branding
                       </p>
                     </div>
-
-                    <div className="pt-4 border-t flex justify-end">
-                      <Button onClick={saveTenant} disabled={saving}>
-                        <Save className="h-4 w-4 mr-2" />
-                        {saving ? 'Opslaan...' : 'Wijzigingen Opslaan'}
-                      </Button>
-                    </div>
                   </div>
                 </Card>
+
+                {/* Save Button */}
+                <div className="flex justify-end">
+                  <Button onClick={saveTenant} disabled={saving || uploadingLogo} size="lg">
+                    <Save className="h-4 w-4 mr-2" />
+                    {uploadingLogo ? 'Logo uploaden...' : saving ? 'Opslaan...' : 'Wijzigingen Opslaan'}
+                  </Button>
+                </div>
               </div>
             )}
 
