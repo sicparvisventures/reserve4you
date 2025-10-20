@@ -11,48 +11,52 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
-// Dynamic import of GridDistortion to avoid SSR issues with Three.js
-const GridDistortion = dynamic(() => import('./GridDistortion'), {
+// Dynamic import of LightRays to avoid SSR issues with WebGL
+const LightRays = dynamic(() => import('./LightRays'), {
   ssr: false,
-  loading: () => <div className="w-full h-full bg-gradient-to-br from-primary/10 via-primary/5 to-background" />
+  loading: () => <div className="w-full h-full bg-gradient-to-br from-primary/10 via-primary/5 to-background" />,
 });
 
 export function HeroSection() {
   return (
-    <div className="relative overflow-hidden border-b border-border">
-      {/* Grid Distortion Background */}
-      <div className="absolute inset-0 w-full h-full opacity-30">
-        <Suspense fallback={<div className="w-full h-full bg-gradient-to-br from-primary/10 via-primary/5 to-background" />}>
-          <GridDistortion
-            imageSrc="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=80"
-            grid={12}
-            mouse={0.12}
-            strength={0.18}
-            relaxation={0.9}
-            className="hero-distortion"
-          />
-        </Suspense>
+    <div className="relative overflow-hidden border-b border-border h-[400px]">
+      {/* Light Rays Background - Reserve4You Primary Color */}
+      <div className="absolute inset-0 w-full h-full opacity-20">
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#FF5A5F"
+          raysSpeed={1.2}
+          lightSpread={0.7}
+          rayLength={1.1}
+          followMouse={true}
+          mouseInfluence={0.08}
+          noiseAmount={0.05}
+          distortion={0.03}
+          fadeDistance={0.9}
+          saturation={1.1}
+          className="hero-rays"
+        />
       </div>
 
       {/* Gradient Overlay for Better Text Readability */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/85" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/92 via-background/88 to-background/85" />
       
-      {/* Accent Gradients */}
-      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary/5 blur-3xl rounded-full" />
-      <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-primary/5 blur-3xl rounded-full" />
+      {/* Accent Gradients - Primary Color */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/8 blur-3xl rounded-full" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-primary/6 blur-3xl rounded-full" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
-            Stop guessing{' '}
+            Stop guessing
+            <br />
             <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               Start booking
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
             Ontdek de beste restaurants bij jou in de buurt en reserveer direct online.
           </p>
 

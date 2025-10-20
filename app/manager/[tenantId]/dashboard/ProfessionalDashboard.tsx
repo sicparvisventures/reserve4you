@@ -357,7 +357,7 @@ export function ProfessionalDashboard({
                     <div className="flex items-start gap-2 flex-1 min-w-0 pr-8">
                       <Store className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">{location.name}</p>
+                        <p className="font-medium text-sm truncate">{location.internal_name || location.name}</p>
                         <p className="text-xs text-muted-foreground truncate">
                           {location.is_public ? 'Gepubliceerd' : 'Concept'}
                         </p>

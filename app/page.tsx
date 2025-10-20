@@ -3,6 +3,7 @@ import { searchLocations } from '@/lib/auth/tenant-dal';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { HeroSection } from '@/components/hero/HeroSection';
 import Link from 'next/link';
 import type { Metadata } from 'next';

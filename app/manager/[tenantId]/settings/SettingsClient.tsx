@@ -420,7 +420,7 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                           className="justify-start"
                         >
                           <MapPin className="h-3 w-3 mr-2" />
-                          {loc.name}
+                          {loc.internal_name || loc.name}
                         </Button>
                       ))}
                     </div>

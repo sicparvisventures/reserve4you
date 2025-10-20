@@ -3,6 +3,7 @@ import { searchLocations } from '@/lib/auth/tenant-dal';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { DiscoverClient } from './DiscoverClient';
+import { PageHero } from '@/components/hero/PageHero';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -56,32 +57,32 @@ export default async function DiscoverPage({
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section with Search */}
-      <div className="bg-gradient-to-br from-primary/10 via-background to-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+      <PageHero
+        title={
+          <>
             Ontdek{' '}
-            <span className="text-primary">restaurants</span>
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-            Vind het perfecte restaurant voor elke gelegenheid
-          </p>
-
-          <Suspense fallback={<div>Laden...</div>}>
-            <DiscoverClient 
-              initialQuery={searchQuery}
-              initialCuisine={cuisineType}
-              initialPrice={priceRange}
-              initialFilters={{
-                nearby,
-                openNow,
-                today,
-                groups,
-                deals,
-              }}
-            />
-          </Suspense>
-        </div>
-      </div>
+            <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              restaurants
+            </span>
+          </>
+        }
+        description="Vind het perfecte restaurant voor elke gelegenheid"
+      >
+        <Suspense fallback={<div>Laden...</div>}>
+          <DiscoverClient 
+            initialQuery={searchQuery}
+            initialCuisine={cuisineType}
+            initialPrice={priceRange}
+            initialFilters={{
+              nearby,
+              openNow,
+              today,
+              groups,
+              deals,
+            }}
+          />
+        </Suspense>
+      </PageHero>
 
       {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

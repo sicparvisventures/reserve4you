@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
 import {
   ArrowLeft,
@@ -23,6 +24,8 @@ import {
   Settings,
   Eye,
   Tag,
+  Save,
+  Building2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -58,6 +61,13 @@ export function LocationManagement({
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
+  
+  // Location name state
+  const [locationInfo, setLocationInfo] = useState({
+    name: initialLocation.name || '',
+    internal_name: initialLocation.internal_name || '',
+  });
+  const [savingLocationInfo, setSavingLocationInfo] = useState(false);
 
   const filteredBookings = bookings.filter(b => 
     filterStatus === 'all' || b.status === filterStatus
@@ -107,9 +117,52 @@ export function LocationManagement({
       
       if (!error && data) {
         setLocation(data);
+        setLocationInfo({
+          name: data.name || '',
+          internal_name: data.internal_name || '',
+        });
       }
     } catch (err) {
       console.error('Error reloading location:', err);
+    }
+  };
+
+  // Save location info (names)
+  const handleSaveLocationInfo = async () => {
+    setSavingLocationInfo(true);
+    try {
+      const supabase = createClient();
+      
+      // Validate
+      if (!locationInfo.name.trim()) {
+        alert('Publieke naam is verplicht');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('locations')
+        .update({
+          name: locationInfo.name.trim(),
+          internal_name: locationInfo.internal_name.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', location.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setLocation({
+        ...location,
+        name: locationInfo.name.trim(),
+        internal_name: locationInfo.internal_name.trim() || null,
+      });
+
+      alert('✅ Locatienamen succesvol opgeslagen');
+    } catch (error) {
+      console.error('Error saving location info:', error);
+      alert('❌ Er is een fout opgetreden bij het opslaan');
+    } finally {
+      setSavingLocationInfo(false);
     }
   };
 
@@ -177,8 +230,13 @@ export function LocationManagement({
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  {location.name}
+                  {location.internal_name || location.name}
                 </h1>
+                {location.internal_name && location.internal_name !== location.name && (
+                  <p className="text-sm text-muted-foreground">
+                    Publieke naam: {location.name}
+                  </p>
+                )}
                 <p className="text-sm text-muted-foreground">
                   {location.city || 'Geen stad ingesteld'}
                 </p>
@@ -455,6 +513,84 @@ export function LocationManagement({
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-4">
+            {/* Location Information */}
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Building2 className="h-6 w-6 text-primary" />
+                <h2 className="text-xl font-bold text-foreground">Locatie Informatie</h2>
+              </div>
+              
+              <div className="space-y-6">
+                {/* Public Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="public-name" className="text-base font-semibold">
+                    Publieke Naam *
+                  </Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Deze naam wordt getoond aan klanten op de website en in de app
+                  </p>
+                  <Input
+                    id="public-name"
+                    value={locationInfo.name}
+                    onChange={(e) => setLocationInfo({ ...locationInfo, name: e.target.value })}
+                    placeholder="Bijv. Restaurant De Smaakmaker"
+                    className="max-w-md"
+                  />
+                </div>
+
+                {/* Internal Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="internal-name" className="text-base font-semibold">
+                    Interne Naam <span className="text-muted-foreground font-normal">(optioneel)</span>
+                  </Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Deze naam wordt gebruikt in het dashboard en is alleen zichtbaar voor jou en je team. 
+                    Handig voor interne codes of verkorte namen.
+                  </p>
+                  <Input
+                    id="internal-name"
+                    value={locationInfo.internal_name}
+                    onChange={(e) => setLocationInfo({ ...locationInfo, internal_name: e.target.value })}
+                    placeholder="Bijv. DS-AMS-01 of Centrum Amsterdam"
+                    className="max-w-md"
+                  />
+                </div>
+
+                {/* Info Box */}
+                <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                  <div className="flex gap-3">
+                    <AlertCircle className="h-5 w-5 text-blue-600 shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-foreground mb-1">
+                        Wat is het verschil?
+                      </p>
+                      <ul className="text-muted-foreground space-y-1">
+                        <li>• <strong>Publieke naam:</strong> Zichtbaar voor klanten op {location.name}</li>
+                        <li>• <strong>Interne naam:</strong> Alleen zichtbaar in je dashboard{locationInfo.internal_name ? ` (${locationInfo.internal_name})` : ''}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex items-center gap-3 pt-2">
+                  <Button
+                    onClick={handleSaveLocationInfo}
+                    disabled={savingLocationInfo || !locationInfo.name.trim()}
+                    className="gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    {savingLocationInfo ? 'Opslaan...' : 'Wijzigingen Opslaan'}
+                  </Button>
+                  {(locationInfo.name !== location.name || locationInfo.internal_name !== (location.internal_name || '')) && (
+                    <span className="text-sm text-orange-600">
+                      Je hebt onopgeslagen wijzigingen
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Card>
+
             {/* Location Images */}
             <LocationImageUpload
               locationId={location.id}

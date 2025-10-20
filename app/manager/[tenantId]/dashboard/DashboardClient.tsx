@@ -208,7 +208,9 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
                     >
                       <Store className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-foreground">{location.name}</h4>
+                        <h4 className="font-semibold text-foreground">
+                          {location.internal_name || location.name}
+                        </h4>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {location.is_public ? 'Gepubliceerd' : 'Concept'}
                         </p>
