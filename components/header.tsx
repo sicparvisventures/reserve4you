@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Search, Heart, User, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Search, Heart, User, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { CardNav } from '@/components/card-nav/CardNav';
@@ -23,20 +23,12 @@ interface HeaderProps {
     email: string | undefined;
     user: any;
     dbUser: any;
-    tenants?: any[];
   } | null;
   pathname?: string;
 }
 
 export function Header({ userData, pathname }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Get first tenant ID for manager dashboard link
-  const firstTenantId = userData?.tenants?.[0]?.id;
-  const managerDashboardHref = firstTenantId 
-    ? `/manager/${firstTenantId}/dashboard` 
-    : '/sign-in';
-  const profileHref = userData ? '/profile' : '/sign-in';
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -61,7 +53,7 @@ export function Header({ userData, pathname }: HeaderProps) {
       textColor: "#111111",
       links: userData ? [
         { label: "Favorieten", href: "/favorites", ariaLabel: "Bekijk je favorieten" },
-        { label: "Profiel", href: profileHref, ariaLabel: "Ga naar je profiel" }
+        { label: "Profiel", href: "/profile", ariaLabel: "Ga naar je profiel" }
       ] : [
         { label: "Aanmelden", href: "/sign-up", ariaLabel: "Meld je aan" },
         { label: "Inloggen", href: "/sign-in", ariaLabel: "Log in" }
@@ -71,50 +63,99 @@ export function Header({ userData, pathname }: HeaderProps) {
       label: "Voor Restaurants",
       bgColor: "#FF5A5F", 
       textColor: "#FFFFFF",
-      links: userData ? [
-        { label: "Manager Dashboard", href: managerDashboardHref, ariaLabel: "Ga naar Manager Dashboard" },
-        { label: "Instellingen", href: `/manager/${firstTenantId}/settings`, ariaLabel: "Manager instellingen" }
-      ] : [
+      links: [
         { label: "Manager Portal", href: "/manager", ariaLabel: "Ga naar Manager Portal" },
         { label: "Start Gratis", href: "/manager", ariaLabel: "Start gratis" }
       ]
     }
   ];
 
+  // Get first tenant ID for manager link (if user has tenants)
+  const firstTenantId = userData?.dbUser?.memberships?.[0]?.tenant_id;
+  const managerDashboardUrl = firstTenantId 
+    ? `/manager/${firstTenantId}/dashboard`
+    : '/manager';
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* CardNav for animated menu */}
-        <div className="md:hidden">
-          <CardNav
-            logo={<RotatingLogoMobile />}
-            logoAlt="Reserve4You Logo"
-            items={cardNavItems}
-            baseColor="#FFFFFF"
-            menuColor="#111111"
-            buttonBgColor="#FF5A5F"
-            buttonTextColor="#FFFFFF"
-            ctaHref={userData ? "/profile" : "/sign-up"}
-            ctaLabel={userData ? "Profiel" : "Aanmelden"}
-            ease="power3.out"
-          />
-          {/* Mobile action buttons with icons */}
-          {userData && (
-            <div className="absolute right-16 top-4 flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild className="h-9 w-9">
-                <Link href={profileHref}>
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">Profiel</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" asChild className="h-9 w-9 bg-primary/10 hover:bg-primary/20">
-                <Link href={managerDashboardHref}>
-                  <LayoutDashboard className="h-5 w-5 text-primary" />
-                  <span className="sr-only">Manager Dashboard</span>
-                </Link>
-              </Button>
-            </div>
-          )}
+        {/* Mobile Header with CardNav and Action Icons */}
+        <div className="md:hidden flex items-center justify-between h-14">
+          {/* CardNav (Hamburger Menu) */}
+          <div className="flex-shrink-0">
+            <CardNav
+              logo={<RotatingLogoMobile />}
+              logoAlt="Reserve4You Logo"
+              items={cardNavItems}
+              baseColor="#FFFFFF"
+              menuColor="#111111"
+              buttonBgColor="#FF5A5F"
+              buttonTextColor="#FFFFFF"
+              ctaHref={userData ? "/profile" : "/sign-up"}
+              ctaLabel={userData ? "Profiel" : "Aanmelden"}
+              ease="power3.out"
+            />
+          </div>
+
+          {/* Mobile Action Icons */}
+          <div className="flex items-center gap-1">
+            {userData ? (
+              <>
+                {/* Notifications */}
+                <NotificationBadge />
+                
+                {/* Manager Dashboard */}
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-primary/10"
+                  asChild
+                >
+                  <Link href={managerDashboardUrl} aria-label="Manager Dashboard">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </Link>
+                </Button>
+                
+                {/* Profile */}
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-primary/10"
+                  asChild
+                >
+                  <Link href="/profile" aria-label="Profiel">
+                    <User className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* Manager Portal (Not logged in) */}
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-primary/10"
+                  asChild
+                >
+                  <Link href="/manager" aria-label="Manager Portal">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </Link>
+                </Button>
+                
+                {/* Sign In */}
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-primary/10"
+                  asChild
+                >
+                  <Link href="/sign-in" aria-label="Inloggen">
+                    <User className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="hidden md:flex items-center justify-between h-16">
@@ -157,18 +198,15 @@ export function Header({ userData, pathname }: HeaderProps) {
                   </Link>
                 </Button>
                 <NotificationBadge />
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href={profileHref}>
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Profiel</span>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/profile">
+                    <User className="h-4 w-4 mr-2" />
+                    Profiel
                   </Link>
                 </Button>
                 <div className="h-6 w-px bg-border mx-1" />
-                <Button variant="outline" size="sm" asChild className="gradient-bg text-white border-0 gap-2">
-                  <Link href={managerDashboardHref}>
-                    <LayoutDashboard className="h-4 w-4" />
-                    Manager
-                  </Link>
+                <Button variant="outline" size="sm" asChild className="gradient-bg text-white border-0">
+                  <Link href={managerDashboardUrl}>Manager Portal</Link>
                 </Button>
               </>
             ) : (
@@ -177,11 +215,8 @@ export function Header({ userData, pathname }: HeaderProps) {
                   <Link href="/sign-up">Aanmelden</Link>
                 </Button>
                 <div className="h-6 w-px bg-border mx-1" />
-                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/10 gap-2">
-                  <Link href="/manager">
-                    <LayoutDashboard className="h-4 w-4" />
-                    Manager Portal
-                  </Link>
+                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/10">
+                  <Link href="/manager">Manager Portal</Link>
                 </Button>
               </>
             )}
