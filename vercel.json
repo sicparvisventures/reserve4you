@@ -1,0 +1,6 @@
+{
+  "regions": ["iad1"],
+  "buildCommand": "pnpm run build",
+  "framework": "nextjs"
+}
+
