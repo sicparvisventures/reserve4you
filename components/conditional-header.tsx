@@ -1,12 +1,14 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { useAuth } from '@/lib/auth/auth-provider';
 
 export function ConditionalHeader() {
   const pathname = usePathname();
   const { user, dbUser, loading } = useAuth();
+  const [tenants, setTenants] = useState<any[]>([]);
   
   // Don't show consumer header on:
   // - Login/signup pages
@@ -39,13 +41,24 @@ export function ConditionalHeader() {
     );
   }
   
+  // Fetch user's tenants if logged in
+  useEffect(() => {
+    if (user && dbUser) {
+      fetch('/api/manager/tenants')
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setTenants(data.tenants || []))
+        .catch(() => setTenants([]));
+    }
+  }, [user, dbUser]);
+
   // Prepare user data in the format expected by Header
   const userData = user && dbUser ? {
     isAuth: true,
     userId: user.id,
     email: user.email,
     user: user,
-    dbUser: dbUser
+    dbUser: dbUser,
+    tenants: tenants
   } : null;
   
   return <Header userData={userData} pathname={pathname} />;

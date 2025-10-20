@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Search, Heart, User } from 'lucide-react';
+import { Menu, X, Search, Heart, User, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { CardNav } from '@/components/card-nav/CardNav';
@@ -23,12 +23,20 @@ interface HeaderProps {
     email: string | undefined;
     user: any;
     dbUser: any;
+    tenants?: any[];
   } | null;
   pathname?: string;
 }
 
 export function Header({ userData, pathname }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Get first tenant ID for manager dashboard link
+  const firstTenantId = userData?.tenants?.[0]?.id;
+  const managerDashboardHref = firstTenantId 
+    ? `/manager/${firstTenantId}/dashboard` 
+    : '/sign-in';
+  const profileHref = userData ? '/profile' : '/sign-in';
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -53,7 +61,7 @@ export function Header({ userData, pathname }: HeaderProps) {
       textColor: "#111111",
       links: userData ? [
         { label: "Favorieten", href: "/favorites", ariaLabel: "Bekijk je favorieten" },
-        { label: "Profiel", href: "/profile", ariaLabel: "Ga naar je profiel" }
+        { label: "Profiel", href: profileHref, ariaLabel: "Ga naar je profiel" }
       ] : [
         { label: "Aanmelden", href: "/sign-up", ariaLabel: "Meld je aan" },
         { label: "Inloggen", href: "/sign-in", ariaLabel: "Log in" }
@@ -63,7 +71,10 @@ export function Header({ userData, pathname }: HeaderProps) {
       label: "Voor Restaurants",
       bgColor: "#FF5A5F", 
       textColor: "#FFFFFF",
-      links: [
+      links: userData ? [
+        { label: "Manager Dashboard", href: managerDashboardHref, ariaLabel: "Ga naar Manager Dashboard" },
+        { label: "Instellingen", href: `/manager/${firstTenantId}/settings`, ariaLabel: "Manager instellingen" }
+      ] : [
         { label: "Manager Portal", href: "/manager", ariaLabel: "Ga naar Manager Portal" },
         { label: "Start Gratis", href: "/manager", ariaLabel: "Start gratis" }
       ]
@@ -87,6 +98,23 @@ export function Header({ userData, pathname }: HeaderProps) {
             ctaLabel={userData ? "Profiel" : "Aanmelden"}
             ease="power3.out"
           />
+          {/* Mobile action buttons with icons */}
+          {userData && (
+            <div className="absolute right-16 top-4 flex items-center gap-2">
+              <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+                <Link href={profileHref}>
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Profiel</span>
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" asChild className="h-9 w-9 bg-primary/10 hover:bg-primary/20">
+                <Link href={managerDashboardHref}>
+                  <LayoutDashboard className="h-5 w-5 text-primary" />
+                  <span className="sr-only">Manager Dashboard</span>
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="hidden md:flex items-center justify-between h-16">
@@ -129,15 +157,18 @@ export function Header({ userData, pathname }: HeaderProps) {
                   </Link>
                 </Button>
                 <NotificationBadge />
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/profile">
-                    <User className="h-4 w-4 mr-2" />
-                    Profiel
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href={profileHref}>
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Profiel</span>
                   </Link>
                 </Button>
                 <div className="h-6 w-px bg-border mx-1" />
-                <Button variant="outline" size="sm" asChild className="gradient-bg text-white border-0">
-                  <Link href="/manager">Manager Portal</Link>
+                <Button variant="outline" size="sm" asChild className="gradient-bg text-white border-0 gap-2">
+                  <Link href={managerDashboardHref}>
+                    <LayoutDashboard className="h-4 w-4" />
+                    Manager
+                  </Link>
                 </Button>
               </>
             ) : (
@@ -146,8 +177,11 @@ export function Header({ userData, pathname }: HeaderProps) {
                   <Link href="/sign-up">Aanmelden</Link>
                 </Button>
                 <div className="h-6 w-px bg-border mx-1" />
-                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/10">
-                  <Link href="/manager">Manager Portal</Link>
+                <Button variant="outline" size="sm" asChild className="border-primary text-primary hover:bg-primary/10 gap-2">
+                  <Link href="/manager">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Manager Portal
+                  </Link>
                 </Button>
               </>
             )}
