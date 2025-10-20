@@ -178,7 +178,22 @@ export const getPublicLocation = cache(async (slug: string) => {
     return null;
   }
   
-  return location;
+  // Fetch active promotions for this location
+  const { data: promotions } = await supabase
+    .from('promotions')
+    .select('*')
+    .eq('location_id', location.id)
+    .eq('is_active', true)
+    .lte('valid_from', new Date().toISOString())
+    .or(`valid_until.is.null,valid_until.gte.${new Date().toISOString()}`)
+    .order('is_featured', { ascending: false })
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false });
+  
+  return {
+    ...location,
+    promotions: promotions || [],
+  };
 });
 
 /**
@@ -191,53 +206,130 @@ export const searchLocations = cache(async (params: {
   latitude?: number;
   longitude?: number;
   radius?: number; // in km
+  nearby?: boolean;
+  openNow?: boolean;
+  today?: boolean;
+  groups?: boolean;
+  deals?: boolean;
 }) => {
   const supabase = await createClient();
   
-  let query = supabase
-    .from('locations')
-    .select('*')
-    .eq('is_public', true)
-    .eq('is_active', true);
+  try {
+    let query = supabase
+      .from('locations')
+      .select('*')
+      .eq('is_public', true)
+      .eq('is_active', true);
+    
+    if (params.query) {
+      query = query.or(`name.ilike.%${params.query}%,description.ilike.%${params.query}%`);
+    }
+    
+    // Only add filters if columns exist (graceful degradation)
+    if (params.cuisineType) {
+      try {
+        query = query.eq('cuisine', params.cuisineType);
+      } catch (e) {
+        // Column might not exist, skip filter
+      }
+    }
+    
+    if (params.priceRange) {
+      try {
+        query = query.eq('price_range', params.priceRange);
+      } catch (e) {
+        // Column might not exist, skip filter
+      }
+    }
+    
+    // Filter for group-friendly locations (if column exists)
+    if (params.groups) {
+      try {
+        query = query.eq('group_friendly', true);
+      } catch (e) {
+        // Column might not exist, skip filter
+      }
+    }
+    
+    // Filter for locations with deals (if column exists)
+    if (params.deals) {
+      try {
+        query = query.eq('has_deals', true);
+      } catch (e) {
+        // Column might not exist, skip filter
+      }
+    }
+    
+    const { data: locations, error } = await query.order('created_at', { ascending: false }).limit(100);
+    
+    if (error) {
+      console.error('Error searching locations:', error);
+      return [];
+    }
   
-  if (params.query) {
-    query = query.or(`name.ilike.%${params.query}%,description.ilike.%${params.query}%`);
+  if (!locations) return [];
+  
+  let filtered = [...locations];
+  
+  // Filter by open now
+  if (params.openNow) {
+    const now = new Date();
+    const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
+    
+    filtered = filtered.filter(loc => {
+      if (!loc.opening_hours || typeof loc.opening_hours !== 'object') return false;
+      const dayHours = (loc.opening_hours as any)[dayName];
+      if (!dayHours || dayHours.closed) return false;
+      return currentTime >= dayHours.open && currentTime <= dayHours.close;
+    });
   }
   
-  if (params.cuisineType) {
-    query = query.eq('cuisine_type', params.cuisineType);
+  // Filter by today availability (has available time slots today)
+  if (params.today) {
+    // For now, just show all open locations
+    // In production, check actual availability against bookings
+    const now = new Date();
+    const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    
+    filtered = filtered.filter(loc => {
+      if (!loc.opening_hours || typeof loc.opening_hours !== 'object') return true;
+      const dayHours = (loc.opening_hours as any)[dayName];
+      return !dayHours || !dayHours.closed;
+    });
   }
   
-  if (params.priceRange) {
-    query = query.eq('price_range', params.priceRange);
-  }
-  
-  // Geo filtering would require PostGIS or custom function
-  // For MVP, filter in application layer
-  
-  const { data: locations, error } = await query.order('created_at', { ascending: false }).limit(50);
-  
-  if (error) {
-    console.error('Error searching locations:', error);
-    return [];
-  }
-  
-  // Apply geo filtering if coordinates provided
-  if (params.latitude && params.longitude && params.radius && locations) {
-    const filtered = locations.filter(loc => {
+  // Apply geo filtering for nearby
+  if ((params.nearby || (params.latitude && params.longitude)) && params.radius) {
+    // Use user coordinates or Brussels center as default
+    const lat = params.latitude || 50.8503;
+    const lon = params.longitude || 4.3517;
+    const maxRadius = params.radius || 25; // 25km default
+    
+    filtered = filtered.filter(loc => {
       if (!loc.latitude || !loc.longitude) return false;
       const distance = getDistanceInKm(
-        params.latitude!,
-        params.longitude!,
+        lat,
+        lon,
         parseFloat(loc.latitude),
         parseFloat(loc.longitude)
       );
-      return distance <= params.radius!;
+      return distance <= maxRadius;
     });
-    return filtered;
+    
+    // Sort by distance
+    filtered = filtered.sort((a, b) => {
+      const distA = getDistanceInKm(lat, lon, parseFloat(a.latitude!), parseFloat(a.longitude!));
+      const distB = getDistanceInKm(lat, lon, parseFloat(b.latitude!), parseFloat(b.longitude!));
+      return distA - distB;
+    });
   }
   
-  return locations || [];
+  return filtered.slice(0, 50); // Limit to 50 results
+  } catch (error) {
+    console.error('Error searching locations:', error);
+    return [];
+  }
 });
 
 /**

@@ -10,10 +10,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Search, Heart, User, Bell } from 'lucide-react';
+import { Menu, X, Search, Heart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { CardNav } from '@/components/card-nav/CardNav';
+import { NotificationBadge } from '@/components/NotificationBadge';
 
 interface HeaderProps {
   userData: {
@@ -127,11 +128,7 @@ export function Header({ userData, pathname }: HeaderProps) {
                     <Heart className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/notifications">
-                    <Bell className="h-5 w-5" />
-                  </Link>
-                </Button>
+                <NotificationBadge />
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/profile">
                     <User className="h-4 w-4 mr-2" />

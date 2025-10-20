@@ -10,6 +10,13 @@ interface DiscoverClientProps {
   initialQuery?: string;
   initialCuisine?: string;
   initialPrice?: number;
+  initialFilters?: {
+    nearby?: boolean;
+    openNow?: boolean;
+    today?: boolean;
+    groups?: boolean;
+    deals?: boolean;
+  };
 }
 
 const CUISINE_TYPES = [
@@ -38,6 +45,7 @@ export function DiscoverClient({
   initialQuery = '',
   initialCuisine = '',
   initialPrice,
+  initialFilters = {},
 }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,6 +55,7 @@ export function DiscoverClient({
   const [selectedCuisine, setSelectedCuisine] = useState(initialCuisine);
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(initialPrice);
   const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(initialFilters);
 
   const updateFilters = () => {
     const params = new URLSearchParams();
@@ -54,6 +63,11 @@ export function DiscoverClient({
     if (query) params.set('query', query);
     if (selectedCuisine) params.set('cuisine', selectedCuisine);
     if (selectedPrice) params.set('price', selectedPrice.toString());
+    if (activeFilters.nearby) params.set('nearby', 'true');
+    if (activeFilters.openNow) params.set('open_now', 'true');
+    if (activeFilters.today) params.set('today', 'true');
+    if (activeFilters.groups) params.set('groups', 'true');
+    if (activeFilters.deals) params.set('deals', 'true');
     
     startTransition(() => {
       router.push(`/discover${params.toString() ? `?${params.toString()}` : ''}`);
@@ -64,13 +78,16 @@ export function DiscoverClient({
     setQuery('');
     setSelectedCuisine('');
     setSelectedPrice(undefined);
+    setActiveFilters({});
     
     startTransition(() => {
       router.push('/discover');
     });
   };
 
-  const hasActiveFilters = query || selectedCuisine || selectedPrice;
+  const hasActiveFilters = query || selectedCuisine || selectedPrice || 
+    activeFilters.nearby || activeFilters.openNow || activeFilters.today || 
+    activeFilters.groups || activeFilters.deals;
 
   return (
     <div className="space-y-6">
@@ -137,6 +154,71 @@ export function DiscoverClient({
               className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
             >
               {PRICE_RANGES.find(p => p.value === selectedPrice)?.label}
+              <X className="h-4 w-4" />
+            </button>
+          )}
+
+          {activeFilters.nearby && (
+            <button
+              onClick={() => {
+                setActiveFilters(prev => ({ ...prev, nearby: false }));
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              Bij mij in de buurt
+              <X className="h-4 w-4" />
+            </button>
+          )}
+
+          {activeFilters.openNow && (
+            <button
+              onClick={() => {
+                setActiveFilters(prev => ({ ...prev, openNow: false }));
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              Nu open
+              <X className="h-4 w-4" />
+            </button>
+          )}
+
+          {activeFilters.today && (
+            <button
+              onClick={() => {
+                setActiveFilters(prev => ({ ...prev, today: false }));
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              Vandaag beschikbaar
+              <X className="h-4 w-4" />
+            </button>
+          )}
+
+          {activeFilters.groups && (
+            <button
+              onClick={() => {
+                setActiveFilters(prev => ({ ...prev, groups: false }));
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              Groepen
+              <X className="h-4 w-4" />
+            </button>
+          )}
+
+          {activeFilters.deals && (
+            <button
+              onClick={() => {
+                setActiveFilters(prev => ({ ...prev, deals: false }));
+                updateFilters();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              Speciale deals
               <X className="h-4 w-4" />
             </button>
           )}

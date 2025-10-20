@@ -55,6 +55,8 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [authUser, setAuthUser] = useState<any | null>(null);
+  const [consumer, setConsumer] = useState<any | null>(null);
   
   // Booking data
   const [guests, setGuests] = useState(2);
@@ -68,6 +70,47 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
   // Time slots state
   const [availableTimeSlots, setAvailableTimeSlots] = useState<Array<{time: string, available: boolean}>>([]);
   const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
+
+  // Load auth user data when modal opens
+  useEffect(() => {
+    if (open && step === 3) {
+      loadUserData();
+    }
+  }, [open, step]);
+
+  const loadUserData = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setAuthUser(user);
+        
+        // Get consumer record
+        const { data: consumerData } = await supabase
+          .from('consumers')
+          .select('*')
+          .eq('auth_user_id', user.id)
+          .single();
+        
+        if (consumerData) {
+          setConsumer(consumerData);
+          // Auto-fill form with user data
+          setName(consumerData.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '');
+          setEmail(consumerData.email || user.email || '');
+          setPhone(consumerData.phone || user.phone || '');
+        } else {
+          // User has no consumer record yet, use auth data
+          setName(user.user_metadata?.full_name || user.email?.split('@')[0] || '');
+          setEmail(user.email || '');
+          setPhone(user.phone || '');
+        }
+      }
+    } catch (err) {
+      console.error('Error loading user data:', err);
+      // Silent fail - user can still manually enter data
+    }
+  };
 
   // Reset form when modal closes
   useEffect(() => {
@@ -206,8 +249,15 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
       return;
     }
 
-    if (!name || !phone) {
-      setError('Vul naam en telefoonnummer in');
+    if (!name || !email) {
+      setError('Vul naam en e-mailadres in');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Vul een geldig e-mailadres in');
       return;
     }
 
@@ -249,8 +299,8 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
           booking_time: selectedTime,
           number_of_guests: guests,
           customer_name: name,
-          customer_email: email || null,
-          customer_phone: phone,
+          customer_email: email,
+          customer_phone: phone || null,
           special_requests: specialRequests || null,
           status: initialStatus,
           duration_minutes: 120,
@@ -549,23 +599,9 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="font-semibold">
-                    Telefoonnummer <span className="text-destructive">*</span>
+                  <Label htmlFor="email" className="font-semibold">
+                    E-mailadres <span className="text-destructive">*</span>
                   </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+32 6 12345678"
-                      className="pl-10 h-11 rounded-lg"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="font-semibold">E-mailadres (optioneel)</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -574,6 +610,24 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="jouw@email.nl"
+                      className="pl-10 h-11 rounded-lg"
+                      readOnly={!!authUser}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="font-semibold">
+                    Telefoonnummer <span className="text-muted-foreground text-sm">(optioneel)</span>
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+32 6 12345678"
                       className="pl-10 h-11 rounded-lg"
                     />
                   </div>

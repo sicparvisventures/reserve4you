@@ -27,6 +27,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
@@ -67,6 +68,7 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
   });
   const [upgradingTenant, setUpgradingTenant] = useState<string | null>(null);
   const [upgradeSuccess, setUpgradeSuccess] = useState<{ plan: string; testMode: boolean } | null>(null);
+  const [cancellingBooking, setCancellingBooking] = useState<string | null>(null);
 
   // Add subscription to navigation if user has tenants
   const navigation = tenants.length > 0
@@ -137,6 +139,33 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
       showMessage('error', error.message || 'Fout bij opslaan');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    const confirmed = confirm('Weet je zeker dat je deze reservering wilt annuleren?');
+    if (!confirmed) return;
+
+    setCancellingBooking(bookingId);
+
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to cancel booking');
+      }
+
+      showMessage('success', 'Reservering succesvol geannuleerd!');
+      
+      // Refresh the page to show updated data
+      router.refresh();
+    } catch (error: any) {
+      showMessage('error', error.message || 'Fout bij annuleren');
+    } finally {
+      setCancellingBooking(null);
     }
   };
 
@@ -434,43 +463,153 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                 {upcomingBookings.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Aankomende reserveringen</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                   {upcomingBookings.map((booking) => (
-                    <Card key={booking.id} className="p-4 hover:border-primary transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-lg">{booking.location?.name}</h3>
-                            <Badge variant={booking.status === 'CONFIRMED' ? 'default' : 'secondary'}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              {new Date(booking.start_ts).toLocaleString('nl-NL', {
-                                dateStyle: 'full',
-                                timeStyle: 'short',
-                              })}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              {booking.party_size} personen
-                            </div>
-                            {booking.location?.address_line1 && (
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4" />
-                                {booking.location.address_line1}, {booking.location.city}
+                    <Card key={booking.id} className="p-6 hover:shadow-lg transition-all border-2 hover:border-primary">
+                      <div className="space-y-4">
+                        {/* Header */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                                <MapPin className="h-6 w-6 text-white" />
                               </div>
-                            )}
+                              <div>
+                                <h3 className="font-bold text-xl">{booking.location?.name}</h3>
+                                <Badge 
+                                  variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
+                                  className="mt-1"
+                                >
+                                  {booking.status === 'confirmed' && 'Bevestigd'}
+                                  {booking.status === 'pending' && 'In afwachting'}
+                                  {booking.status === 'cancelled' && 'Geannuleerd'}
+                                  {booking.status === 'seated' && 'Zit aan tafel'}
+                                  {booking.status === 'completed' && 'Voltooid'}
+                                  {booking.status === 'no_show' && 'Niet verschenen'}
+                                </Badge>
+                              </div>
+                            </div>
                           </div>
+                          <Button variant="outline" size="sm" asChild className="rounded-xl">
+                            <Link href={`/p/${booking.location?.slug}`}>
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Bekijk vestiging
+                            </Link>
+                          </Button>
                         </div>
-                        <Button variant="outline" size="sm" asChild className="rounded-xl">
-                          <Link href={`/p/${booking.location?.slug}`}>
-                            Details
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          </Link>
-                        </Button>
+
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-xl">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Calendar className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide">Datum & Tijd</p>
+                              <p className="font-semibold text-foreground">
+                                {new Date(booking.start_ts || `${booking.booking_date}T${booking.booking_time}`).toLocaleString('nl-NL', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })}
+                              </p>
+                              <p className="text-sm text-foreground font-medium">
+                                om {booking.booking_time || new Date(booking.start_ts).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Users className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wide">Aantal Personen</p>
+                              <p className="font-semibold text-lg text-foreground">
+                                {booking.number_of_guests || booking.party_size} {(booking.number_of_guests || booking.party_size) === 1 ? 'persoon' : 'personen'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {booking.customer_name && (
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <User className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide">Op Naam Van</p>
+                                <p className="font-semibold text-foreground">{booking.customer_name}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {booking.customer_phone && (
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <Phone className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide">Telefoonnummer</p>
+                                <p className="font-semibold text-foreground">{booking.customer_phone}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Location Address */}
+                        {booking.location?.address_json && (
+                          <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
+                            <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {booking.location.address_json.street} {booking.location.address_json.number}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {booking.location.address_json.postal_code} {booking.location.address_json.city}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Special Requests */}
+                        {booking.special_requests && (
+                          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg">
+                            <p className="text-xs font-semibold text-foreground uppercase tracking-wide mb-1">
+                              Speciale Verzoeken
+                            </p>
+                            <p className="text-sm text-foreground">
+                              {booking.special_requests}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Booking ID & Created At */}
+                        <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
+                          <span>Reserveringsnummer: {booking.id.split('-')[0]}</span>
+                          <span>
+                            Gemaakt op {new Date(booking.created_at).toLocaleDateString('nl-NL', { 
+                              day: '2-digit', 
+                              month: '2-digit', 
+                              year: 'numeric' 
+                            })}
+                          </span>
+                        </div>
+
+                        {/* Action Buttons */}
+                        {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                          <div className="flex gap-2 pt-4">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleCancelBooking(booking.id)}
+                              disabled={cancellingBooking === booking.id}
+                              className="flex-1"
+                            >
+                              {cancellingBooking === booking.id ? 'Annuleren...' : 'Reservering Annuleren'}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </Card>
                     ))}
@@ -484,17 +623,36 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                     <h3 className="text-lg font-semibold mb-3">Eerdere reserveringen</h3>
                     <div className="space-y-3">
                   {pastBookings.map((booking) => (
-                    <Card key={booking.id} className="p-4 opacity-75">
+                    <Card key={booking.id} className="p-5 opacity-75 hover:opacity-100 transition-opacity">
                       <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold">{booking.location?.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(booking.start_ts).toLocaleDateString('nl-NL', {
-                              dateStyle: 'long',
-                            })}
-                          </p>
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                            <Calendar className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-base">{booking.location?.name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(booking.start_ts || `${booking.booking_date}T${booking.booking_time}`).toLocaleDateString('nl-NL', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })} om {booking.booking_time || new Date(booking.start_ts).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {booking.number_of_guests || booking.party_size} pers.
+                              </span>
+                              <Badge variant="outline" className="text-xs">
+                                {booking.status === 'completed' && 'Voltooid'}
+                                {booking.status === 'cancelled' && 'Geannuleerd'}
+                                {booking.status === 'no_show' && 'Niet verschenen'}
+                                {!['completed', 'cancelled', 'no_show'].includes(booking.status) && booking.status}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant="outline">{booking.status}</Badge>
                       </div>
                     </Card>
                     ))}
@@ -504,12 +662,14 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
 
                 {bookings.length === 0 && (
                   <Card className="p-12 text-center">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Nog geen reserveringen</h3>
-                    <p className="text-muted-foreground mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-muted rounded-full mb-6">
+                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Nog geen reserveringen</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                       Begin met het verkennen van restaurants en maak je eerste reservering
                     </p>
-                    <Button asChild>
+                    <Button asChild size="lg" className="rounded-xl">
                       <Link href="/discover">
                         Ontdek restaurants
                       </Link>

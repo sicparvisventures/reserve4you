@@ -9,6 +9,8 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { BookingSheet } from '@/components/booking/BookingSheet';
+import { PromotionsDisplay } from '@/components/promotions/PromotionsDisplay';
+import { PublicMenuDisplay } from '@/components/menu/PublicMenuDisplay';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -29,11 +31,12 @@ import { cn } from '@/lib/utils';
 
 interface LocationDetailClientProps {
   location: any;
+  menuData?: any[];
 }
 
 type TabType = 'overview' | 'availability' | 'menu' | 'location';
 
-export function LocationDetailClient({ location }: LocationDetailClientProps) {
+export function LocationDetailClient({ location, menuData = [] }: LocationDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [bookingSheetOpen, setBookingSheetOpen] = useState(false);
 
@@ -60,9 +63,9 @@ export function LocationDetailClient({ location }: LocationDetailClientProps) {
     <>
       {/* Hero Section */}
       <div className="relative h-[400px] bg-gradient-to-br from-primary/20 to-primary/5">
-        {location.hero_image_url ? (
+        {(location.banner_image_url || location.hero_image_url) ? (
           <img
-            src={location.hero_image_url}
+            src={location.banner_image_url || location.hero_image_url}
             alt={location.name}
             className="w-full h-full object-cover"
           />
@@ -157,6 +160,14 @@ export function LocationDetailClient({ location }: LocationDetailClientProps) {
         <div className="pb-12">
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Promotions */}
+              {location.promotions && location.promotions.length > 0 && (
+                <PromotionsDisplay 
+                  promotions={location.promotions}
+                  locationName={location.name}
+                />
+              )}
+
               {/* Description */}
               {location.description && (
                 <Card className="p-6">
@@ -276,12 +287,10 @@ export function LocationDetailClient({ location }: LocationDetailClientProps) {
           )}
 
           {activeTab === 'menu' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Menu</h2>
-              <p className="text-muted-foreground">
-                Menu informatie wordt binnenkort toegevoegd via onze POS integratie.
-              </p>
-            </Card>
+            <PublicMenuDisplay 
+              menu={menuData}
+              locationName={location.name}
+            />
           )}
 
           {activeTab === 'location' && (

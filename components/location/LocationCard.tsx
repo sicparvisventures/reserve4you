@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, Euro, Heart, Calendar } from 'lucide-react';
+import { MapPin, Clock, Euro, Heart, Calendar, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ReserveBookingModal } from '@/components/booking/ReserveBookingModal';
 
@@ -30,6 +30,7 @@ interface LocationCardProps {
     address_json?: { city?: string; street?: string; postalCode?: string }; // JSON format
     hero_image_url?: string;
     image_url?: string; // New: Supabase storage image
+    has_deals?: boolean; // Has active promotions
   };
   onFavoriteToggle?: (locationId: string) => void;
   isFavorite?: boolean;
@@ -96,13 +97,18 @@ export function LocationCard({
           )}
 
           {/* Cuisine Badge */}
-          {cuisine && (
-            <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 flex flex-col gap-2">
+            {cuisine && (
               <Badge variant="secondary" className="backdrop-blur-sm">
                 {cuisine}
               </Badge>
-            </div>
-          )}
+            )}
+            {location.has_deals && (
+              <Badge className="backdrop-blur-sm bg-emerald-500 text-white border-0 shadow-md">
+                Aanbieding
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Content */}

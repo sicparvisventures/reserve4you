@@ -54,13 +54,12 @@ export const bookingCreateSchema = z.object({
   
   // Guest info
   guest_name: z.string().min(2, 'Name must be at least 2 characters').max(255),
-  guest_phone: z.string()
-    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format')
-    .optional()
-    .or(z.literal('')),
   guest_email: z.string()
     .email('Invalid email address')
-    .max(255)
+    .min(1, 'Email is required')
+    .max(255),
+  guest_phone: z.string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format')
     .optional()
     .or(z.literal('')),
   guest_note: z.string().max(1000, 'Note too long').optional(),
@@ -92,12 +91,13 @@ export type BookingCreateResponse = z.infer<typeof bookingCreateResponseSchema>;
 
 export const guestFormSchema = z.object({
   name: z.string().min(2, 'Naam moet minimaal 2 karakters zijn').max(255),
-  phone: z.string()
-    .regex(/^(\+31|0)[1-9][0-9]{8}$/, 'Ongeldig Nederlands telefoonnummer')
-    .or(z.string().regex(/^\+[1-9]\d{1,14}$/, 'Ongeldig telefoonnummer')),
   email: z.string()
     .email('Ongeldig e-mailadres')
-    .max(255)
+    .min(1, 'E-mailadres is verplicht')
+    .max(255),
+  phone: z.string()
+    .regex(/^(\+31|0)[1-9][0-9]{8}$/, 'Ongeldig Nederlands telefoonnummer')
+    .or(z.string().regex(/^\+[1-9]\d{1,14}$/, 'Ongeldig telefoonnummer'))
     .optional()
     .or(z.literal('')),
   note: z.string().max(1000, 'Notitie mag maximaal 1000 karakters zijn').optional(),

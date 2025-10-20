@@ -27,6 +27,16 @@ export async function POST(request: NextRequest) {
     // 2. Use service role client for transaction
     const supabase = await createServiceClient();
     
+    // 2.1 Check if user is authenticated
+    let authUserId: string | null = null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      authUserId = user?.id || null;
+    } catch (e) {
+      // Not authenticated, that's okay
+      console.log('[Booking Create] No authenticated user');
+    }
+    
     // 3. Check for existing booking with same idempotency key
     const { data: existingBooking } = await supabase
       .from('bookings')
@@ -110,7 +120,8 @@ export async function POST(request: NextRequest) {
     const bookingResult = await createBookingWithTransaction(
       supabase,
       input,
-      location
+      location,
+      authUserId
     );
     
     if (!bookingResult.success) {
@@ -214,7 +225,8 @@ export async function POST(request: NextRequest) {
 async function createBookingWithTransaction(
   supabase: any,
   input: any,
-  location: any
+  location: any,
+  authUserId: string | null = null
 ) {
   try {
     // Note: Supabase client doesn't expose transaction control directly
@@ -273,21 +285,39 @@ async function createBookingWithTransaction(
     // 3. Create or get consumer record
     let consumerId = input.consumer_id;
     
-    if (!consumerId && input.guest_phone) {
-      // Try to find existing consumer by phone
+    // If user is authenticated, find or create consumer with auth_user_id
+    if (!consumerId && authUserId) {
+      console.log('[Booking Create] Finding/creating consumer for authenticated user:', authUserId);
+      
+      // Try to find existing consumer by auth_user_id
       const { data: existingConsumer } = await supabase
         .from('consumers')
         .select('id')
-        .eq('phone', input.guest_phone)
+        .eq('auth_user_id', authUserId)
         .single();
       
       if (existingConsumer) {
         consumerId = existingConsumer.id;
+        console.log('[Booking Create] Found existing consumer:', consumerId);
+        
+        // Update consumer with latest info if provided
+        if (input.guest_email || input.guest_phone) {
+          await supabase
+            .from('consumers')
+            .update({
+              email: input.guest_email || existingConsumer.email,
+              phone: input.guest_phone || existingConsumer.phone,
+              name: input.guest_name || existingConsumer.name,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', consumerId);
+        }
       } else {
-        // Create new consumer
+        // Create new consumer with auth_user_id
         const { data: newConsumer, error: consumerError } = await supabase
           .from('consumers')
           .insert({
+            auth_user_id: authUserId,
             name: input.guest_name,
             phone: input.guest_phone,
             email: input.guest_email || null,
@@ -300,28 +330,89 @@ async function createBookingWithTransaction(
           console.error('[Booking Create] Error creating consumer:', consumerError);
         } else {
           consumerId = newConsumer.id;
+          console.log('[Booking Create] Created new consumer:', consumerId);
+        }
+      }
+    }
+    
+    // Fallback: Try to find/create consumer by email or phone (for non-authenticated users)
+    if (!consumerId) {
+      console.log('[Booking Create] No auth user, trying email/phone match');
+      
+      // Try email first (more reliable)
+      if (input.guest_email) {
+        const { data: existingConsumer } = await supabase
+          .from('consumers')
+          .select('id')
+          .eq('email', input.guest_email)
+          .is('auth_user_id', null) // Only match non-authenticated consumers
+          .single();
+        
+        if (existingConsumer) {
+          consumerId = existingConsumer.id;
+          console.log('[Booking Create] Found consumer by email:', consumerId);
+        }
+      }
+      
+      // Then try phone if email didn't match
+      if (!consumerId && input.guest_phone) {
+        const { data: existingConsumer } = await supabase
+          .from('consumers')
+          .select('id')
+          .eq('phone', input.guest_phone)
+          .is('auth_user_id', null) // Only match non-authenticated consumers
+          .single();
+        
+        if (existingConsumer) {
+          consumerId = existingConsumer.id;
+          console.log('[Booking Create] Found consumer by phone:', consumerId);
+        }
+      }
+      
+      // Create new guest consumer if no match
+      if (!consumerId) {
+        const { data: newConsumer, error: consumerError } = await supabase
+          .from('consumers')
+          .insert({
+            auth_user_id: null,
+            name: input.guest_name,
+            phone: input.guest_phone,
+            email: input.guest_email || null,
+            phone_verified: false,
+          })
+          .select()
+          .single();
+        
+        if (consumerError) {
+          console.error('[Booking Create] Error creating guest consumer:', consumerError);
+        } else {
+          consumerId = newConsumer.id;
+          console.log('[Booking Create] Created new guest consumer:', consumerId);
         }
       }
     }
     
     // 4. Insert booking
+    // Note: Database uses customer_*, booking_date/time, number_of_guests
+    const startDateTime = new Date(input.start_time);
+    const endDateTime = new Date(input.end_time);
+    const durationMinutes = Math.round((endDateTime.getTime() - startDateTime.getTime()) / 60000);
+    
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
-        idempotency_key: input.idempotency_key,
         location_id: input.location_id,
         table_id: selectedTable.id,
         consumer_id: consumerId || null,
-        guest_name: input.guest_name,
-        guest_phone: input.guest_phone || null,
-        guest_email: input.guest_email || null,
-        guest_note: input.guest_note || null,
-        party_size: input.party_size,
-        start_time: input.start_time,
-        end_time: input.end_time,
-        status: 'CONFIRMED',
-        payment_status: 'NONE',
-        source: input.source || 'WEB',
+        booking_date: startDateTime.toISOString().split('T')[0],
+        booking_time: startDateTime.toTimeString().substring(0, 5), // HH:MM format
+        duration_minutes: durationMinutes,
+        number_of_guests: input.party_size,
+        customer_name: input.guest_name,
+        customer_email: input.guest_email,
+        customer_phone: input.guest_phone || null,
+        special_requests: input.guest_note || null,
+        status: 'pending',
       })
       .select()
       .single();

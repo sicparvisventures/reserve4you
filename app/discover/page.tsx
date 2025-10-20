@@ -17,6 +17,11 @@ interface SearchParams {
   cuisine?: string;
   price?: string;
   city?: string;
+  nearby?: string;
+  open_now?: string;
+  today?: string;
+  groups?: string;
+  deals?: string;
 }
 
 export default async function DiscoverPage({
@@ -30,12 +35,22 @@ export default async function DiscoverPage({
   const searchQuery = params.query || '';
   const cuisineType = params.cuisine || '';
   const priceRange = params.price ? parseInt(params.price) : undefined;
+  const nearby = params.nearby === 'true';
+  const openNow = params.open_now === 'true';
+  const today = params.today === 'true';
+  const groups = params.groups === 'true';
+  const deals = params.deals === 'true';
   
   // Fetch locations based on filters
   const locations = await searchLocations({
     query: searchQuery || undefined,
     cuisineType: cuisineType || undefined,
     priceRange: priceRange,
+    nearby,
+    openNow,
+    today,
+    groups,
+    deals,
   });
 
   return (
@@ -56,6 +71,13 @@ export default async function DiscoverPage({
               initialQuery={searchQuery}
               initialCuisine={cuisineType}
               initialPrice={priceRange}
+              initialFilters={{
+                nearby,
+                openNow,
+                today,
+                groups,
+                deals,
+              }}
             />
           </Suspense>
         </div>
@@ -69,11 +91,16 @@ export default async function DiscoverPage({
             <h2 className="text-2xl font-bold text-foreground">
               {locations.length} {locations.length === 1 ? 'restaurant' : 'restaurants'} gevonden
             </h2>
-            {(searchQuery || cuisineType || priceRange) && (
+            {(searchQuery || cuisineType || priceRange || nearby || openNow || today || groups || deals) && (
               <p className="text-muted-foreground mt-2">
                 {searchQuery && `Zoeken naar "${searchQuery}"`}
                 {cuisineType && ` • ${cuisineType}`}
                 {priceRange && ` • Prijsklasse ${priceRange}`}
+                {nearby && ` • Bij mij in de buurt`}
+                {openNow && ` • Nu open`}
+                {today && ` • Vandaag beschikbaar`}
+                {groups && ` • Geschikt voor groepen`}
+                {deals && ` • Speciale deals`}
               </p>
             )}
           </div>

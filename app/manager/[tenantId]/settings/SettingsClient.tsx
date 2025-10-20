@@ -28,9 +28,11 @@ import {
   Plus,
   Camera,
   ArrowLeft,
-  ChevronRight
+  ChevronRight,
+  UtensilsCrossed
 } from 'lucide-react';
 import { uploadLocationImage, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
+import { MenuManager } from '@/components/manager/MenuManager';
 
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 
@@ -45,6 +47,7 @@ interface SettingsClientProps {
 const NAVIGATION = [
   { id: 'general', label: 'Bedrijfsinformatie', icon: Building2, description: 'Naam en branding' },
   { id: 'locations', label: 'Locaties', icon: MapPin, description: 'Restaurant instellingen' },
+  { id: 'menu', label: 'Menu', icon: UtensilsCrossed, description: 'Menu beheer per locatie' },
   { id: 'team', label: 'Team', icon: Users, description: 'Teamleden beheren' },
   { id: 'billing', label: 'Abonnement', icon: CreditCard, description: 'Plan en facturatie' },
   { id: 'advanced', label: 'Geavanceerd', icon: SettingsIcon, description: 'Systeem instellingen' },
@@ -730,6 +733,42 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* Menu Section */}
+            {activeSection === 'menu' && selectedLocation && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Menu Beheer</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Beheer het menu voor {selectedLocation.name}
+                  </p>
+                </div>
+
+                {/* Location Selector */}
+                {locations.length > 1 && (
+                  <Card className="p-4">
+                    <Label htmlFor="menu-location-select">Selecteer Locatie</Label>
+                    <select
+                      id="menu-location-select"
+                      className="w-full mt-2 h-10 px-3 rounded-md border border-input bg-background"
+                      value={selectedLocationId}
+                      onChange={(e) => setSelectedLocationId(e.target.value)}
+                    >
+                      {locations.map(loc => (
+                        <option key={loc.id} value={loc.id}>{loc.name}</option>
+                      ))}
+                    </select>
+                  </Card>
+                )}
+
+                {/* Menu Manager Component */}
+                <MenuManager
+                  locationId={selectedLocationId}
+                  locationName={selectedLocation.name}
+                  tenantLocations={locations.map(l => ({ id: l.id, name: l.name }))}
+                />
               </div>
             )}
 

@@ -15,10 +15,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('notifications')
       .select(`
-        *,
-        booking:bookings(id, start_ts, party_size, location:locations(name, slug)),
-        location:locations(name, slug),
-        tenant:tenants(name)
+        *
       `)
       .eq('user_id', session.userId)
       .eq('archived', false)

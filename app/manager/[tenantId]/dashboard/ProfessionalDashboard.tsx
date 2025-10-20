@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
 import {
   Calendar,
   Clock,
@@ -70,6 +71,8 @@ export function ProfessionalDashboard({
   const [error, setError] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [stats, setStats] = useState<any>(initialStats || {});
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const selectedLocation = selectedLocationId && selectedLocationId !== 'all' 
     ? locations.find(l => l.id === selectedLocationId) 
@@ -553,7 +556,11 @@ export function ProfessionalDashboard({
               {filteredBookings.slice(0, 50).map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-all group"
+                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-all group cursor-pointer"
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    setIsBookingModalOpen(true);
+                  }}
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     {/* Status Icon */}
@@ -602,21 +609,24 @@ export function ProfessionalDashboard({
                       </div>
                       
                       {booking.special_requests && (
-                        <p className="text-xs text-muted-foreground mt-2 truncate">
-                          {booking.special_requests}
+                        <p className="text-xs text-foreground mt-2 truncate">
+                          <span className="font-medium">Speciale wensen:</span> {booking.special_requests}
                         </p>
                       )}
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {booking.status === 'PENDING' && (
                       <>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUpdateBookingStatus(booking.id, 'CONFIRMED')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUpdateBookingStatus(booking.id, 'CONFIRMED');
+                          }}
                           disabled={updatingBookingId === booking.id}
                           className="text-success hover:bg-success/10 border-success/20"
                         >
@@ -626,7 +636,10 @@ export function ProfessionalDashboard({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUpdateBookingStatus(booking.id, 'CANCELLED')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUpdateBookingStatus(booking.id, 'CANCELLED');
+                          }}
                           disabled={updatingBookingId === booking.id}
                           className="text-destructive hover:bg-destructive/10 border-destructive/20"
                         >
@@ -640,7 +653,10 @@ export function ProfessionalDashboard({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleUpdateBookingStatus(booking.id, 'NO_SHOW')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateBookingStatus(booking.id, 'NO_SHOW');
+                        }}
                         disabled={updatingBookingId === booking.id}
                         className="text-destructive hover:bg-destructive/10 border-destructive/20"
                       >
@@ -653,8 +669,13 @@ export function ProfessionalDashboard({
                       variant="ghost"
                       size="sm"
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedBooking(booking);
+                        setIsBookingModalOpen(true);
+                      }}
                     >
-                      <MoreVertical className="h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -663,6 +684,15 @@ export function ProfessionalDashboard({
           )}
         </Card>
       </div>
+
+      {/* Booking Detail Modal */}
+      <BookingDetailModal
+        booking={selectedBooking}
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+        onStatusUpdate={handleUpdateBookingStatus}
+        isUpdating={updatingBookingId === selectedBooking?.id}
+      />
     </div>
   );
 }

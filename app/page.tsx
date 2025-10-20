@@ -48,30 +48,42 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
           {/* Action Ribbon */}
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline" className="gap-2">
-              <MapPin className="h-4 w-4" />
-              Bij mij in de buurt
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Nu open
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              Vandaag
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Users className="h-4 w-4" />
-              Groepen
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Tag className="h-4 w-4" />
-              Deals
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Search className="h-4 w-4" />
-              Zoeken
-            </Button>
+            <Link href="/discover?nearby=true">
+              <Button variant="outline" className="gap-2">
+                <MapPin className="h-4 w-4" />
+                Bij mij in de buurt
+              </Button>
+            </Link>
+            <Link href="/discover?open_now=true">
+              <Button variant="outline" className="gap-2">
+                <Clock className="h-4 w-4" />
+                Nu open
+              </Button>
+            </Link>
+            <Link href="/discover?today=true">
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Vandaag
+              </Button>
+            </Link>
+            <Link href="/discover?groups=true">
+              <Button variant="outline" className="gap-2">
+                <Users className="h-4 w-4" />
+                Groepen
+              </Button>
+            </Link>
+            <Link href="/discover?deals=true">
+              <Button variant="outline" className="gap-2">
+                <Tag className="h-4 w-4" />
+                Deals
+              </Button>
+            </Link>
+            <Link href="/search">
+              <Button variant="outline" className="gap-2">
+                <Search className="h-4 w-4" />
+                Zoeken
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

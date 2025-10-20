@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
 import {
   ArrowLeft,
   Users,
@@ -20,10 +21,14 @@ import {
   Grid3x3,
   ListOrdered,
   Settings,
+  Eye,
+  Tag,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { FloorPlanEditor } from '@/components/floor-plan/FloorPlanEditor';
+import { PromotionsManager } from '@/components/manager/PromotionsManager';
+import { LocationImageUpload } from '@/components/manager/LocationImageUpload';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -50,6 +55,9 @@ export function LocationManagement({
   const [stats, setStats] = useState(initialStats);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [savingAutoAccept, setSavingAutoAccept] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
 
   const filteredBookings = bookings.filter(b => 
     filterStatus === 'all' || b.status === filterStatus
@@ -87,6 +95,24 @@ export function LocationManagement({
     }
   };
 
+  // Reload location data after image upload
+  const reloadLocation = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('locations')
+        .select('*')
+        .eq('id', location.id)
+        .single();
+      
+      if (!error && data) {
+        setLocation(data);
+      }
+    } catch (err) {
+      console.error('Error reloading location:', err);
+    }
+  };
+
   const handleAutoAcceptToggle = async (checked: boolean) => {
     setSavingAutoAccept(true);
     try {
@@ -108,6 +134,7 @@ export function LocationManagement({
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: string) => {
+    setUpdatingBookingId(bookingId);
     try {
       const supabase = createClient();
       const { error } = await supabase
@@ -122,9 +149,16 @@ export function LocationManagement({
           b.id === bookingId ? { ...b, status: newStatus } : b
         )
       );
+      
+      // Update selected booking if it's the one being updated
+      if (selectedBooking?.id === bookingId) {
+        setSelectedBooking(prev => ({ ...prev, status: newStatus }));
+      }
     } catch (err) {
       console.error('Error updating booking:', err);
       alert('Fout bij bijwerken van reservering');
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
@@ -203,7 +237,7 @@ export function LocationManagement({
 
         {/* Main Content with Tabs */}
         <Tabs defaultValue="floorplan" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="floorplan" className="gap-2">
               <Grid3x3 className="h-4 w-4" />
               Plattegrond
@@ -211,6 +245,10 @@ export function LocationManagement({
             <TabsTrigger value="bookings" className="gap-2">
               <ListOrdered className="h-4 w-4" />
               Reserveringen
+            </TabsTrigger>
+            <TabsTrigger value="promotions" className="gap-2">
+              <Tag className="h-4 w-4" />
+              Promoties
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
@@ -279,7 +317,14 @@ export function LocationManagement({
               ) : (
                 <div className="space-y-3">
                   {filteredBookings.map((booking) => (
-                    <Card key={booking.id} className="p-4">
+                    <Card 
+                      key={booking.id} 
+                      className="p-4 cursor-pointer hover:border-primary/50 transition-all"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setIsBookingModalOpen(true);
+                      }}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -315,20 +360,24 @@ export function LocationManagement({
                             </p>
                           )}
                           {booking.special_requests && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              Speciale wensen: {booking.special_requests}
+                            <p className="text-sm text-foreground mt-2">
+                              <span className="font-medium">Speciale wensen:</span> {booking.special_requests}
                             </p>
                           )}
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                           {booking.status === 'pending' && (
                             <>
                               <Button
                                 size="sm"
                                 variant="default"
-                                onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUpdateBookingStatus(booking.id, 'confirmed');
+                                }}
+                                disabled={updatingBookingId === booking.id}
                               >
                                 <CheckCircle2 className="h-4 w-4 mr-2" />
                                 Accepteren
@@ -336,7 +385,11 @@ export function LocationManagement({
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                onClick={() => handleUpdateBookingStatus(booking.id, 'cancelled')}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUpdateBookingStatus(booking.id, 'cancelled');
+                                }}
+                                disabled={updatingBookingId === booking.id}
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
                                 Afwijzen
@@ -347,7 +400,11 @@ export function LocationManagement({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleUpdateBookingStatus(booking.id, 'seated')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateBookingStatus(booking.id, 'seated');
+                              }}
+                              disabled={updatingBookingId === booking.id}
                             >
                               Gezeten
                             </Button>
@@ -356,11 +413,29 @@ export function LocationManagement({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleUpdateBookingStatus(booking.id, 'completed')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateBookingStatus(booking.id, 'completed');
+                              }}
+                              disabled={updatingBookingId === booking.id}
                             >
                               Voltooid
                             </Button>
                           )}
+                          
+                          {/* Eye icon for detail view */}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedBooking(booking);
+                              setIsBookingModalOpen(true);
+                            }}
+                            className="opacity-70 hover:opacity-100"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </Card>
@@ -370,8 +445,26 @@ export function LocationManagement({
             </Card>
           </TabsContent>
 
+          {/* Promotions Tab */}
+          <TabsContent value="promotions" className="space-y-4">
+            <PromotionsManager 
+              locationId={location.id}
+              locationName={location.name}
+            />
+          </TabsContent>
+
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-4">
+            {/* Location Images */}
+            <LocationImageUpload
+              locationId={location.id}
+              locationName={location.name}
+              currentImageUrl={location.image_url}
+              currentBannerUrl={location.banner_image_url || location.hero_image_url}
+              onImageUpdate={reloadLocation}
+            />
+
+            {/* Booking Settings */}
             <Card className="p-6">
               <h2 className="text-xl font-bold text-foreground mb-6">Reserveringsinstellingen</h2>
               
@@ -415,6 +508,15 @@ export function LocationManagement({
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Booking Detail Modal */}
+      <BookingDetailModal
+        booking={selectedBooking}
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+        onStatusUpdate={handleUpdateBookingStatus}
+        isUpdating={updatingBookingId === selectedBooking?.id}
+      />
     </div>
   );
 }

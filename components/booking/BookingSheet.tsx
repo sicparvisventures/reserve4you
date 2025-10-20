@@ -47,8 +47,8 @@ interface BookingData {
   date: string;
   time: string;
   guestName: string;
-  guestPhone: string;
-  guestEmail?: string;
+  guestEmail: string;
+  guestPhone?: string;
   guestNote?: string;
 }
 
@@ -65,6 +65,8 @@ export function BookingSheet({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [authUser, setAuthUser] = useState<any | null>(null);
+  const [consumer, setConsumer] = useState<any | null>(null);
 
   // Guest form
   const {
@@ -72,9 +74,51 @@ export function BookingSheet({
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<GuestFormInput>({
     resolver: zodResolver(guestFormSchema),
   });
+
+  // Load auth user data when modal opens
+  React.useEffect(() => {
+    if (open) {
+      loadUserData();
+    }
+  }, [open]);
+
+  const loadUserData = async () => {
+    try {
+      const supabase = await import('@/lib/supabase/client').then(m => m.createClient());
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setAuthUser(user);
+        
+        // Get consumer record
+        const { data: consumerData } = await supabase
+          .from('consumers')
+          .select('*')
+          .eq('auth_user_id', user.id)
+          .single();
+        
+        if (consumerData) {
+          setConsumer(consumerData);
+          // Auto-fill form with user data
+          setValue('name', consumerData.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '');
+          setValue('email', consumerData.email || user.email || '');
+          setValue('phone', consumerData.phone || user.phone || '');
+        } else {
+          // User has no consumer record yet, use auth data
+          setValue('name', user.user_metadata?.full_name || user.email?.split('@')[0] || '');
+          setValue('email', user.email || '');
+          setValue('phone', user.phone || '');
+        }
+      }
+    } catch (err) {
+      console.error('Error loading user data:', err);
+      // Silent fail - user can still manually enter data
+    }
+  };
 
   // Reset when sheet closes
   React.useEffect(() => {
@@ -101,14 +145,15 @@ export function BookingSheet({
     setError(null);
 
     try {
-      const response = await fetch('/api/availability/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location_id: locationId,
-          date: dateStr,
-          party_size: bookingData.partySize,
-        }),
+      // Use new availability API endpoint
+      const params = new URLSearchParams({
+        locationId: locationId,
+        date: dateStr,
+        partySize: bookingData.partySize?.toString() || '2',
+      });
+
+      const response = await fetch(`/api/bookings/availability?${params}`, {
+        method: 'GET',
       });
 
       const data = await response.json();
@@ -117,8 +162,22 @@ export function BookingSheet({
         throw new Error(data.error || 'Failed to check availability');
       }
 
-      setAvailableSlots(data.slots.filter((slot: any) => slot.available));
+      // Filter to only available slots and format for UI
+      const availableTimeSlots = (data.timeSlots || [])
+        .filter((slot: any) => slot.available)
+        .map((slot: any) => ({
+          time: slot.time.substring(0, 5), // Convert "HH:MM:SS" to "HH:MM"
+          available: true,
+          availableTables: slot.availableTables,
+        }));
+
+      setAvailableSlots(availableTimeSlots);
+
+      if (availableTimeSlots.length === 0) {
+        setError('Geen beschikbare tijden voor deze datum. Probeer een andere datum.');
+      }
     } catch (err) {
+      console.error('Error loading availability:', err);
       setError(err instanceof Error ? err.message : 'Error loading availability');
       setAvailableSlots([]);
     } finally {
@@ -159,8 +218,8 @@ export function BookingSheet({
           end_time: endTime.toISOString(),
           party_size: bookingData.partySize,
           guest_name: formData.name,
-          guest_phone: formData.phone,
-          guest_email: formData.email || '',
+          guest_email: formData.email,
+          guest_phone: formData.phone || '',
           guest_note: formData.note || '',
           source: 'WEB',
         }),
@@ -447,8 +506,30 @@ export function BookingSheet({
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="email" className="font-semibold">
+                  E-mailadres <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    placeholder="jouw@email.nl"
+                    className="pl-10 h-11 rounded-lg"
+                    readOnly={!!authUser}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-sm text-destructive font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="phone" className="font-semibold">
-                  Telefoonnummer <span className="text-destructive">*</span>
+                  Telefoonnummer <span className="text-muted-foreground text-sm">(optioneel)</span>
                 </Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -462,25 +543,6 @@ export function BookingSheet({
                 {errors.phone && (
                   <p className="text-sm text-destructive font-medium flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> {errors.phone.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="font-semibold">E-mailadres (optioneel)</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    {...register('email')}
-                    placeholder="jouw@email.nl"
-                    className="pl-10 h-11 rounded-lg"
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-sm text-destructive font-medium flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> {errors.email.message}
                   </p>
                 )}
               </div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
 import {
   Calendar,
   Clock,
@@ -48,6 +49,8 @@ export function LocationDashboard({
 }: LocationDashboardProps) {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<'bookings' | 'tables' | 'shifts'>('bookings');
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const upcomingBookings = bookings.filter(b => new Date(b.start_ts) > new Date());
   const todayBookings = bookings.filter(b => {
@@ -244,7 +247,14 @@ export function LocationDashboard({
               </Card>
             ) : (
               upcomingBookings.map((booking) => (
-                <Card key={booking.id} className="p-4">
+                <Card 
+                  key={booking.id} 
+                  className="p-4 cursor-pointer hover:border-primary/50 transition-all"
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    setIsBookingModalOpen(true);
+                  }}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="flex flex-col items-center">
@@ -290,8 +300,16 @@ export function LocationDashboard({
                         )}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedBooking(booking);
+                        setIsBookingModalOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
                     </Button>
                   </div>
                 </Card>
@@ -373,6 +391,13 @@ export function LocationDashboard({
           </div>
         )}
       </div>
+
+      {/* Booking Detail Modal */}
+      <BookingDetailModal
+        booking={selectedBooking}
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+      />
     </div>
   );
 }
