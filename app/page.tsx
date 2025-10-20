@@ -3,16 +3,7 @@ import { searchLocations } from '@/lib/auth/tenant-dal';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  MapPin,
-  Clock,
-  Calendar,
-  Users,
-  Tag,
-  Search,
-  Bell,
-} from 'lucide-react';
+import { HeroSection } from '@/components/hero/HeroSection';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -35,58 +26,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   
   return (
     <main className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-primary/10 via-background to-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-            Stop guessing{' '}
-            <span className="text-primary">Start booking</span>
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-            Ontdek de beste restaurants bij jou in de buurt en reserveer direct online.
-          </p>
-
-          {/* Action Ribbon */}
-          <div className="flex flex-wrap gap-3">
-            <Link href="/discover?nearby=true">
-              <Button variant="outline" className="gap-2">
-                <MapPin className="h-4 w-4" />
-                Bij mij in de buurt
-              </Button>
-            </Link>
-            <Link href="/discover?open_now=true">
-              <Button variant="outline" className="gap-2">
-                <Clock className="h-4 w-4" />
-                Nu open
-              </Button>
-            </Link>
-            <Link href="/discover?today=true">
-              <Button variant="outline" className="gap-2">
-                <Calendar className="h-4 w-4" />
-                Vandaag
-              </Button>
-            </Link>
-            <Link href="/discover?groups=true">
-              <Button variant="outline" className="gap-2">
-                <Users className="h-4 w-4" />
-                Groepen
-              </Button>
-            </Link>
-            <Link href="/discover?deals=true">
-              <Button variant="outline" className="gap-2">
-                <Tag className="h-4 w-4" />
-                Deals
-              </Button>
-            </Link>
-            <Link href="/search">
-              <Button variant="outline" className="gap-2">
-                <Search className="h-4 w-4" />
-                Zoeken
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* Hero Section with Grid Distortion */}
+      <HeroSection />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
