@@ -80,11 +80,30 @@ export function PromotionsManager({ locationId, locationName }: PromotionsManage
   const [uploading, setUploading] = useState(false);
   
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    terms_conditions: string;
+    discount_type: 'percentage' | 'fixed_amount' | 'special_offer' | 'buy_one_get_one' | 'happy_hour';
+    discount_value: string;
+    valid_from: string;
+    valid_until: string;
+    valid_days: string[];
+    valid_hours_enabled: boolean;
+    valid_hours_start: string;
+    valid_hours_end: string;
+    max_redemptions: string;
+    min_party_size: string;
+    max_party_size: string;
+    is_active: boolean;
+    is_featured: boolean;
+    priority: string;
+    image_url: string;
+  }>({
     title: '',
     description: '',
     terms_conditions: '',
-    discount_type: 'percentage' as const,
+    discount_type: 'percentage',
     discount_value: '',
     valid_from: new Date().toISOString().split('T')[0],
     valid_until: '',
