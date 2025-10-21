@@ -63,6 +63,29 @@ export function OnboardingWizard() {
     }
   }, [tenantIdParam]);
 
+  // Handle automatic redirects for skipped steps when adding new location
+  useEffect(() => {
+    if (data.tenantId) {
+      // Redirect from step 1 to step 2
+      if (currentStep === 1) {
+        router.push(`/manager/onboarding?step=2&tenantId=${data.tenantId}`);
+        return;
+      }
+      
+      // Skip step 6 (subscription) - redirect to step 8 (preview)
+      if (currentStep === 6) {
+        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
+        return;
+      }
+      
+      // Skip step 7 (integrations) - redirect to step 8 (preview)
+      if (currentStep === 7) {
+        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
+        return;
+      }
+    }
+  }, [data.tenantId, currentStep, router]);
+
   // Save progress to localStorage whenever data changes
   useEffect(() => {
     if (Object.keys(data).length > 0) {
@@ -127,25 +150,9 @@ export function OnboardingWizard() {
   };
 
   const renderStep = () => {
-    // If tenantId exists (adding new location), skip certain steps
-    if (data.tenantId) {
-      // Redirect from step 1 to step 2
-      if (currentStep === 1) {
-        router.push(`/manager/onboarding?step=2&tenantId=${data.tenantId}`);
-        return <div>Redirecting...</div>;
-      }
-      
-      // Skip step 6 (subscription) - redirect to step 8 (preview)
-      if (currentStep === 6) {
-        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
-        return <div>Redirecting...</div>;
-      }
-      
-      // Skip step 7 (integrations) - redirect to step 8 (preview)
-      if (currentStep === 7) {
-        router.push(`/manager/onboarding?step=8&tenantId=${data.tenantId}`);
-        return <div>Redirecting...</div>;
-      }
+    // If tenantId exists (adding new location), show loading for skipped steps
+    if (data.tenantId && (currentStep === 1 || currentStep === 6 || currentStep === 7)) {
+      return <div className="text-center py-8">Redirecting...</div>;
     }
 
     switch (currentStep) {

@@ -91,6 +91,21 @@ export async function POST(request: Request) {
     
     if (isPlaceholderPrice) {
       // Update billing state directly (bypass Stripe)
+      // Set plan limits based on plan type
+      const planLimits: Record<string, { maxLocations: number; maxBookings: number }> = {
+        'FREE': { maxLocations: 1, maxBookings: 50 },
+        'START': { maxLocations: 1, maxBookings: 200 },
+        'STARTER': { maxLocations: 1, maxBookings: 200 },
+        'PRO': { maxLocations: 3, maxBookings: 1000 },
+        'GROWTH': { maxLocations: 3, maxBookings: 1000 },
+        'BUSINESS': { maxLocations: 5, maxBookings: 3000 },
+        'PLUS': { maxLocations: 99, maxBookings: 10000 },
+        'PREMIUM': { maxLocations: 99, maxBookings: 10000 },
+        'ENTERPRISE': { maxLocations: 99, maxBookings: 50000 },
+      };
+
+      const limits = planLimits[validated.plan] || { maxLocations: 1, maxBookings: 50 };
+
       await supabase
         .from('billing_state')
         .upsert({
@@ -98,6 +113,9 @@ export async function POST(request: Request) {
           plan: validated.plan,
           status: 'ACTIVE',
           stripe_customer_id: customerId,
+          max_locations: limits.maxLocations,
+          max_bookings_per_month: limits.maxBookings,
+          trial_end: null, // Clear trial when activating paid plan
           updated_at: new Date().toISOString(),
         });
 

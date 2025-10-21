@@ -90,10 +90,12 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
       setUpgradeSuccess({ plan, testMode: testmode === 'true' });
       setActiveSection('subscription');
       
-      // Refresh data to show new plan
-      router.refresh();
+      // Force hard refresh to get new billing data from server
+      window.location.href = '/profile?refreshed=true';
+    } else if (searchParams.get('refreshed') === 'true') {
+      // After hard refresh, show success message and clean URL
+      setActiveSection('subscription');
       
-      // Clean URL (remove query params) after a short delay
       setTimeout(() => {
         router.replace('/profile', { scroll: false });
       }, 100);

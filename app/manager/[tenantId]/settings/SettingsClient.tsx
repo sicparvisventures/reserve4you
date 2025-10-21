@@ -959,33 +959,58 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                   <p className="text-sm text-muted-foreground">Beheer je abonnement en facturatie</p>
                 </div>
 
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Huidig Abonnement</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-                      <div>
-                        <p className="text-2xl font-bold">{billing.plan}</p>
-                        <p className="text-sm text-muted-foreground mt-1 capitalize">{billing.status}</p>
+                {billing ? (
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Huidig Abonnement</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+                        <div>
+                          <p className="text-2xl font-bold">{billing.plan}</p>
+                          <p className="text-sm text-muted-foreground mt-1 capitalize">{billing.status}</p>
+                        </div>
+                        <Badge 
+                          variant={billing.status === 'ACTIVE' ? 'default' : 'secondary'}
+                          className="text-sm px-3 py-1"
+                        >
+                          {billing.status}
+                        </Badge>
                       </div>
-                      <Badge 
-                        variant={billing.status === 'ACTIVE' ? 'default' : 'secondary'}
-                        className="text-sm px-3 py-1"
-                      >
-                        {billing.status}
-                      </Badge>
-                    </div>
 
-                    <Button
-                      variant="default"
-                      onClick={() => router.push('/profile')}
-                      className="w-full"
-                      size="lg"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Upgrade Abonnement
-                    </Button>
-                  </div>
-                </Card>
+                      <Button
+                        variant="default"
+                        onClick={() => router.push('/profile')}
+                        className="w-full"
+                        size="lg"
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Upgrade Abonnement
+                      </Button>
+                    </div>
+                  </Card>
+                ) : (
+                  <Card className="p-6">
+                    <div className="text-center space-y-4">
+                      <div className="flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto">
+                        <CreditCard className="h-8 w-8 text-yellow-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Geen abonnement gevonden</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Er is geen billing informatie beschikbaar voor deze tenant.
+                          Neem contact op met support of run de database migratie.
+                        </p>
+                      </div>
+                      <Button
+                        variant="default"
+                        onClick={() => router.push('/profile')}
+                        size="lg"
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Setup Abonnement
+                      </Button>
+                    </div>
+                  </Card>
+                )}
               </div>
             )}
 
