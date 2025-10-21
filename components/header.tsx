@@ -48,10 +48,8 @@ export function Header({ userData, pathname }: HeaderProps) {
         <div className="md:hidden flex items-center justify-between h-14">
           {/* Left: Logo + Hamburger Menu */}
           <div className="flex items-center gap-2">
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <RotatingLogoMobile />
-            </Link>
+            {/* Logo - already has Link inside RotatingLogoMobile */}
+            <RotatingLogoMobile />
             
             {/* Hamburger Menu */}
             <Button
