@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poule & Poulette - Floating Button Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #ffffff;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: #263e0f;
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    header p {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+    
+    .hero {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .hero h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #263e0f;
+    }
+    
+    .hero p {
+      font-size: 18px;
+      color: #6b7280;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    
+    .feature {
+      background: #f9fafb;
+      padding: 30px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .feature h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #263e0f;
+    }
+    
+    .feature p {
+      color: #6b7280;
+    }
+    
+    .cta {
+      background: linear-gradient(135deg, #263e0f 0%, #3d5a1a 100%);
+      padding: 60px 20px;
+      border-radius: 20px;
+      text-align: center;
+      color: white;
+    }
+    
+    .cta h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    
+    .cta p {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+    
+    .hint {
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 40px;
+      text-align: left;
+    }
+    
+    .hint h4 {
+      color: #92400e;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    
+    .hint p {
+      color: #78350f;
+      font-size: 14px;
+    }
+    
+    footer {
+      background: #1f2937;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      margin-top: 80px;
+    }
+    
+    footer p {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Header -->
+  <header>
+    <h1>Poule & Poulette</h1>
+    <p>Authentieke Belgische Kip in Mechelen, Brussel & Gent</p>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    
+    <!-- Hero Section -->
+    <div class="hero">
+      <h2>Welkom bij Poule & Poulette</h2>
+      <p>
+        Ontdek onze drie unieke locaties en reserveer direct online. 
+        Klik op het groene knopje rechtsonder om te beginnen!
+      </p>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature">
+        <h3>Mechelen</h3>
+        <p>IJzerenleen 36 - Onze gezellige eerste locatie in het hart van Mechelen. Perfect voor een casual lunch of diner.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>Brussel</h3>
+        <p>Place Jourdan 70 - Geniet van onze speciale Happy Hour promotie in de bruisende hoofdstad!</p>
+      </div>
+      
+      <div class="feature">
+        <h3>Gent</h3>
+        <p>Korenmarkt 11 - Probeer onze exclusieve Chicken Hour in historisch Gent.</p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h2>Reserveer Nu</h2>
+      <p>
+        Kies je favoriete locatie en reserveer binnen 2 minuten. 
+        Klik op het knopje rechtsonder!
+      </p>
+      
+      <div class="hint">
+        <h4>Zie je het groene knopje?</h4>
+        <p>
+          <strong>Rechtsonder op deze pagina</strong> vind je een rond groen knopje met een "+". 
+          Klik daarop om al onze locaties te zien en direct te reserveren. 
+          Dit knopje is op elke pagina van onze website beschikbaar!
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Poule & Poulette &copy; 2025 - Alle rechten voorbehouden</p>
+    <p style="margin-top: 10px; font-size: 14px;">
+      Powered by Reserve4You
+    </p>
+  </footer>
+
+  <!-- Floating Button Widget -->
+  <script src="/widget-button.js"></script>
+  <div data-r4y-widget-button="widget_poule_&_poulette_b0402eea"></div>
+
+  <!-- Console Info -->
+  <script>
+    console.log('=== Poule & Poulette Floating Button Test ===');
+    console.log('Widget Code: widget_poule_&_poulette_b0402eea');
+    console.log('Kijk rechtsonder voor het groene knopje!');
+  </script>
+
+</body>
+</html>
+

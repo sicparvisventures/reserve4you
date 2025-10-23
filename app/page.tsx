@@ -5,6 +5,7 @@ import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { HeroSection } from '@/components/hero/HeroSection';
+import { StaffLoginFloatingButton } from '@/components/staff/StaffLoginFloatingButton';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -27,6 +28,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   
   return (
     <main className="min-h-screen bg-background">
+      {/* Staff Login Floating Button */}
+      <StaffLoginFloatingButton />
+      
       {/* Hero Section with Grid Distortion */}
       <HeroSection />
 

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve4You Widget Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f9fafb;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+    
+    .header p {
+      color: #6b7280;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    
+    .widget-code {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .instructions {
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    
+    .instructions h3 {
+      color: #92400e;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    
+    .instructions p {
+      color: #78350f;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .widget-wrapper {
+      background: white;
+      padding: 60px 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      min-height: 500px;
+    }
+    
+    .footer {
+      text-align: center;
+      color: #6b7280;
+      margin-top: 40px;
+      padding: 20px;
+    }
+    
+    .footer p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Reserve4You Widget Test</h1>
+      <p>Test je embeddable restaurant widget</p>
+      <span class="widget-code" id="widget-code-display">widget_poule_&_poulette_b0402eea</span>
+      
+      <div class="instructions">
+        <h3>Instructies</h3>
+        <p>
+          <strong>1.</strong> Vervang de widget code hieronder met jouw widget code uit de Manager Portal<br>
+          <strong>2.</strong> Save dit bestand en refresh de pagina<br>
+          <strong>3.</strong> Je widget zou nu geladen moeten worden<br>
+          <strong>4.</strong> Test op verschillende schermformaten en browsers
+        </p>
+      </div>
+    </div>
+
+    <!-- Widget Container -->
+    <div class="widget-wrapper">
+      <!-- 🔧 VERVANG DIT MET JOUW WIDGET CODE -->
+      <script src="/widget-embed.js"></script>
+      <div data-r4y-widget="widget_poule_&_poulette_b0402eea"></div>
+      <!-- ☝️ Vervang "widget_poule_&_poulette_b0402eea" met jouw code -->
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Reserve4You Widget System • Test Pagina</p>
+      <p style="margin-top: 10px;">
+        Tip: Open de browser console (F12) voor debug informatie
+      </p>
+    </div>
+  </div>
+
+  <!-- Debug Info -->
+  <script>
+    // Show widget code in console
+    const widgetCode = document.querySelector('[data-r4y-widget]')?.getAttribute('data-r4y-widget');
+    console.log('[Widget] Code:', widgetCode);
+    console.log('[Widget] API URL:', `http://localhost:3007/api/widget/${widgetCode}`);
+    console.log('[Widget] Embed Script:', `http://localhost:3007/widget-embed.js`);
+    
+    // Update display
+    if (widgetCode) {
+      document.getElementById('widget-code-display').textContent = widgetCode;
+    }
+
+    // Listen for widget events
+    window.addEventListener('r4y-widget-loaded', (e) => {
+      console.log('[Widget] Loaded successfully', e.detail);
+    });
+
+    window.addEventListener('r4y-widget-error', (e) => {
+      console.error('[Widget] Error:', e.detail);
+    });
+
+    // Monitor script loading
+    const widgetScript = document.querySelector('script[src="/widget-embed.js"]');
+    if (widgetScript) {
+      widgetScript.addEventListener('load', () => {
+        console.log('[Widget] Embed script loaded');
+      });
+      widgetScript.addEventListener('error', () => {
+        console.error('[Widget] Failed to load embed script');
+      });
+    }
+  </script>
+</body>
+</html>
+

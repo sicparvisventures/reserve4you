@@ -11,9 +11,11 @@ export function ConditionalHeader() {
   // Don't show consumer header on:
   // - Login/signup pages
   // - Manager portal routes (all routes starting with /manager)
+  // - Staff login page (PIN login for venue staff)
   const hideHeader = 
     pathname === '/sign-in' || 
     pathname === '/sign-up' ||
+    pathname === '/staff-login' ||
     pathname.startsWith('/manager');
   
   if (hideHeader) {

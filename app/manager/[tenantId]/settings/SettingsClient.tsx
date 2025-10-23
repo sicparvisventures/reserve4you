@@ -29,10 +29,12 @@ import {
   Camera,
   ArrowLeft,
   ChevronRight,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Code
 } from 'lucide-react';
 import { uploadLocationImage, uploadTenantLogo, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
 import { MenuManager } from '@/components/manager/MenuManager';
+import { WidgetManager } from '@/components/manager/WidgetManager';
 
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 
@@ -48,6 +50,7 @@ const NAVIGATION = [
   { id: 'general', label: 'Bedrijfsinformatie', icon: Building2, description: 'Naam en branding' },
   { id: 'locations', label: 'Locaties', icon: MapPin, description: 'Restaurant instellingen' },
   { id: 'menu', label: 'Menu', icon: UtensilsCrossed, description: 'Menu beheer per locatie' },
+  { id: 'widget', label: 'Widget', icon: Code, description: 'Embeddable widget voor externe websites' },
   { id: 'team', label: 'Team', icon: Users, description: 'Teamleden beheren' },
   { id: 'billing', label: 'Abonnement', icon: CreditCard, description: 'Plan en facturatie' },
   { id: 'advanced', label: 'Geavanceerd', icon: SettingsIcon, description: 'Systeem instellingen' },
@@ -904,6 +907,29 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                   locationId={selectedLocationId}
                   locationName={selectedLocation.name}
                   tenantLocations={locations.map(l => ({ id: l.id, name: l.name }))}
+                />
+              </div>
+            )}
+
+            {/* Widget Section */}
+            {activeSection === 'widget' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Widget Configuratie</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Pas je embeddable widget aan voor externe websites
+                  </p>
+                </div>
+
+                {/* Widget Manager Component */}
+                <WidgetManager
+                  tenantId={tenantId}
+                  tenantName={tenant.name}
+                  locations={locations.map(l => ({ 
+                    id: l.id, 
+                    name: l.name, 
+                    city: l.address_json?.city || l.city || 'Onbekend' 
+                  }))}
                 />
               </div>
             )}

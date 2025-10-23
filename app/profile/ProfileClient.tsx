@@ -32,6 +32,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { SubscriptionSection } from './SubscriptionSection';
+import { UsersManager } from '@/components/manager/UsersManager';
 import {
   Dialog,
   DialogContent,
@@ -53,13 +54,14 @@ const NAVIGATION = [
   { id: 'info', label: 'Mijn gegevens', icon: Settings, description: 'Persoonlijke informatie' },
   { id: 'bookings', label: 'Reserveringen', icon: Calendar, description: 'Je boekingen' },
   { id: 'favorites', label: 'Favorieten', icon: Heart, description: 'Opgeslagen restaurants' },
+  { id: 'users', label: 'Gebruikers', icon: Users, description: 'Personeel en toegangsbeheer' },
 ];
 
 export function ProfileClient({ user, consumer, bookings, favorites, tenants }: ProfileClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [activeSection, setActiveSection] = useState<'info' | 'bookings' | 'favorites' | 'subscription'>('info');
+  const [activeSection, setActiveSection] = useState<'info' | 'bookings' | 'favorites' | 'users' | 'subscription'>('info');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
@@ -732,6 +734,24 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                     </Button>
                   </Card>
                 )}
+              </div>
+            )}
+
+            {/* Users Section */}
+            {activeSection === 'users' && tenants.length > 0 && (
+              <div className="space-y-6">
+                {tenants.map((tenant) => (
+                  <div key={tenant.id}>
+                    <div className="mb-4">
+                      <h2 className="text-xl font-semibold mb-1">{tenant.name}</h2>
+                      <p className="text-sm text-muted-foreground">Beheer gebruikers en toegangsrechten</p>
+                    </div>
+                    <UsersManager 
+                      tenantId={tenant.id} 
+                      locations={tenant.locations || []} 
+                    />
+                  </div>
+                ))}
               </div>
             )}
 

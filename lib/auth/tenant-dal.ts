@@ -34,7 +34,7 @@ export const getUserTenants = cache(async (userId: string) => {
     return [];
   }
   
-  // Add location count for each tenant
+  // Add location count and locations array for each tenant
   const tenantsWithCounts = await Promise.all(
     (memberships || []).map(async (membership) => {
       const locations = await getTenantLocations(membership.tenant_id);
@@ -42,6 +42,7 @@ export const getUserTenants = cache(async (userId: string) => {
         ...membership.tenant,
         role: membership.role,
         location_count: locations.length,
+        locations: locations, // Add locations array for user management
       };
     })
   );
