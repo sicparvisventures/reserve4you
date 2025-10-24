@@ -78,7 +78,8 @@ export function PINLoginBySlugClient({ slug, locationName }: PINLoginBySlugClien
         // Redirect to dashboard
         const dashboardUrl = result.dashboard_url;
         console.log('Redirecting to:', dashboardUrl);
-        router.push(dashboardUrl);
+        // Use window.location.href to avoid redirect loop with /manager page
+        window.location.href = dashboardUrl;
       } else {
         const errorMsg = data?.[0]?.error_message || 'Ongeldige PIN code';
         console.error('Login failed:', errorMsg);

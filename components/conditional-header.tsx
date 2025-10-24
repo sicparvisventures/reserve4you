@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header';
+import { BottomNavigation } from '@/components/BottomNavigation';
 import { useAuth } from '@/lib/auth/auth-provider';
 
 export function ConditionalHeader() {
@@ -18,6 +19,9 @@ export function ConditionalHeader() {
     pathname === '/staff-login' ||
     pathname.startsWith('/staff-login/') ||
     pathname.startsWith('/manager');
+  
+  // Show bottom navigation on consumer pages
+  const showBottomNav = pathname === '/' || pathname === '/discover' || pathname === '/favorites';
   
   if (hideHeader) {
     return null;
@@ -51,5 +55,10 @@ export function ConditionalHeader() {
     dbUser: dbUser
   } : null;
   
-  return <Header userData={userData} pathname={pathname} />;
+  return (
+    <>
+      <Header userData={userData} pathname={pathname} />
+      {showBottomNav && <BottomNavigation />}
+    </>
+  );
 } 

@@ -73,7 +73,8 @@ export function PINLoginClient() {
         // Redirect to appropriate dashboard (URL already determined by function)
         const dashboardUrl = result.dashboard_url;
         console.log('Redirecting to:', dashboardUrl);
-        router.push(dashboardUrl);
+        // Use window.location.href to avoid redirect loop with /manager page
+        window.location.href = dashboardUrl;
       } else {
         // Show specific error message if available
         const errorMsg = data?.[0]?.error_message || 'Ongeldige PIN code';

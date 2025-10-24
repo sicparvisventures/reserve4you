@@ -35,6 +35,11 @@ interface LocationDashboardProps {
   bookings: any[];
   billing: any;
   monthlyBookings: number;
+  permissions?: {
+    can_view_dashboard: boolean;
+    can_manage_bookings: boolean;
+    can_manage_tables: boolean;
+  };
 }
 
 export function LocationDashboard({
@@ -46,7 +51,14 @@ export function LocationDashboard({
   bookings,
   billing,
   monthlyBookings,
+  permissions,
 }: LocationDashboardProps) {
+  // Default permissions for owner/manager
+  const hasPermission = permissions || {
+    can_view_dashboard: true,
+    can_manage_bookings: true,
+    can_manage_tables: true,
+  };
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<'bookings' | 'tables' | 'shifts'>('bookings');
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
@@ -93,16 +105,20 @@ export function LocationDashboard({
           <div className="flex items-center justify-between h-16">
             {/* Left: Back Button & Location Info */}
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push(`/manager/${tenant.id}/dashboard`)}
-                className="rounded-xl"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Terug
-              </Button>
-              <div className="h-8 w-px bg-border" />
+              {hasPermission.can_view_dashboard && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push(`/manager/${tenant.id}/dashboard`)}
+                    className="rounded-xl"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Terug
+                  </Button>
+                  <div className="h-8 w-px bg-border" />
+                </>
+              )}
               <div className="flex items-center gap-3">
                 {tenant.logo_url ? (
                   <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-white flex items-center justify-center border border-border">
@@ -208,44 +224,50 @@ export function LocationDashboard({
         {/* Tabs */}
         <div className="border-b mb-6">
           <div className="flex gap-4">
-            <button
-              onClick={() => setSelectedTab('bookings')}
-              className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
-                selectedTab === 'bookings'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Calendar className="h-4 w-4 inline mr-2" />
-              Reserveringen ({upcomingBookings.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('tables')}
-              className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
-                selectedTab === 'tables'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <TableIcon className="h-4 w-4 inline mr-2" />
-              Tafels ({tables.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('shifts')}
-              className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
-                selectedTab === 'shifts'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Clock className="h-4 w-4 inline mr-2" />
-              Diensten ({shifts.length})
-            </button>
+            {hasPermission.can_manage_bookings && (
+              <button
+                onClick={() => setSelectedTab('bookings')}
+                className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
+                  selectedTab === 'bookings'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Calendar className="h-4 w-4 inline mr-2" />
+                Reserveringen ({upcomingBookings.length})
+              </button>
+            )}
+            {hasPermission.can_manage_tables && (
+              <button
+                onClick={() => setSelectedTab('tables')}
+                className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
+                  selectedTab === 'tables'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <TableIcon className="h-4 w-4 inline mr-2" />
+                Tafels ({tables.length})
+              </button>
+            )}
+            {hasPermission.can_manage_tables && (
+              <button
+                onClick={() => setSelectedTab('shifts')}
+                className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
+                  selectedTab === 'shifts'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Clock className="h-4 w-4 inline mr-2" />
+                Diensten ({shifts.length})
+              </button>
+            )}
           </div>
         </div>
 
         {/* Tab Content */}
-        {selectedTab === 'bookings' && (
+        {selectedTab === 'bookings' && hasPermission.can_manage_bookings && (
           <div className="space-y-3">
             {upcomingBookings.length === 0 ? (
               <Card className="p-12 text-center">
@@ -328,7 +350,7 @@ export function LocationDashboard({
           </div>
         )}
 
-        {selectedTab === 'tables' && (
+        {selectedTab === 'tables' && hasPermission.can_manage_tables && (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {tables.map((table) => (
               <Card key={table.id} className="p-4">
@@ -365,7 +387,7 @@ export function LocationDashboard({
           </div>
         )}
 
-        {selectedTab === 'shifts' && (
+        {selectedTab === 'shifts' && hasPermission.can_manage_tables && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {shifts.map((shift) => (
               <Card key={shift.id} className="p-4">

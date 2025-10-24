@@ -34,6 +34,7 @@ import { FloorPlanEditor } from '@/components/floor-plan/FloorPlanEditor';
 import { PromotionsManager } from '@/components/manager/PromotionsManager';
 import { LocationImageUpload } from '@/components/manager/LocationImageUpload';
 import { GuestMessagingPanel } from '@/components/manager/GuestMessagingPanel';
+import { StaffLoginQuickAccess } from '@/components/staff/StaffLoginQuickAccess';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -45,6 +46,12 @@ interface LocationManagementProps {
   tables: any[];
   bookings: any[];
   stats: any;
+  permissions?: {
+    can_view_dashboard: boolean;
+    can_manage_bookings: boolean;
+    can_manage_tables: boolean;
+  };
+  isVenueUser?: boolean;
 }
 
 export function LocationManagement({
@@ -54,7 +61,15 @@ export function LocationManagement({
   tables: initialTables,
   bookings: initialBookings,
   stats: initialStats,
+  permissions,
+  isVenueUser = false,
 }: LocationManagementProps) {
+  // Default permissions for owner/manager
+  const hasPermission = permissions || {
+    can_view_dashboard: true,
+    can_manage_bookings: true,
+    can_manage_tables: true,
+  };
   const [location, setLocation] = useState(initialLocation);
   const [bookings, setBookings] = useState(initialBookings);
   const [stats, setStats] = useState(initialStats);
@@ -247,9 +262,18 @@ export function LocationManagement({
                 </p>
               </div>
             </div>
-            <Badge variant={location.is_public ? 'default' : 'secondary'}>
-              {location.is_public ? 'Gepubliceerd' : 'Concept'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {(location.staff_login_slug || location.slug) && (
+                <StaffLoginQuickAccess
+                  locationSlug={location.staff_login_slug || location.slug}
+                  locationName={location.internal_name || location.name}
+                  isVenueUser={isVenueUser}
+                />
+              )}
+              <Badge variant={location.is_public ? 'default' : 'secondary'}>
+                {location.is_public ? 'Gepubliceerd' : 'Concept'}
+              </Badge>
+            </div>
           </div>
         </div>
       </div>

@@ -58,6 +58,7 @@ interface Location {
   id: string;
   name: string;
   internal_name: string;
+  slug: string;
 }
 
 interface UsersManagerProps {
@@ -91,6 +92,7 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
     first_name: '',
     last_name: '',
     email: '',
+    password: '',
     phone: '',
     pin_code: '',
     role: 'standard' as UserRole,
@@ -142,43 +144,109 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
       return;
     }
 
+    // Validate email
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      showMessage('error', 'Geldig email adres is verplicht');
+      return;
+    }
+
+    // Validate password for new users
+    if (!editingUser && (!formData.password || formData.password.length < 8)) {
+      showMessage('error', 'Wachtwoord moet minimaal 8 karakters zijn');
+      return;
+    }
+
     try {
-      const supabase = createClient();
-
       if (editingUser) {
-        // Update existing user
-        const { error } = await supabase
-          .from('venue_users')
-          .update({
-            ...formData,
-            updated_at: new Date().toISOString(),
+        // Update existing user via API
+        const response = await fetch('/api/venue-users/update', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingUser.id,
+            email: formData.email,
+            firstName: formData.first_name,
+            lastName: formData.last_name,
+            phone: formData.phone,
+            pinCode: formData.pin_code,
+            role: formData.role,
+            tenantId: tenantId,
+            allLocations: formData.all_locations,
+            locationIds: formData.location_ids,
+            permissions: {
+              can_view_dashboard: formData.can_view_dashboard,
+              can_manage_bookings: formData.can_manage_bookings,
+              can_manage_customers: formData.can_manage_customers,
+              can_manage_tables: formData.can_manage_tables,
+              can_manage_menu: formData.can_manage_menu,
+              can_manage_promotions: formData.can_manage_promotions,
+              can_view_analytics: formData.can_view_analytics,
+              can_manage_settings: formData.can_manage_settings,
+              can_manage_users: formData.can_manage_users,
+              can_manage_billing: formData.can_manage_billing,
+            }
           })
-          .eq('id', editingUser.id);
+        });
 
-        if (error) throw error;
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error);
+        
         showMessage('success', 'Gebruiker bijgewerkt!');
       } else {
-        // Create new user
-        const { error } = await supabase
-          .from('venue_users')
-          .insert({
-            tenant_id: tenantId,
-            ...formData,
-          });
+        // Create new user via API
+        const response = await fetch('/api/venue-users/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            firstName: formData.first_name,
+            lastName: formData.last_name,
+            phone: formData.phone,
+            pinCode: formData.pin_code,
+            role: formData.role,
+            tenantId: tenantId,
+            allLocations: formData.all_locations,
+            locationIds: formData.location_ids,
+            permissions: {
+              can_view_dashboard: formData.can_view_dashboard,
+              can_manage_bookings: formData.can_manage_bookings,
+              can_manage_customers: formData.can_manage_customers,
+              can_manage_tables: formData.can_manage_tables,
+              can_manage_menu: formData.can_manage_menu,
+              can_manage_promotions: formData.can_manage_promotions,
+              can_view_analytics: formData.can_view_analytics,
+              can_manage_settings: formData.can_manage_settings,
+              can_manage_users: formData.can_manage_users,
+              can_manage_billing: formData.can_manage_billing,
+            }
+          })
+        });
 
-        if (error) throw error;
-        showMessage('success', 'Gebruiker aangemaakt!');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error);
+        
+        showMessage('success', 'Gebruiker aangemaakt met email & wachtwoord!');
       }
 
       resetForm();
       fetchUsers();
     } catch (error: any) {
       console.error('Error saving user:', error);
-      if (error.code === '23505') {
-        showMessage('error', 'Deze PIN code is al in gebruik');
-      } else {
-        showMessage('error', 'Fout bij opslaan gebruiker');
+      
+      // Better error messages
+      let errorMsg = 'Fout bij opslaan gebruiker';
+      if (error.message.includes('duplicate key')) {
+        if (error.message.includes('pin_code') || error.message.includes('unique_pin_per_tenant')) {
+          errorMsg = 'Deze PIN code is al in gebruik voor deze tenant';
+        } else if (error.message.includes('email')) {
+          errorMsg = 'Dit email adres is al in gebruik';
+        }
+      } else if (error.message) {
+        errorMsg = error.message;
       }
+      
+      showMessage('error', errorMsg);
     }
   };
 
@@ -186,18 +254,27 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
     if (!confirm('Weet je zeker dat je deze gebruiker wilt verwijderen?')) return;
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from('venue_users')
-        .delete()
-        .eq('id', userId);
+      const response = await fetch(`/api/venue-users/delete?id=${userId}&tenantId=${tenantId}`, {
+        method: 'DELETE'
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+
       showMessage('success', 'Gebruiker verwijderd');
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting user:', error);
-      showMessage('error', 'Fout bij verwijderen gebruiker');
+      
+      // Better error messages
+      let errorMsg = 'Fout bij verwijderen gebruiker';
+      if (error.message.includes('not found')) {
+        errorMsg = 'Gebruiker niet gevonden. Mogelijk al verwijderd of geen toegang.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      showMessage('error', errorMsg);
     }
   };
 
@@ -207,6 +284,7 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email || '',
+      password: '',
       phone: user.phone || '',
       pin_code: user.pin_code,
       role: user.role,
@@ -232,6 +310,7 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
     setFormData({
       first_name: '',
       last_name: '',
+      password: '',
       email: '',
       phone: '',
       pin_code: '',
@@ -354,14 +433,34 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>E-mail</Label>
+                <Label>E-mail *</Label>
                 <Input
                   type="email"
+                  required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="john@example.com"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Voor inloggen op /staff-login met email & wachtwoord
+                </p>
               </div>
+
+              {!editingUser && (
+                <div className="space-y-2">
+                  <Label>Wachtwoord *</Label>
+                  <Input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Min. 8 karakters"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Minimaal 8 karakters vereist
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Telefoon</Label>
@@ -441,7 +540,10 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
                             setFormData({ ...formData, location_ids: newIds });
                           }}
                         />
-                        <span className="text-sm">{location.name || location.internal_name}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{location.internal_name || location.name}</span>
+                          <span className="text-xs text-muted-foreground">/staff-login/{location.slug}</span>
+                        </div>
                       </label>
                     ))}
                   </div>
@@ -605,11 +707,24 @@ export function UsersManager({ tenantId, locations }: UsersManagerProps) {
                     <div>
                       <span className="font-medium">PIN:</span> ••••
                     </div>
-                    <div>
+                    <div className="col-span-2">
                       <span className="font-medium">Vestigingen:</span>{' '}
-                      {user.all_locations
-                        ? 'Alle'
-                        : user.location_ids.length + ' geselecteerd'}
+                      {user.all_locations ? (
+                        'Alle'
+                      ) : (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {user.location_ids.map((locId) => {
+                            const loc = locations.find((l) => l.id === locId);
+                            if (!loc) return null;
+                            return (
+                              <Badge key={locId} variant="secondary" className="text-xs">
+                                {loc.internal_name || loc.name}
+                                <span className="ml-1 opacity-60">(/staff-login/{loc.slug})</span>
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                     {user.last_login_at && (
                       <div>
