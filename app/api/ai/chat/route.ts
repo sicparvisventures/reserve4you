@@ -8,15 +8,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import OpenAI from 'openai';
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Lazy initialize OpenAI client
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
     // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    const openai = getOpenAIClient();
+    if (!openai) {
       console.error('[AI Chat] OPENAI_API_KEY not configured');
       return NextResponse.json({
         message: '⚠️ AI assistent is niet geconfigureerd. Voeg OPENAI_API_KEY toe aan .env.local',
