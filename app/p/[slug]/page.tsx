@@ -29,9 +29,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  // Fetch menu data
   const supabase = await createClient();
   
+  // Fetch menu data
   const { data: menuCategories } = await supabase
     .from('menu_categories')
     .select('*')
@@ -51,10 +51,45 @@ export default async function LocationPage({ params }: LocationPageProps) {
     ...cat,
     items: (menuItems || []).filter((item: any) => item.category_id === cat.id)
   }));
+
+  // Check if user can leave a review
+  let canLeaveReview = false;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Get consumer for this user
+      const { data: consumer } = await supabase
+        .from('consumers')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (consumer) {
+        // Check if they have a completed booking at this location
+        const { data: completedBooking } = await supabase
+          .from('bookings')
+          .select('id')
+          .eq('consumer_id', consumer.id)
+          .eq('location_id', location.id)
+          .eq('status', 'COMPLETED')
+          .limit(1)
+          .single();
+
+        canLeaveReview = !!completedBooking;
+      }
+    }
+  } catch (error) {
+    // User not logged in or no completed booking - that's okay
+    console.log('Review check:', error);
+  }
   
   return (
     <div className="min-h-screen bg-background">
-      <LocationDetailClient location={location} menuData={menuData} />
+      <LocationDetailClient 
+        location={location} 
+        menuData={menuData}
+        canLeaveReview={canLeaveReview}
+      />
     </div>
   );
 }

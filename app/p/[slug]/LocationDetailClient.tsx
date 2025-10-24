@@ -34,11 +34,12 @@ import { cn } from '@/lib/utils';
 interface LocationDetailClientProps {
   location: any;
   menuData?: any[];
+  canLeaveReview?: boolean;
 }
 
 type TabType = 'overview' | 'availability' | 'menu' | 'reviews' | 'location';
 
-export function LocationDetailClient({ location, menuData = [] }: LocationDetailClientProps) {
+export function LocationDetailClient({ location, menuData = [], canLeaveReview = false }: LocationDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [bookingSheetOpen, setBookingSheetOpen] = useState(false);
 
@@ -302,7 +303,7 @@ export function LocationDetailClient({ location, menuData = [] }: LocationDetail
               locationName={location.name}
               averageRating={location.average_rating}
               reviewCount={location.review_count}
-              canLeaveReview={false} // TODO: Check if user has completed booking
+              canLeaveReview={canLeaveReview}
             />
           )}
 
