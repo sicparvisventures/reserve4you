@@ -56,7 +56,28 @@ BEGIN
     ALTER TABLE bookings ADD COLUMN guest_name VARCHAR(255);
     RAISE NOTICE '  ✅ Kolom guest_name toegevoegd';
   ELSE
-    RAISE NOTICE '  ✓ Kolom guest_name bestaat al';
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN guest_name DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom guest_name NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom guest_name bestaat al';
+    END;
+  END IF;
+
+  -- Check en voeg customer_name toe (alternatief voor guest_name)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'customer_name'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN customer_name VARCHAR(255);
+    RAISE NOTICE '  ✅ Kolom customer_name toegevoegd';
+  ELSE
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN customer_name DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom customer_name NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom customer_name bestaat al';
+    END;
   END IF;
 
   -- Check en voeg guest_phone toe
@@ -67,7 +88,26 @@ BEGIN
     ALTER TABLE bookings ADD COLUMN guest_phone VARCHAR(20);
     RAISE NOTICE '  ✅ Kolom guest_phone toegevoegd';
   ELSE
-    RAISE NOTICE '  ✓ Kolom guest_phone bestaat al';
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN guest_phone DROP NOT NULL;
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom guest_phone bestaat al';
+    END;
+  END IF;
+
+  -- Check en voeg customer_phone toe (alternatief voor guest_phone)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'customer_phone'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN customer_phone VARCHAR(20);
+    RAISE NOTICE '  ✅ Kolom customer_phone toegevoegd';
+  ELSE
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN customer_phone DROP NOT NULL;
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom customer_phone bestaat al';
+    END;
   END IF;
 
   -- Check en voeg guest_email toe
@@ -78,7 +118,26 @@ BEGIN
     ALTER TABLE bookings ADD COLUMN guest_email VARCHAR(255);
     RAISE NOTICE '  ✅ Kolom guest_email toegevoegd';
   ELSE
-    RAISE NOTICE '  ✓ Kolom guest_email bestaat al';
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN guest_email DROP NOT NULL;
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom guest_email bestaat al';
+    END;
+  END IF;
+
+  -- Check en voeg customer_email toe (alternatief voor guest_email)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'customer_email'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN customer_email VARCHAR(255);
+    RAISE NOTICE '  ✅ Kolom customer_email toegevoegd';
+  ELSE
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN customer_email DROP NOT NULL;
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom customer_email bestaat al';
+    END;
   END IF;
 
   -- Check en voeg start_ts toe (als start_time bestaat, rename het)
@@ -258,14 +317,17 @@ BEGIN
   ) INTO v_booking_exists;
 
   IF NOT v_booking_exists THEN
-    -- Maak completed booking
+    -- Maak completed booking met ALLE mogelijke naam varianten
     INSERT INTO bookings (
       location_id,
       table_id,
       consumer_id,
       guest_name,
+      customer_name,
       guest_phone,
+      customer_phone,
       guest_email,
+      customer_email,
       party_size,
       number_of_guests,
       start_ts,
@@ -280,7 +342,10 @@ BEGIN
       v_table_id,
       v_consumer_id,
       'Test Reviewschrijver',
+      'Test Reviewschrijver',
       '+31612345678',
+      '+31612345678',
+      'reviews@reserve4you.nl',
       'reviews@reserve4you.nl',
       4,
       4,
