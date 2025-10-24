@@ -400,10 +400,13 @@ END $$;
 -- ============================================================================
 -- VERIFICATIE: TOON RESULTATEN
 -- ============================================================================
-SELECT '';
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
-SELECT '📊 RESULTATEN' AS "";
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
+DO $$
+BEGIN
+  RAISE NOTICE '';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  RAISE NOTICE '📊 RESULTATEN';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+END $$;
 
 SELECT 
   l.name AS "Restaurant",
@@ -416,10 +419,13 @@ WHERE l.slug IN ('chickx', 'poulepoulette', 'chick-x')
 ORDER BY l.created_at DESC
 LIMIT 3;
 
-SELECT '';
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
-SELECT '📝 LAATSTE REVIEWS' AS "";
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
+DO $$
+BEGIN
+  RAISE NOTICE '';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  RAISE NOTICE '📝 LAATSTE REVIEWS';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+END $$;
 
 SELECT 
   r.rating AS "★",
@@ -440,19 +446,24 @@ WHERE l.slug IN ('chickx', 'poulepoulette', 'chick-x')
 ORDER BY r.created_at DESC
 LIMIT 5;
 
-SELECT '';
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
-SELECT '✅ KLAAR!' AS "";
-SELECT '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' AS "═══════════════";
+DO $$
+DECLARE
+  v_url TEXT;
+BEGIN
+  SELECT 'http://localhost:3007/p/' || slug INTO v_url
+  FROM locations
+  WHERE slug IN ('chickx', 'poulepoulette', 'chick-x')
+     OR (is_public = true AND is_active = true)
+  ORDER BY created_at DESC
+  LIMIT 1;
 
-SELECT 
-  'Ga naar: http://localhost:3007/p/' || slug AS "🌐 Bekijk reviews op:"
-FROM locations
-WHERE slug IN ('chickx', 'poulepoulette', 'chick-x')
-   OR (is_public = true AND is_active = true)
-ORDER BY created_at DESC
-LIMIT 1;
-
-SELECT '' AS "";
-SELECT '💡 TIP: Log in en je ziet "Schrijf een review" knop!' AS "";
+  RAISE NOTICE '';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  RAISE NOTICE '✅ KLAAR!';
+  RAISE NOTICE '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  RAISE NOTICE '';
+  RAISE NOTICE '🌐 Bekijk reviews op: %', v_url;
+  RAISE NOTICE '💡 TIP: Log in en je ziet "Schrijf een review" knop!';
+  RAISE NOTICE '';
+END $$;
 
