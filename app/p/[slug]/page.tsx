@@ -56,32 +56,49 @@ export default async function LocationPage({ params }: LocationPageProps) {
   let canLeaveReview = false;
   try {
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('👤 User check for reviews:', { 
+      userId: user?.id, 
+      email: user?.email,
+      locationSlug: slug 
+    });
+
     if (user) {
       // Get consumer for this user
-      const { data: consumer } = await supabase
+      const { data: consumer, error: consumerError } = await supabase
         .from('consumers')
         .select('id')
         .eq('auth_user_id', user.id)
         .single();
 
+      console.log('👤 Consumer check:', { 
+        consumerId: consumer?.id, 
+        error: consumerError?.message 
+      });
+
       if (consumer) {
         // Check if they have a completed booking at this location
-        const { data: completedBooking } = await supabase
+        const { data: completedBookings, error: bookingError } = await supabase
           .from('bookings')
-          .select('id')
+          .select('id, status, start_ts')
           .eq('consumer_id', consumer.id)
           .eq('location_id', location.id)
-          .eq('status', 'COMPLETED')
-          .limit(1)
-          .single();
+          .eq('status', 'COMPLETED');
 
-        canLeaveReview = !!completedBooking;
+        console.log('📅 Completed bookings:', { 
+          count: completedBookings?.length || 0,
+          bookings: completedBookings,
+          error: bookingError?.message 
+        });
+
+        canLeaveReview = (completedBookings?.length || 0) > 0;
       }
     }
   } catch (error) {
     // User not logged in or no completed booking - that's okay
-    console.log('Review check:', error);
+    console.log('❌ Review check error:', error);
   }
+
+  console.log('✍️ Can leave review:', canLeaveReview);
   
   return (
     <div className="min-h-screen bg-background">

@@ -60,12 +60,18 @@ export async function GET(request: NextRequest) {
     const { data: reviews, error } = await query;
 
     if (error) {
-      console.error('Error fetching reviews:', error);
+      console.error('❌ Error fetching reviews:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch reviews' },
+        { error: 'Failed to fetch reviews', details: error.message },
         { status: 500 }
       );
     }
+
+    console.log('✅ Reviews fetched:', {
+      locationId,
+      count: reviews?.length || 0,
+      reviews: reviews?.map(r => ({ id: r.id, rating: r.rating, consumer: r.consumer }))
+    });
 
     // Transform the data
     const transformedReviews = (reviews || []).map((review: any) => ({
@@ -74,6 +80,8 @@ export async function GET(request: NextRequest) {
       reply: review.reply?.[0] || null,
       helpful_votes_count: review.helpful_votes?.[0]?.count || 0,
     }));
+
+    console.log('✅ Transformed reviews:', transformedReviews.length);
 
     return NextResponse.json({
       reviews: transformedReviews,
