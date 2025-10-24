@@ -4,6 +4,7 @@ import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { VideoHeroSection } from '@/components/hero/VideoHeroSection';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { StaffLoginFloatingButton } from '@/components/staff/StaffLoginFloatingButton';
 import Link from 'next/link';
@@ -30,6 +31,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <main className="min-h-screen bg-background">
       {/* Staff Login Floating Button */}
       <StaffLoginFloatingButton />
+      
+      {/* Video Hero Section with Logo */}
+      <VideoHeroSection />
       
       {/* Hero Section with Grid Distortion */}
       <HeroSection />

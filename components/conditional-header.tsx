@@ -58,7 +58,7 @@ export function ConditionalHeader() {
   return (
     <>
       <Header userData={userData} pathname={pathname} />
-      {showBottomNav && <BottomNavigation />}
+      {showBottomNav && <BottomNavigation userData={userData} />}
     </>
   );
 } 

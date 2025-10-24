@@ -2,15 +2,14 @@
  * R4Y Header Component
  * 
  * Consumer-facing header with R4Y branding
- * Mobile-first responsive design with hamburger menu
+ * Mobile-first responsive design
  */
 
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, Building2 } from 'lucide-react';
+import { User, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { NotificationBadge } from '@/components/NotificationBadge';
@@ -27,8 +26,6 @@ interface HeaderProps {
 }
 
 export function Header({ userData, pathname }: HeaderProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   // Check if we're on a consumer page that will have bottom navigation
   const isConsumerPage = pathname === '/' || pathname === '/discover' || pathname === '/favorites';
 
@@ -49,132 +46,23 @@ export function Header({ userData, pathname }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between h-14">
-          {/* Left: Logo + Hamburger Menu */}
+          {/* Left: Logo */}
           <div className="flex items-center gap-2">
             {/* Logo - already has Link inside RotatingLogoMobile */}
             <RotatingLogoMobile />
-            
-            {/* Hamburger Menu */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="h-9 w-9"
-              aria-label="Menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
           </div>
 
-          {/* Right: Action Icons */}
+          {/* Right: Notification Icon (if logged in) */}
           <div className="flex items-center gap-1">
-            {userData ? (
+            {userData && (
               <>
                 {/* Notifications */}
                 <NotificationBadge />
-                
-                {/* Profile */}
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-9 w-9 rounded-full hover:bg-primary/10"
-                  asChild
-                >
-                  <Link href="/profile" aria-label="Profiel">
-                    <User className="h-5 w-5" />
-                  </Link>
-                </Button>
-                
-                {/* Manager Dashboard */}
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-9 w-9 rounded-full hover:bg-primary/10"
-                  asChild
-                >
-                  <Link href={managerDashboardUrl} aria-label="Manager Dashboard">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                {/* Sign In */}
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-9 w-9 rounded-full hover:bg-primary/10"
-                  asChild
-                >
-                  <Link href="/sign-in" aria-label="Inloggen">
-                    <User className="h-5 w-5" />
-                  </Link>
-                </Button>
-                
-                {/* Manager Portal (Not logged in) */}
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-9 w-9 rounded-full hover:bg-primary/10"
-                  asChild
-                >
-                  <Link href="/manager" aria-label="Manager Portal">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </Link>
-                </Button>
               </>
             )}
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card">
-            <nav className="py-4 space-y-1">
-              {/* Only show nav links if not on consumer pages with bottom navigation */}
-              {!isConsumerPage && navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                    pathname === link.href
-                      ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              
-              {/* Mobile Menu Actions */}
-              {!userData && (
-                <>
-                  {!isConsumerPage && <div className="h-px bg-border my-2" />}
-                  <Link
-                    href="/sign-up"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-3 rounded-lg text-sm font-medium text-foreground bg-primary/10 hover:bg-primary/20 transition-colors"
-                  >
-                    Aanmelden
-                  </Link>
-                  <Link
-                    href="/sign-in"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                  >
-                    Inloggen
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
 
         <div className="hidden md:flex items-center justify-between h-16">
           {/* Logo */}
