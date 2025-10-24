@@ -186,6 +186,27 @@ BEGIN
     ALTER TABLE bookings ADD COLUMN status booking_status NOT NULL DEFAULT 'PENDING';
     RAISE NOTICE '  ✅ Kolom status toegevoegd';
   ELSE
+    -- Verwijder eventuele CHECK constraints op status
+    BEGIN
+      -- Probeer alle check constraints op bookings te droppen die status bevatten
+      DECLARE
+        constraint_rec RECORD;
+      BEGIN
+        FOR constraint_rec IN 
+          SELECT constraint_name 
+          FROM information_schema.constraint_column_usage 
+          WHERE table_name = 'bookings' 
+          AND column_name = 'status'
+          AND constraint_name LIKE '%check%'
+        LOOP
+          EXECUTE format('ALTER TABLE bookings DROP CONSTRAINT IF EXISTS %I', constraint_rec.constraint_name);
+          RAISE NOTICE '  ✅ Check constraint % verwijderd', constraint_rec.constraint_name;
+        END LOOP;
+      END;
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ⚠️  Kon check constraints niet verwijderen (mogelijk niet nodig)';
+    END;
+    
     RAISE NOTICE '  ✓ Kolom status bestaat al';
   END IF;
 
