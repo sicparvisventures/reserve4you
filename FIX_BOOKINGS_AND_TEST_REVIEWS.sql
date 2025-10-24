@@ -146,6 +146,23 @@ BEGIN
     END;
   END IF;
 
+  -- Check en voeg booking_time toe (of maak NOT NULL constraint optioneel)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'booking_time'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN booking_time TIME;
+    RAISE NOTICE '  ✅ Kolom booking_time toegevoegd';
+  ELSE
+    -- Als booking_time bestaat en NOT NULL is, maak het nullable
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN booking_time DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom booking_time NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom booking_time bestaat al';
+    END;
+  END IF;
+
   RAISE NOTICE '';
   RAISE NOTICE '✅ Bookings tabel structuur is nu correct!';
   RAISE NOTICE '';
@@ -230,6 +247,7 @@ BEGIN
       start_ts,
       end_ts,
       booking_date,
+      booking_time,
       status,
       payment_status,
       source
@@ -244,6 +262,7 @@ BEGIN
       NOW() - INTERVAL '2 days',
       NOW() - INTERVAL '2 days' + INTERVAL '2 hours',
       (NOW() - INTERVAL '2 days')::DATE,
+      (NOW() - INTERVAL '2 days')::TIME,
       'COMPLETED',
       'NONE',
       'WEB'
