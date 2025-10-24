@@ -383,8 +383,10 @@ export function MultiLocationCalendar({ tenantId, locations }: MultiLocationCale
         <BookingDetailModal
           open={showDetailModal}
           onOpenChange={setShowDetailModal}
-          bookingId={selectedBooking.id}
-          onUpdate={loadBookings}
+          booking={selectedBooking}
+          onStatusUpdate={async () => {
+            await loadBookings();
+          }}
         />
       )}
     </div>

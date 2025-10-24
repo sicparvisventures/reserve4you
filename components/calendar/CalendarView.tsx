@@ -346,10 +346,7 @@ export function CalendarView({ locationId, tenantId }: CalendarViewProps) {
               onNavigate={handleNavigate}
               onSelectEvent={handleSelectEvent}
               onSelectSlot={handleSelectSlot}
-              onEventDrop={handleEventDrop}
               selectable
-              resizable
-              draggableAccessor={() => true}
               eventPropGetter={eventStyleGetter}
               components={{
                 event: EventComponent
@@ -383,8 +380,10 @@ export function CalendarView({ locationId, tenantId }: CalendarViewProps) {
         <BookingDetailModal
           open={showDetailModal}
           onOpenChange={setShowDetailModal}
-          bookingId={selectedBooking.id}
-          onUpdate={loadBookings}
+          booking={selectedBooking}
+          onStatusUpdate={async () => {
+            await loadBookings();
+          }}
         />
       )}
 

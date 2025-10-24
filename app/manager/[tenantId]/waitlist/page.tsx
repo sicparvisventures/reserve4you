@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default async function WaitlistOverviewPage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
-  const { tenantId } = params;
+  const { tenantId } = await params;
 
   // Verify session
   const session = await verifySession();

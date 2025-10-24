@@ -9,35 +9,22 @@ export const dynamic = 'force-dynamic';
 export default async function CRMOverviewPage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
-  const { tenantId } = params;
+  const { tenantId } = await params;
   
   const session = await verifySession();
   if (!session) {
     redirect('/auth/login');
   }
 
-  const tenant = await getTenant(tenantId);
+  const { tenant } = await getTenant(tenantId);
   if (!tenant) {
     redirect('/manager');
   }
 
-  // Check if user has access to this tenant via memberships
-  const supabase = await createClient();
-  
-  const { data: membership } = await supabase
-    .from('memberships')
-    .select('role')
-    .eq('tenant_id', tenantId)
-    .eq('user_id', session.userId)
-    .single();
-
-  if (!membership) {
-    redirect('/manager');
-  }
-
   // Get all locations for this tenant
+  const supabase = await createClient();
   const { data: locations } = await supabase
     .from('locations')
     .select('id, name, address, city')

@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default async function CalendarOverviewPage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
-  const { tenantId } = params;
+  const { tenantId } = await params;
 
   // Verify session and permissions
   const session = await verifySession();

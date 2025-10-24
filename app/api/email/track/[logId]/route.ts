@@ -7,9 +7,9 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { logId: string } }
+  { params }: { params: Promise<{ logId: string }> }
 ) {
-  const { logId } = params;
+  const { logId } = await params;
 
   try {
     const supabase = await createClient();

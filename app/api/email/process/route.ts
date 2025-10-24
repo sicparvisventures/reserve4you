@@ -80,14 +80,20 @@ export async function POST(request: NextRequest) {
             recipient: email.recipient_email,
           });
         } else {
-          // Mark as failed
+          // Mark as failed - get current retry count first
+          const { data: currentEmail } = await supabase
+            .from('email_delivery_log')
+            .select('retry_count')
+            .eq('id', email.id)
+            .single();
+          
           await supabase
             .from('email_delivery_log')
             .update({
               status: 'failed',
               failed_at: new Date().toISOString(),
               error_message: result.error,
-              retry_count: supabase.raw('retry_count + 1'),
+              retry_count: (currentEmail?.retry_count || 0) + 1,
             })
             .eq('id', email.id);
 

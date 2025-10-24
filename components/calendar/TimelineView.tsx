@@ -43,7 +43,7 @@ interface TimelineViewProps {
 
 export function TimelineView({ locationId, date }: TimelineViewProps) {
   const [tables, setTables] = useState<TableOccupancy[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [zoom, setZoom] = useState(60); // pixels per hour
@@ -89,8 +89,8 @@ export function TimelineView({ locationId, date }: TimelineViewProps) {
   };
 
   // Handle booking click
-  const handleBookingClick = (bookingId: string) => {
-    setSelectedBooking(bookingId);
+  const handleBookingClick = (booking: any) => {
+    setSelectedBooking(booking);
     setShowDetailModal(true);
   };
 
@@ -229,7 +229,7 @@ export function TimelineView({ locationId, date }: TimelineViewProps) {
                             backgroundColor: booking.color + '33',
                             borderColor: booking.color,
                           }}
-                          onClick={() => handleBookingClick(booking.id)}
+                          onClick={() => handleBookingClick(booking)}
                         >
                           <div className="p-2 h-full flex flex-col justify-between">
                             <div>
@@ -293,8 +293,10 @@ export function TimelineView({ locationId, date }: TimelineViewProps) {
         <BookingDetailModal
           open={showDetailModal}
           onOpenChange={setShowDetailModal}
-          bookingId={selectedBooking}
-          onUpdate={loadOccupancy}
+          booking={selectedBooking}
+          onStatusUpdate={async () => {
+            await loadOccupancy();
+          }}
         />
       )}
     </div>
