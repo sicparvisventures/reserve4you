@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEmailProcessor } from '@/lib/hooks/useEmailProcessor';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
+import { CalendarWidget } from '@/components/calendar/CalendarWidget';
+import { WaitlistWidget } from '@/components/waitlist/WaitlistWidget';
+import { CRMWidget } from '@/components/crm/CRMWidget';
 import {
   Calendar,
   Clock,
@@ -73,6 +77,9 @@ export function ProfessionalDashboard({
   const [stats, setStats] = useState<any>(initialStats || {});
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  // Auto-process pending emails
+  useEmailProcessor();
 
   const selectedLocation = selectedLocationId && selectedLocationId !== 'all' 
     ? locations.find(l => l.id === selectedLocationId) 
@@ -693,6 +700,17 @@ export function ProfessionalDashboard({
             </div>
           )}
         </Card>
+
+        {/* Widgets Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <CalendarWidget tenantId={tenant.id} />
+          <WaitlistWidget tenantId={tenant.id} />
+        </div>
+
+        {/* CRM Widget - Full Width */}
+        <div className="mt-6">
+          <CRMWidget tenantId={tenant.id} />
+        </div>
       </div>
 
       {/* Booking Detail Modal */}

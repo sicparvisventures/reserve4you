@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Search, Heart, User, Building2 } from 'lucide-react';
+import { Menu, X, User, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { NotificationBadge } from '@/components/NotificationBadge';
@@ -204,19 +204,8 @@ export function Header({ userData, pathname }: HeaderProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/search">
-                <Search className="h-5 w-5" />
-              </Link>
-            </Button>
-            
             {userData ? (
               <>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/favorites">
-                    <Heart className="h-5 w-5" />
-                  </Link>
-                </Button>
                 <NotificationBadge />
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/profile">

@@ -35,6 +35,7 @@ import {
 import { uploadLocationImage, uploadTenantLogo, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
 import { MenuManager } from '@/components/manager/MenuManager';
 import { WidgetManager } from '@/components/manager/WidgetManager';
+import { EmailCommunicationSettings } from '@/components/settings/EmailCommunicationSettings';
 
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 
@@ -51,6 +52,7 @@ const NAVIGATION = [
   { id: 'locations', label: 'Locaties', icon: MapPin, description: 'Restaurant instellingen' },
   { id: 'menu', label: 'Menu', icon: UtensilsCrossed, description: 'Menu beheer per locatie' },
   { id: 'widget', label: 'Widget', icon: Code, description: 'Embeddable widget voor externe websites' },
+  { id: 'email', label: 'E-mail Communication', icon: Mail, description: 'Email templates en automatisering' },
   { id: 'team', label: 'Team', icon: Users, description: 'Teamleden beheren' },
   { id: 'billing', label: 'Abonnement', icon: CreditCard, description: 'Plan en facturatie' },
   { id: 'advanced', label: 'Geavanceerd', icon: SettingsIcon, description: 'Systeem instellingen' },
@@ -931,6 +933,20 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                     city: l.address_json?.city || l.city || 'Onbekend' 
                   }))}
                 />
+              </div>
+            )}
+
+            {/* Email Communication Section */}
+            {activeSection === 'email' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">E-mail Communication</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Configureer email templates, automatisering en tracking
+                  </p>
+                </div>
+
+                <EmailCommunicationSettings tenantId={tenantId} />
               </div>
             )}
 

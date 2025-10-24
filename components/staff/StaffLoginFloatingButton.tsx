@@ -12,7 +12,7 @@ export function StaffLoginFloatingButton() {
   return (
     <Link
       href="/staff-login"
-      className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+      className="fixed bottom-24 left-6 md:bottom-6 z-50 w-14 h-14 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
       aria-label="Personeel login"
     >
       <Lock className="h-6 w-6 group-hover:scale-110 transition-transform" />

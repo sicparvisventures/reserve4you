@@ -3,6 +3,7 @@ import { getTenant, getTenantLocations, getTenantBilling } from '@/lib/auth/tena
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { ProfessionalDashboard } from './ProfessionalDashboard';
+import { AIChatbot } from '@/components/ai/AIChatbot';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -66,14 +67,19 @@ export default async function DashboardPage({
   }
 
   return (
-    <ProfessionalDashboard
-      tenant={tenant}
-      role={role}
-      locations={locations}
-      bookings={bookings}
-      billing={billing}
-      stats={stats}
-    />
+    <>
+      <ProfessionalDashboard
+        tenant={tenant}
+        role={role}
+        locations={locations}
+        bookings={bookings}
+        billing={billing}
+        stats={stats}
+      />
+      
+      {/* AI Chatbot Assistant */}
+      <AIChatbot tenantId={tenantId} />
+    </>
   );
 }
 

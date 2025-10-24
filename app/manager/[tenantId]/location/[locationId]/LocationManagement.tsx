@@ -27,6 +27,7 @@ import {
   Save,
   Building2,
   MessageSquare,
+  UserPlus,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -35,6 +36,9 @@ import { PromotionsManager } from '@/components/manager/PromotionsManager';
 import { LocationImageUpload } from '@/components/manager/LocationImageUpload';
 import { GuestMessagingPanel } from '@/components/manager/GuestMessagingPanel';
 import { StaffLoginQuickAccess } from '@/components/staff/StaffLoginQuickAccess';
+import { CalendarSettings } from '@/components/calendar/CalendarSettings';
+import { WaitlistManager } from '@/components/waitlist/WaitlistManager';
+import { CRMManager } from '@/components/crm/CRMManager';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -336,6 +340,21 @@ export function LocationManagement({
                 <span className="hidden sm:inline">Reserveringen</span>
                 <span className="sm:hidden">Boekingen</span>
               </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-1.5 px-4 whitespace-nowrap">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Kalender</span>
+                <span className="sm:hidden">Kal</span>
+              </TabsTrigger>
+              <TabsTrigger value="waitlist" className="gap-1.5 px-4 whitespace-nowrap">
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Wachtlijst</span>
+                <span className="sm:hidden">Wacht</span>
+              </TabsTrigger>
+              <TabsTrigger value="crm" className="gap-1.5 px-4 whitespace-nowrap">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">CRM</span>
+                <span className="sm:hidden">CRM</span>
+              </TabsTrigger>
               <TabsTrigger value="messaging" className="gap-1.5 px-4 whitespace-nowrap">
                 <MessageSquare className="h-4 w-4" />
                 Berichten
@@ -346,8 +365,8 @@ export function LocationManagement({
               </TabsTrigger>
               <TabsTrigger value="settings" className="gap-1.5 px-4 whitespace-nowrap">
                 <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Instellingen</span>
-                <span className="sm:hidden">Settings</span>
+                <span className="hidden sm:inline">Locatie Instellingen</span>
+                <span className="sm:hidden">Inst</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -556,6 +575,21 @@ export function LocationManagement({
               locationId={location.id}
               locationName={location.name}
             />
+          </TabsContent>
+
+          {/* Calendar Settings Tab */}
+          <TabsContent value="calendar" className="space-y-4">
+            <CalendarSettings locationId={location.id} tenantId={tenant.id} />
+          </TabsContent>
+
+          {/* Waitlist Tab */}
+          <TabsContent value="waitlist" className="space-y-4">
+            <WaitlistManager locationId={location.id} locationName={location.name} />
+          </TabsContent>
+
+          {/* CRM Tab */}
+          <TabsContent value="crm" className="space-y-4">
+            <CRMManager locationId={location.id} locationName={location.internal_name || location.name} />
           </TabsContent>
 
           {/* Settings Tab */}

@@ -290,3 +290,209 @@ html {
 ::file-selector-button {
   border-color: var(--color-border);
 }
+
+/* =============================================================================
+   REACT BIG CALENDAR CUSTOM STYLING
+   ============================================================================= */
+
+/* Import react-big-calendar base styles */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+/* R4Y Calendar Custom Styling */
+.rbc-calendar {
+  font-family: var(--font-family-base);
+  font-size: 14px;
+}
+
+.rbc-header {
+  padding: 12px 4px;
+  font-weight: 600;
+  font-size: 14px;
+  background: hsl(var(--muted));
+  border-bottom: 2px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.rbc-today {
+  background-color: hsl(var(--primary) / 0.05) !important;
+}
+
+.rbc-event {
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none !important;
+  font-weight: 600;
+}
+
+.rbc-event:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.rbc-event-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rbc-time-slot {
+  min-height: 40px;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.rbc-time-content {
+  border-top: 2px solid hsl(var(--border));
+}
+
+.rbc-current-time-indicator {
+  background-color: hsl(var(--primary));
+  height: 2px;
+  z-index: 5;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.rbc-timeslot-group {
+  min-height: 80px;
+  border-left: 1px solid hsl(var(--border));
+}
+
+.rbc-time-header-content {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.rbc-month-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rbc-month-row {
+  border-top: 1px solid hsl(var(--border));
+  min-height: 100px;
+}
+
+.rbc-date-cell {
+  padding: 8px;
+  text-align: right;
+}
+
+.rbc-off-range {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.5;
+}
+
+.rbc-off-range-bg {
+  background: hsl(var(--muted) / 0.3);
+}
+
+.rbc-toolbar {
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rbc-toolbar button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rbc-toolbar button:hover {
+  background: hsl(var(--muted));
+  border-color: hsl(var(--primary));
+}
+
+.rbc-toolbar button.rbc-active {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+.rbc-show-more {
+  background-color: transparent;
+  color: hsl(var(--primary));
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.rbc-show-more:hover {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.rbc-overlay {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  z-index: 100;
+}
+
+.rbc-overlay-header {
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 2px solid hsl(var(--border));
+  margin-bottom: 12px;
+}
+
+/* Drag & Drop Styling */
+.rbc-addons-dnd .rbc-addons-dnd-resizable {
+  position: relative;
+}
+
+.rbc-addons-dnd .rbc-event {
+  cursor: move;
+}
+
+.rbc-addons-dnd .rbc-event.rbc-addons-dnd-dragging {
+  opacity: 0.5;
+  z-index: 100;
+}
+
+.rbc-addons-dnd .rbc-addons-dnd-drag-preview {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Responsive Calendar */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .rbc-toolbar button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .rbc-header {
+    font-size: 12px;
+    padding: 8px 2px;
+  }
+  
+  .rbc-event {
+    padding: 2px 4px;
+    font-size: 11px;
+  }
+}
