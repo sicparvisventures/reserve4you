@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { verifySession } from '@/lib/auth/dal';
-import { getTenant } from '@/lib/api/tenants';
+import { getTenant } from '@/lib/auth/tenant-dal';
 import { createClient } from '@/lib/supabase/server';
 import { MultiLocationCRM } from '@/components/crm/MultiLocationCRM';
 
