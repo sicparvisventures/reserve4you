@@ -129,6 +129,23 @@ BEGIN
     RAISE NOTICE '  ✓ Kolom source bestaat al';
   END IF;
 
+  -- Check en voeg booking_date toe (of maak NOT NULL constraint optioneel)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'booking_date'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN booking_date DATE;
+    RAISE NOTICE '  ✅ Kolom booking_date toegevoegd';
+  ELSE
+    -- Als booking_date bestaat en NOT NULL is, maak het nullable
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN booking_date DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom booking_date NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom booking_date bestaat al';
+    END;
+  END IF;
+
   RAISE NOTICE '';
   RAISE NOTICE '✅ Bookings tabel structuur is nu correct!';
   RAISE NOTICE '';
@@ -212,6 +229,7 @@ BEGIN
       party_size,
       start_ts,
       end_ts,
+      booking_date,
       status,
       payment_status,
       source
@@ -225,6 +243,7 @@ BEGIN
       4,
       NOW() - INTERVAL '2 days',
       NOW() - INTERVAL '2 days' + INTERVAL '2 hours',
+      (NOW() - INTERVAL '2 days')::DATE,
       'COMPLETED',
       'NONE',
       'WEB'
