@@ -1,5 +1,5 @@
 import { getOptionalUser } from '@/lib/auth/dal';
-import { searchLocations } from '@/lib/auth/tenant-dal';
+import { searchLocations, getTrendingLocations, getBestRatedLocations, getNewLocations } from '@/lib/auth/tenant-dal';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   // Get featured locations
   const locations = await searchLocations({});
   const featuredLocations = locations.slice(0, 12);
+  
+  // Get sections for homepage
+  const trendingLocations = await getTrendingLocations(5);
+  const bestRatedLocations = await getBestRatedLocations(5);
+  const newLocations = await getNewLocations(5);
   
   return (
     <main className="min-h-screen bg-background">
@@ -74,6 +79,99 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </div>
           )}
         </section>
+
+        {/* Stijgen (Trending) */}
+        {trendingLocations.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Stijgen
+                </h2>
+                <p className="text-muted-foreground">
+                  Populaire restaurants met stijgende beoordelingen
+                </p>
+              </div>
+              <Link href="/discover">
+                <Button variant="ghost">
+                  Alles bekijken →
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {trendingLocations.map((location) => (
+                <LocationCard
+                  key={location.id}
+                  location={location}
+                  showBookButton={true}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Best Beoordeeld (Best Rated) */}
+        {bestRatedLocations.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Best Beoordeeld
+                </h2>
+                <p className="text-muted-foreground">
+                  Restaurants met de hoogste beoordelingen
+                </p>
+              </div>
+              <Link href="/discover">
+                <Button variant="ghost">
+                  Alles bekijken →
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {bestRatedLocations.map((location) => (
+                <LocationCard
+                  key={location.id}
+                  location={location}
+                  showBookButton={true}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Nieuw op Reserve4You (New Locations) */}
+        {newLocations.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Nieuw op Reserve4You
+                </h2>
+                <p className="text-muted-foreground">
+                  Ontdek de nieuwste restaurants op ons platform
+                </p>
+              </div>
+              <Link href="/discover">
+                <Button variant="ghost">
+                  Alles bekijken →
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {newLocations.map((location) => (
+                <LocationCard
+                  key={location.id}
+                  location={location}
+                  showBookButton={true}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Popular Cuisines */}
         <section className="mb-16">

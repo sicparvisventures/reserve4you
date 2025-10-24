@@ -28,6 +28,7 @@ import {
   Building2,
   MessageSquare,
   UserPlus,
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -39,6 +40,7 @@ import { StaffLoginQuickAccess } from '@/components/staff/StaffLoginQuickAccess'
 import { CalendarSettings } from '@/components/calendar/CalendarSettings';
 import { WaitlistManager } from '@/components/waitlist/WaitlistManager';
 import { CRMManager } from '@/components/crm/CRMManager';
+import { ReviewsManagement } from '@/components/manager/ReviewsManagement';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -363,6 +365,10 @@ export function LocationManagement({
                 <Tag className="h-4 w-4" />
                 Promoties
               </TabsTrigger>
+              <TabsTrigger value="reviews" className="gap-1.5 px-4 whitespace-nowrap">
+                <Star className="h-4 w-4" />
+                Reviews
+              </TabsTrigger>
               <TabsTrigger value="settings" className="gap-1.5 px-4 whitespace-nowrap">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">Locatie Instellingen</span>
@@ -572,6 +578,14 @@ export function LocationManagement({
 
           <TabsContent value="promotions" className="space-y-4">
             <PromotionsManager 
+              locationId={location.id}
+              locationName={location.name}
+            />
+          </TabsContent>
+
+          {/* Reviews Tab */}
+          <TabsContent value="reviews" className="space-y-4">
+            <ReviewsManagement
               locationId={location.id}
               locationName={location.name}
             />

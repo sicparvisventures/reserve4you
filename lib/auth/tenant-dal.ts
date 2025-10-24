@@ -334,6 +334,99 @@ export const searchLocations = cache(async (params: {
 });
 
 /**
+ * Get trending/rising locations
+ * Based on recent booking activity and new reviews
+ */
+export const getTrendingLocations = cache(async (limit: number = 5) => {
+  const supabase = await createClient();
+  
+  try {
+    // Get locations with their stats
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('is_public', true)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(50); // Get top 50, then sort by criteria
+    
+    if (error || !locations) {
+      return [];
+    }
+    
+    // Sort by review count and average rating (locations with momentum)
+    const sorted = locations.sort((a, b) => {
+      const scoreA = (a.review_count || 0) * (a.average_rating || 3);
+      const scoreB = (b.review_count || 0) * (b.average_rating || 3);
+      return scoreB - scoreA;
+    });
+    
+    return sorted.slice(0, limit);
+  } catch (error) {
+    console.error('Error fetching trending locations:', error);
+    return [];
+  }
+});
+
+/**
+ * Get best rated locations
+ * Sorted by average rating and review count
+ */
+export const getBestRatedLocations = cache(async (limit: number = 5) => {
+  const supabase = await createClient();
+  
+  try {
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('is_public', true)
+      .eq('is_active', true)
+      .gte('review_count', 1) // Must have at least 1 review
+      .order('average_rating', { ascending: false })
+      .order('review_count', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching best rated locations:', error);
+      return [];
+    }
+    
+    return locations || [];
+  } catch (error) {
+    console.error('Error fetching best rated locations:', error);
+    return [];
+  }
+});
+
+/**
+ * Get newly added locations
+ * Recently added to the platform
+ */
+export const getNewLocations = cache(async (limit: number = 5) => {
+  const supabase = await createClient();
+  
+  try {
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('is_public', true)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching new locations:', error);
+      return [];
+    }
+    
+    return locations || [];
+  } catch (error) {
+    console.error('Error fetching new locations:', error);
+    return [];
+  }
+});
+
+/**
  * Get billing state for tenant
  * Note: No cache() to ensure fresh billing data after upgrades
  */

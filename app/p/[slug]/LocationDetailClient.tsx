@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { BookingSheet } from '@/components/booking/BookingSheet';
 import { PromotionsDisplay } from '@/components/promotions/PromotionsDisplay';
 import { PublicMenuDisplay } from '@/components/menu/PublicMenuDisplay';
+import { ReviewsDisplay } from '@/components/reviews/ReviewsDisplay';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -24,6 +25,7 @@ import {
   Calendar,
   UtensilsCrossed,
   Image as ImageIcon,
+  MessageSquare,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -34,7 +36,7 @@ interface LocationDetailClientProps {
   menuData?: any[];
 }
 
-type TabType = 'overview' | 'availability' | 'menu' | 'location';
+type TabType = 'overview' | 'availability' | 'menu' | 'reviews' | 'location';
 
 export function LocationDetailClient({ location, menuData = [] }: LocationDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -44,6 +46,7 @@ export function LocationDetailClient({ location, menuData = [] }: LocationDetail
     { id: 'overview' as TabType, label: 'Overzicht', icon: UtensilsCrossed },
     { id: 'availability' as TabType, label: 'Beschikbaarheid', icon: Calendar },
     { id: 'menu' as TabType, label: 'Menu', icon: UtensilsCrossed },
+    { id: 'reviews' as TabType, label: 'Reviews', icon: MessageSquare },
     { id: 'location' as TabType, label: 'Locatie', icon: MapPin },
   ];
 
@@ -290,6 +293,16 @@ export function LocationDetailClient({ location, menuData = [] }: LocationDetail
             <PublicMenuDisplay 
               menu={menuData}
               locationName={location.name}
+            />
+          )}
+
+          {activeTab === 'reviews' && (
+            <ReviewsDisplay
+              locationId={location.id}
+              locationName={location.name}
+              averageRating={location.average_rating}
+              reviewCount={location.review_count}
+              canLeaveReview={false} // TODO: Check if user has completed booking
             />
           )}
 

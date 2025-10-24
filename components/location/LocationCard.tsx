@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Clock, Euro, Heart, Calendar, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ReserveBookingModal } from '@/components/booking/ReserveBookingModal';
+import { StarRating } from '@/components/reviews/StarRating';
 
 interface LocationCardProps {
   location: {
@@ -31,6 +32,8 @@ interface LocationCardProps {
     hero_image_url?: string;
     image_url?: string; // New: Supabase storage image
     has_deals?: boolean; // Has active promotions
+    review_count?: number; // Number of reviews
+    average_rating?: number; // Average rating
   };
   onFavoriteToggle?: (locationId: string) => void;
   isFavorite?: boolean;
@@ -117,6 +120,22 @@ export function LocationCard({
             <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
               {location.name}
             </h3>
+            
+            {/* Rating */}
+            {location.average_rating && location.review_count && location.review_count > 0 && (
+              <div className="mb-2">
+                <div className="flex items-center gap-2">
+                  <StarRating 
+                    rating={location.average_rating} 
+                    size="sm"
+                    showNumber={true}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    ({location.review_count} {location.review_count === 1 ? 'beoordeling' : 'beoordelingen'})
+                  </span>
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {city && (
