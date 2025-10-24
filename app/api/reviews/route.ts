@@ -38,15 +38,11 @@ export async function GET(request: NextRequest) {
         consumer:consumers(
           name
         ),
-        reply:review_replies(
+        review_replies(
           id,
           comment,
-          created_at,
-          user:auth.users(
-            raw_user_meta_data
-          )
-        ),
-        helpful_votes:review_helpful_votes(count)
+          created_at
+        )
       `)
       .eq('location_id', locationId)
       .eq('is_published', true)
@@ -77,8 +73,8 @@ export async function GET(request: NextRequest) {
     const transformedReviews = (reviews || []).map((review: any) => ({
       ...review,
       consumer: review.consumer || { name: 'Anoniem' },
-      reply: review.reply?.[0] || null,
-      helpful_votes_count: review.helpful_votes?.[0]?.count || 0,
+      reply: review.review_replies?.[0] || null,
+      helpful_votes_count: 0, // TODO: Implement helpful votes count
     }));
 
     console.log('✅ Transformed reviews:', transformedReviews.length);
