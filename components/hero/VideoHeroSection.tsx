@@ -11,7 +11,7 @@ import Image from 'next/image';
 
 export function VideoHeroSection() {
   return (
-    <div className="relative w-full h-[60vh] min-h-[400px] max-h-[600px] overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden">
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full">
         <video
@@ -33,7 +33,7 @@ export function VideoHeroSection() {
       </div>
 
       {/* Logo perfectly centered */}
-      <div className="relative z-10 h-full flex items-center justify-center">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center">
         {/* Raylogo with elegant shadow - larger size */}
         <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 animate-in fade-in-0 zoom-in-95 duration-700">
           <Image

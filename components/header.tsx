@@ -28,6 +28,9 @@ interface HeaderProps {
 export function Header({ userData, pathname }: HeaderProps) {
   // Check if we're on a consumer page that will have bottom navigation
   const isConsumerPage = pathname === '/' || pathname === '/discover' || pathname === '/favorites';
+  
+  // Check if we're on homepage for transparent header
+  const isHomepage = pathname === '/';
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -42,7 +45,12 @@ export function Header({ userData, pathname }: HeaderProps) {
     : '/manager';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
+    <header className={cn(
+      "z-50",
+      isHomepage 
+        ? "absolute top-0 left-0 right-0 bg-white border-b border-border" 
+        : "sticky top-0 border-b border-border bg-card/95 backdrop-blur-sm"
+    )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between h-14">
