@@ -19,10 +19,33 @@ BEGIN
     SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'bookings' AND column_name = 'party_size'
   ) THEN
-    ALTER TABLE bookings ADD COLUMN party_size INT NOT NULL DEFAULT 2 CHECK (party_size > 0);
+    ALTER TABLE bookings ADD COLUMN party_size INT DEFAULT 2 CHECK (party_size > 0);
     RAISE NOTICE '  ✅ Kolom party_size toegevoegd';
   ELSE
-    RAISE NOTICE '  ✓ Kolom party_size bestaat al';
+    -- Maak party_size nullable als het NOT NULL is
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN party_size DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom party_size NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom party_size bestaat al';
+    END;
+  END IF;
+
+  -- Check en voeg number_of_guests toe (alternatieve naam voor party_size)
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'bookings' AND column_name = 'number_of_guests'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN number_of_guests INT DEFAULT 2;
+    RAISE NOTICE '  ✅ Kolom number_of_guests toegevoegd';
+  ELSE
+    -- Maak number_of_guests nullable als het NOT NULL is
+    BEGIN
+      ALTER TABLE bookings ALTER COLUMN number_of_guests DROP NOT NULL;
+      RAISE NOTICE '  ✅ Kolom number_of_guests NOT NULL constraint verwijderd';
+    EXCEPTION WHEN others THEN
+      RAISE NOTICE '  ✓ Kolom number_of_guests bestaat al';
+    END;
   END IF;
 
   -- Check en voeg guest_name toe
@@ -244,6 +267,7 @@ BEGIN
       guest_phone,
       guest_email,
       party_size,
+      number_of_guests,
       start_ts,
       end_ts,
       booking_date,
@@ -258,6 +282,7 @@ BEGIN
       'Test Reviewschrijver',
       '+31612345678',
       'reviews@reserve4you.nl',
+      4,
       4,
       NOW() - INTERVAL '2 days',
       NOW() - INTERVAL '2 days' + INTERVAL '2 hours',
