@@ -94,9 +94,18 @@ export async function GET(request: NextRequest) {
 // POST /api/reviews - Create a new review
 export async function POST(request: NextRequest) {
   try {
-    const userData = await getOptionalUser();
+    const supabase = await createClient();
     
-    if (!userData?.authUser) {
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    console.log('👤 POST review - User check:', {
+      userId: user?.id,
+      email: user?.email,
+      error: authError?.message
+    });
+    
+    if (!user) {
       return NextResponse.json(
         { error: 'Je moet ingelogd zijn om een review te plaatsen' },
         { status: 401 }
@@ -105,6 +114,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { locationId, rating, title, comment } = body;
+
+    console.log('📝 Review data:', { locationId, rating, title, commentLength: comment?.length });
 
     // Validate input
     if (!locationId || !rating || !comment) {
@@ -121,51 +132,65 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
-
     // Get or create consumer
     let { data: consumer, error: consumerError } = await supabase
       .from('consumers')
       .select('*')
-      .eq('auth_user_id', userData.authUser.id)
+      .eq('auth_user_id', user.id)
       .single();
+    
+    console.log('👤 Consumer lookup:', {
+      found: !!consumer,
+      consumerId: consumer?.id,
+      error: consumerError?.message
+    });
 
     if (consumerError || !consumer) {
       // Create consumer
+      console.log('🆕 Creating new consumer for:', user.email);
+      
       const { data: newConsumer, error: createError } = await supabase
         .from('consumers')
         .insert({
-          auth_user_id: userData.authUser.id,
-          name: userData.authUser.user_metadata?.name || userData.authUser.email?.split('@')[0] || 'Gast',
-          email: userData.authUser.email,
+          auth_user_id: user.id,
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'Gast',
+          email: user.email,
         })
         .select()
         .single();
 
       if (createError || !newConsumer) {
-        console.error('Error creating consumer:', createError);
+        console.error('❌ Error creating consumer:', createError);
         return NextResponse.json(
-          { error: 'Failed to create user profile' },
+          { error: 'Failed to create user profile', details: createError?.message },
           { status: 500 }
         );
       }
 
       consumer = newConsumer;
+      console.log('✅ Consumer created:', consumer.id);
     }
 
     // Check if user has a completed booking at this location
-    const { data: completedBooking } = await supabase
+    const { data: completedBookings } = await supabase
       .from('bookings')
       .select('id, start_ts')
       .eq('consumer_id', consumer.id)
       .eq('location_id', locationId)
       .eq('status', 'COMPLETED')
       .order('start_ts', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
+    const completedBooking = completedBookings?.[0];
     const isVerified = !!completedBooking;
     const visitDate = completedBooking ? new Date(completedBooking.start_ts).toISOString().split('T')[0] : null;
+    
+    console.log('📅 Booking check:', {
+      consumerId: consumer.id,
+      locationId,
+      hasBooking: isVerified,
+      bookingId: completedBooking?.id
+    });
 
     // Create review
     const { data: review, error: reviewError } = await supabase
