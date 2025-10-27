@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, X, SlidersHorizontal, MapPin, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, X, SlidersHorizontal, MapPin, Loader2, CheckCircle2, AlertCircle, Clock, Calendar, Users, Tag } from 'lucide-react';
 
 interface DiscoverClientProps {
   initialQuery?: string;
@@ -17,22 +17,8 @@ interface DiscoverClientProps {
     groups?: boolean;
     deals?: boolean;
   };
+  availableCuisines?: string[];
 }
-
-const CUISINE_TYPES = [
-  'Italiaans',
-  'Frans',
-  'Sushi',
-  'Grieks',
-  'Mexicaans',
-  'Thais',
-  'Indiaas',
-  'Chinees',
-  'Belgisch',
-  'Mediterraans',
-  'Vegetarisch',
-  'Vegan',
-];
 
 const PRICE_RANGES = [
   { value: 1, label: '€', description: 'Budget' },
@@ -46,6 +32,7 @@ export function DiscoverClient({
   initialCuisine = '',
   initialPrice,
   initialFilters = {},
+  availableCuisines = [],
 }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -360,24 +347,94 @@ export function DiscoverClient({
       {/* Expanded Filters */}
       {showFilters && (
         <div className="bg-card border border-border rounded-2xl p-6 space-y-6 animate-slide-up">
+          {/* Filter Buttons */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Selecteer filters</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <button
+                onClick={() => setActiveFilters(prev => ({ ...prev, nearby: !prev.nearby }))}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  activeFilters.nearby
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/50 text-foreground'
+                }`}
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="text-sm font-medium">Bij mij in de buurt</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveFilters(prev => ({ ...prev, openNow: !prev.openNow }))}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  activeFilters.openNow
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/50 text-foreground'
+                }`}
+              >
+                <Clock className="h-4 w-4" />
+                <span className="text-sm font-medium">Nu open</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveFilters(prev => ({ ...prev, today: !prev.today }))}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  activeFilters.today
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/50 text-foreground'
+                }`}
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="text-sm font-medium">Vandaag</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveFilters(prev => ({ ...prev, groups: !prev.groups }))}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  activeFilters.groups
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/50 text-foreground'
+                }`}
+              >
+                <Users className="h-4 w-4" />
+                <span className="text-sm font-medium">Groepen</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveFilters(prev => ({ ...prev, deals: !prev.deals }))}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  activeFilters.deals
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/50 text-foreground'
+                }`}
+              >
+                <Tag className="h-4 w-4" />
+                <span className="text-sm font-medium">Deals</span>
+              </button>
+            </div>
+          </div>
+
           {/* Cuisine Type */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Type keuken</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-              {CUISINE_TYPES.map((cuisine) => (
-                <button
-                  key={cuisine}
-                  onClick={() => setSelectedCuisine(cuisine === selectedCuisine ? '' : cuisine)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    selectedCuisine === cuisine
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  {cuisine}
-                </button>
-              ))}
-            </div>
+            {availableCuisines.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                {availableCuisines.map((cuisine) => (
+                  <button
+                    key={cuisine}
+                    onClick={() => setSelectedCuisine(cuisine === selectedCuisine ? '' : cuisine)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      selectedCuisine === cuisine
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {cuisine}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Geen keuken types beschikbaar</p>
+            )}
           </div>
 
           {/* Price Range */}

@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import { searchLocations } from '@/lib/auth/tenant-dal';
+import { getAvailableCuisineTypes } from '@/lib/actions/discover';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { DiscoverClient } from './DiscoverClient';
-import { PageHero } from '@/components/hero/PageHero';
+import { PageHeroWithMap } from '@/components/hero/PageHeroWithMap';
+import { DiscoverMap } from '@/components/map/DiscoverMap';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -63,10 +65,22 @@ export default async function DiscoverPage({
     radius,
   });
 
+  // Fetch available cuisine types from database (with fallback)
+  let availableCuisines: string[] = [];
+  try {
+    availableCuisines = await getAvailableCuisineTypes();
+  } catch (error) {
+    console.error('Error fetching available cuisines:', error);
+    // Continue with empty array - component will handle it
+  }
+
+  // Prepare user location for map
+  const userLocation = latitude && longitude ? { lat: latitude, lng: longitude } : null;
+
   return (
     <main className="min-h-screen bg-background">
-      {/* Hero Section with Search */}
-      <PageHero
+      {/* Hero Section with Search and Map */}
+      <PageHeroWithMap
         title={
           <>
             Ontdek{' '}
@@ -76,6 +90,14 @@ export default async function DiscoverPage({
           </>
         }
         description="Vind het perfecte restaurant voor elke gelegenheid"
+        showMap={true}
+        mapComponent={
+          <DiscoverMap 
+            locations={locations}
+            userLocation={userLocation}
+            className="h-full w-full"
+          />
+        }
       >
         <Suspense fallback={<div>Laden...</div>}>
           <DiscoverClient 
@@ -89,9 +111,10 @@ export default async function DiscoverPage({
               groups,
               deals,
             }}
+            availableCuisines={availableCuisines}
           />
         </Suspense>
-      </PageHero>
+      </PageHeroWithMap>
 
       {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

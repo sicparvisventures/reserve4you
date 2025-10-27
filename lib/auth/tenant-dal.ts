@@ -326,7 +326,19 @@ export const searchLocations = cache(async (params: {
     });
   }
   
-  return filtered.slice(0, 50); // Limit to 50 results
+  // Return mapped data with computed fields
+  return filtered.slice(0, 50).map(location => ({
+    ...location,
+    cuisine: location.cuisine, // Keep original cuisine field
+    cuisine_type: location.cuisine, // For backwards compatibility
+    address_line1: location.address_json?.street || '',
+    city: location.address_json?.city || location.city || '',
+    has_deals: location.promotions?.some((p: any) =>
+      p.is_active &&
+      (!p.valid_until || new Date(p.valid_until) > new Date()) &&
+      (!p.valid_from || new Date(p.valid_from) <= new Date())
+    ) || false,
+  })); // Limit to 50 results
   } catch (error) {
     console.error('Error searching locations:', error);
     return [];
@@ -478,6 +490,7 @@ export const getSpotlightLocations = cache(async (limit: number = 10) => {
       const addressJson = location.address_json || {};
       return {
         ...location,
+        cuisine: location.cuisine, // Keep original cuisine field
         cuisine_type: location.cuisine, // For backwards compatibility
         address_line1: addressJson.street || '',
         city: addressJson.city || '',
