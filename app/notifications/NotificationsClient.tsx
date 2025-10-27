@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Bell,
   Check,
@@ -23,10 +24,12 @@ import {
   ChevronRight,
   Filter,
   Archive,
+  MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { MessagesView } from '@/components/messages/MessagesView';
 
 interface Notification {
   id: string;
@@ -45,6 +48,7 @@ interface Notification {
 
 interface NotificationsClientProps {
   initialNotifications: Notification[];
+  currentUserId: string;
 }
 
 const NOTIFICATION_ICONS: Record<string, any> = {
@@ -78,12 +82,14 @@ const FILTER_OPTIONS = [
   { value: 'system', label: 'Systeem' },
 ];
 
-export function NotificationsClient({ initialNotifications }: NotificationsClientProps) {
+export function NotificationsClient({ initialNotifications, currentUserId }: NotificationsClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [notifications, setNotifications] = useState(initialNotifications);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'notificaties');
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
@@ -181,13 +187,18 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
               </Button>
               <div className="h-8 w-px bg-border" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Notificaties</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {activeTab === 'berichten' ? 'Berichten' : 'Notificaties'}
+                </h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">
-                  {unreadCount > 0 ? `${unreadCount} ongelezen` : 'Alle gelezen'}
+                  {activeTab === 'berichten' 
+                    ? 'Verstuur berichten en locaties naar andere gebruikers'
+                    : unreadCount > 0 ? `${unreadCount} ongelezen` : 'Alle gelezen'
+                  }
                 </p>
               </div>
             </div>
-            {unreadCount > 0 && (
+            {activeTab === 'notificaties' && unreadCount > 0 && (
               <Button
                 variant="outline"
                 size="sm"
@@ -227,65 +238,85 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
 
       {/* Main Content */}
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-64 flex-shrink-0 hidden lg:block">
-            <div className="sticky top-32 space-y-1">
-              {FILTER_OPTIONS.map((option) => {
-                const isActive = filter === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    onClick={() => setFilter(option.value)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <span className="font-medium text-sm">{option.label}</span>
-                    {option.value === 'unread' && unreadCount > 0 && (
-                      <Badge variant={isActive ? 'secondary' : 'default'} className="ml-2">
-                        {unreadCount}
-                      </Badge>
-                    )}
-                    {isActive && <ChevronRight className="h-4 w-4" />}
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+            <TabsTrigger value="notificaties" className="gap-2">
+              <Bell className="h-4 w-4" />
+              Notificaties
+              {unreadCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                  {unreadCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="berichten" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Berichten
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Mobile Filter */}
-          <div className="lg:hidden w-full mb-6">
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {FILTER_OPTIONS.map((option) => {
-                const isActive = filter === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    onClick={() => setFilter(option.value)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Filter className="h-4 w-4" />
-                    <span className="text-sm font-medium">{option.label}</span>
-                    {option.value === 'unread' && unreadCount > 0 && (
-                      <Badge variant={isActive ? 'secondary' : 'default'} className="ml-1">
-                        {unreadCount}
-                      </Badge>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Notificaties Tab */}
+          <TabsContent value="notificaties" className="mt-0">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Sidebar */}
+              <aside className="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+                <div className="sticky top-32 space-y-1">
+                  {FILTER_OPTIONS.map((option) => {
+                    const isActive = filter === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => setFilter(option.value)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                          isActive
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <span className="font-medium text-sm">{option.label}</span>
+                        {option.value === 'unread' && unreadCount > 0 && (
+                          <Badge variant={isActive ? 'secondary' : 'default'} className="ml-2">
+                            {unreadCount}
+                          </Badge>
+                        )}
+                        {isActive && <ChevronRight className="h-4 w-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </aside>
 
-          {/* Content Area */}
-          <main className="flex-1 w-full lg:min-w-0">
+              {/* Mobile Filter */}
+              <div className="lg:hidden w-full mb-6">
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {FILTER_OPTIONS.map((option) => {
+                    const isActive = filter === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => setFilter(option.value)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
+                          isActive
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Filter className="h-4 w-4" />
+                        <span className="text-sm font-medium">{option.label}</span>
+                        {option.value === 'unread' && unreadCount > 0 && (
+                          <Badge variant={isActive ? 'secondary' : 'default'} className="ml-1">
+                            {unreadCount}
+                          </Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <main className="flex-1 w-full lg:min-w-0">
             {filteredNotifications.length > 0 ? (
               <div className="space-y-3">
                 {filteredNotifications.map((notification) => {
@@ -398,8 +429,15 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
                 )}
               </Card>
             )}
-          </main>
-        </div>
+              </main>
+            </div>
+          </TabsContent>
+
+          {/* Berichten Tab */}
+          <TabsContent value="berichten" className="mt-0">
+            <MessagesView currentUserId={currentUserId} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

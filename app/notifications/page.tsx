@@ -14,6 +14,13 @@ export default async function NotificationsPage() {
   const session = await verifySession();
   const supabase = await createServiceClient();
 
+  // Get consumer ID
+  const { data: consumer } = await supabase
+    .from('consumers')
+    .select('id')
+    .eq('auth_user_id', session.userId)
+    .single();
+
   // Fetch notifications with related data
   const { data: notifications, error } = await supabase
     .from('notifications')
@@ -29,6 +36,11 @@ export default async function NotificationsPage() {
     console.error('Error fetching notifications:', error);
   }
 
-  return <NotificationsClient initialNotifications={notifications || []} />;
+  return (
+    <NotificationsClient
+      initialNotifications={notifications || []}
+      currentUserId={consumer?.id || ''}
+    />
+  );
 }
 
