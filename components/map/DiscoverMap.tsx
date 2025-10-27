@@ -45,7 +45,7 @@ export function DiscoverMap({ locations, userLocation, className = '' }: Discove
 
     const initMap = async () => {
       const L = (await import('leaflet')).default;
-      await import('leaflet/dist/leaflet.css');
+      // CSS is loaded via next.config or global styles
 
       // Fix for default marker icons in Next.js
       delete (L.Icon.Default.prototype as any)._getIconUrl;
