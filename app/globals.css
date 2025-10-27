@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Leaflet CSS for interactive maps */
+@import "leaflet/dist/leaflet.css";
+
 /* =============================================================================
    FOUNDATIONAL DESIGN SYSTEM
    Easy to customize, extend, and reuse across any SaaS application
