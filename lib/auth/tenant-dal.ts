@@ -427,6 +427,78 @@ export const getNewLocations = cache(async (limit: number = 5) => {
 });
 
 /**
+ * Get spotlight locations for homepage carousel
+ */
+export const getSpotlightLocations = cache(async (limit: number = 10) => {
+  const supabase = await createClient();
+  
+  // First, check if spotlight_enabled column exists by trying a simple count
+  try {
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select(`
+        id,
+        name,
+        slug,
+        description,
+        cuisine,
+        price_range,
+        address_json,
+        banner_image_url,
+        hero_image_url,
+        spotlight_priority,
+        promotions(id, is_active, valid_until, valid_from)
+      `)
+      .eq('is_active', true)
+      .eq('is_public', true)
+      .eq('spotlight_enabled', true)
+      .order('spotlight_priority', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching spotlight locations:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      
+      // If the column doesn't exist, return empty array gracefully
+      if (error.code === '42703') {
+        console.warn('Spotlight columns not yet created. Run SETUP_SPOTLIGHT_FEATURE.sql');
+        return [];
+      }
+      
+      return [];
+    }
+    
+    // Add has_deals flag and extract address info from JSON
+    const locationsWithDeals = (locations || []).map(location => {
+      const addressJson = location.address_json || {};
+      return {
+        ...location,
+        cuisine_type: location.cuisine, // For backwards compatibility
+        address_line1: addressJson.street || '',
+        city: addressJson.city || '',
+        average_rating: 0, // Default to 0 if not available
+        review_count: 0, // Default to 0 if not available
+        has_deals: location.promotions?.some((p: any) => 
+          p.is_active && 
+          (!p.valid_until || new Date(p.valid_until) > new Date()) &&
+          (!p.valid_from || new Date(p.valid_from) <= new Date())
+        ) || false,
+      };
+    });
+    
+    return locationsWithDeals;
+  } catch (err) {
+    console.error('Unexpected error in getSpotlightLocations:', err);
+    return [];
+  }
+});
+
+/**
  * Get billing state for tenant
  * Note: No cache() to ensure fresh billing data after upgrades
  */

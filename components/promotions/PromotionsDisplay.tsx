@@ -45,32 +45,32 @@ const DISCOUNT_TYPE_CONFIG = {
   percentage: {
     icon: Percent,
     label: 'Percentage Korting',
-    color: 'from-emerald-500 to-teal-600',
-    bgColor: 'bg-emerald-50 dark:bg-emerald-950/20',
+    color: 'from-accent-sunset to-secondary-amber',
+    bgColor: 'bg-gradient-to-br from-accent-sunset/20 to-secondary-amber/20',
   },
   fixed_amount: {
     icon: DollarSign,
     label: 'Vast Bedrag Korting',
-    color: 'from-emerald-500 to-teal-600',
-    bgColor: 'bg-emerald-50 dark:bg-emerald-950/20',
+    color: 'from-accent-sunset to-secondary-amber',
+    bgColor: 'bg-gradient-to-br from-accent-sunset/20 to-secondary-amber/20',
   },
   special_offer: {
     icon: Sparkles,
     label: 'Speciale Aanbieding',
-    color: 'from-primary to-primary/80',
-    bgColor: 'bg-primary/5',
+    color: 'from-primary to-accent-sunset',
+    bgColor: 'bg-gradient-to-br from-primary/20 to-accent-sunset/20',
   },
   buy_one_get_one: {
     icon: Tag,
     label: 'Koop 1 Krijg 1',
-    color: 'from-emerald-500 to-teal-600',
-    bgColor: 'bg-emerald-50 dark:bg-emerald-950/20',
+    color: 'from-accent-sunset to-secondary-amber',
+    bgColor: 'bg-gradient-to-br from-accent-sunset/20 to-secondary-amber/20',
   },
   happy_hour: {
     icon: Clock,
     label: 'Happy Hour',
-    color: 'from-amber-500 to-orange-600',
-    bgColor: 'bg-amber-50 dark:bg-amber-950/20',
+    color: 'from-secondary-amber to-accent-sunset',
+    bgColor: 'bg-gradient-to-br from-secondary-amber/20 to-accent-sunset/20',
   },
 };
 
@@ -131,7 +131,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                       ) : (
                         <div className={`w-full h-full min-h-[200px] ${config.bgColor} border-r flex items-center justify-center`}>
                           <div className="text-center p-6">
-                            <Icon className={`h-16 w-16 mx-auto mb-2 text-gradient-to-br ${config.color} opacity-30`} />
+                            <Icon className={`h-16 w-16 mx-auto mb-2 bg-gradient-to-br ${config.color} text-transparent bg-clip-text`} />
                             <p className="text-sm text-muted-foreground font-medium">Geen afbeelding</p>
                           </div>
                         </div>
@@ -170,7 +170,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                             </Badge>
                             
                             {promotion.discount_value && (
-                              <div className="px-4 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-base shadow-md">
+                              <div className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-accent-sunset to-secondary-amber text-foreground font-bold text-base shadow-md">
                                 {promotion.discount_type === 'percentage' 
                                   ? `${promotion.discount_value}% korting`
                                   : `€${promotion.discount_value} korting`
@@ -269,7 +269,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                   <div className="flex gap-4">
                     {/* Icon/Image */}
                     <div className={`w-20 h-20 rounded-lg ${config.bgColor} border flex items-center justify-center flex-shrink-0`}>
-                      <Icon className="h-10 w-10 text-primary opacity-60" />
+                      <Icon className="h-10 w-10 text-accent-sunset" />
                     </div>
 
                     {/* Content */}
@@ -279,7 +279,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                       </h4>
                       
                       {promotion.discount_value && (
-                        <div className="inline-block px-2.5 py-1 rounded-md bg-emerald-500 text-white text-sm font-bold mb-2">
+                        <div className="inline-block px-2.5 py-1 rounded-md bg-gradient-to-r from-accent-sunset to-secondary-amber text-foreground text-sm font-bold mb-2">
                           {promotion.discount_type === 'percentage' 
                             ? `${promotion.discount_value}%`
                             : `€${promotion.discount_value}`
@@ -323,7 +323,7 @@ export function PromotionsDisplay({ promotions, locationName }: PromotionsDispla
                 {/* Discount Badge */}
                 {selectedPromotion.discount_value && (
                   <div className="flex justify-center">
-                    <div className="px-6 py-3 rounded-xl bg-emerald-500 text-white font-bold text-2xl shadow-lg">
+                    <div className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-sunset to-secondary-amber text-white font-bold text-2xl shadow-lg">
                       {selectedPromotion.discount_type === 'percentage' 
                         ? `${selectedPromotion.discount_value}% korting`
                         : `€${selectedPromotion.discount_value} korting`

@@ -1,11 +1,12 @@
 import { getOptionalUser } from '@/lib/auth/dal';
-import { searchLocations, getTrendingLocations, getBestRatedLocations, getNewLocations } from '@/lib/auth/tenant-dal';
+import { searchLocations, getTrendingLocations, getBestRatedLocations, getNewLocations, getSpotlightLocations } from '@/lib/auth/tenant-dal';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { VideoHeroSection } from '@/components/hero/VideoHeroSection';
 import { HeroSection } from '@/components/hero/HeroSection';
+import { SpotlightCarousel } from '@/components/spotlight/SpotlightCarousel';
 import { StaffLoginFloatingButton } from '@/components/staff/StaffLoginFloatingButton';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -28,6 +29,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const featuredLocations = locations.slice(0, 12);
   
   // Get sections for homepage
+  const spotlightLocations = await getSpotlightLocations(6);
   const trendingLocations = await getTrendingLocations(5);
   const bestRatedLocations = await getBestRatedLocations(5);
   const newLocations = await getNewLocations(5);
@@ -42,6 +44,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       
       {/* Hero Section with Grid Distortion */}
       <HeroSection />
+
+      {/* Spotlight Carousel - Featured Paid Restaurants */}
+      {spotlightLocations.length > 0 && (
+        <SpotlightCarousel locations={spotlightLocations} />
+      )}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

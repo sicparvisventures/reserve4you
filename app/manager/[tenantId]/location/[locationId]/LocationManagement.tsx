@@ -29,6 +29,8 @@ import {
   MessageSquare,
   UserPlus,
   Star,
+  Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -81,6 +83,7 @@ export function LocationManagement({
   const [stats, setStats] = useState(initialStats);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [savingAutoAccept, setSavingAutoAccept] = useState(false);
+  const [savingSpotlight, setSavingSpotlight] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
@@ -206,6 +209,36 @@ export function LocationManagement({
       alert('Fout bij opslaan van instelling');
     } finally {
       setSavingAutoAccept(false);
+    }
+  };
+
+  const handleSpotlightToggle = async (checked: boolean) => {
+    setSavingSpotlight(true);
+    try {
+      const supabase = createClient();
+      
+      const updateData: any = {
+        spotlight_enabled: checked,
+      };
+      
+      // If enabling, set activation time
+      if (checked && !location.spotlight_activated_at) {
+        updateData.spotlight_activated_at = new Date().toISOString();
+      }
+      
+      const { error } = await supabase
+        .from('locations')
+        .update(updateData)
+        .eq('id', location.id);
+
+      if (error) throw error;
+
+      setLocation({ ...location, ...updateData });
+    } catch (err) {
+      console.error('Error updating spotlight:', err);
+      alert('Fout bij opslaan van Spotlight instelling');
+    } finally {
+      setSavingSpotlight(false);
     }
   };
 
@@ -730,6 +763,111 @@ export function LocationManagement({
                         {location.auto_accept_bookings
                           ? 'Nieuwe reserveringen krijgen direct de status "confirmed". Ze verschijnen meteen in je planner.'
                           : 'Nieuwe reserveringen krijgen de status "pending". Je moet ze handmatig accepteren in het "Reserveringen" tabblad.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Spotlight Settings - Premium Feature */}
+            <Card className="p-6 border-2 border-gradient-to-r from-accent-sunset/30 to-secondary-amber/30">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-br from-accent-sunset to-secondary-amber rounded-lg">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    Spotlight Feature
+                    <Badge className="bg-gradient-to-r from-accent-sunset to-secondary-amber text-white border-0">
+                      Premium
+                    </Badge>
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Word uitgelicht in de homepage carousel
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                {/* Spotlight Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-lg border-2 border-border bg-gradient-to-br from-accent-sunset/5 to-secondary-amber/5">
+                  <div className="space-y-0.5 flex-1">
+                    <Label htmlFor="spotlight" className="text-base font-semibold flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-accent-sunset" />
+                      Spotlight Activeren
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Jouw restaurant wordt prominent weergegeven in de homepage carousel
+                    </p>
+                  </div>
+                  <Switch
+                    id="spotlight"
+                    checked={location.spotlight_enabled || false}
+                    onCheckedChange={handleSpotlightToggle}
+                    disabled={savingSpotlight}
+                  />
+                </div>
+
+                {/* Info Box */}
+                <div className={cn(
+                  "p-4 rounded-lg border-2",
+                  location.spotlight_enabled 
+                    ? "bg-gradient-to-br from-accent-sunset/10 to-secondary-amber/10 border-accent-sunset/30" 
+                    : "bg-muted/50 border-border"
+                )}>
+                  <div className="flex gap-3">
+                    {location.spotlight_enabled ? (
+                      <TrendingUp className="h-5 w-5 text-accent-sunset shrink-0" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                    )}
+                    <div className="text-sm">
+                      <p className="font-semibold text-foreground mb-1">
+                        {location.spotlight_enabled ? '✨ Spotlight is ACTIEF' : 'Spotlight is Inactief'}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {location.spotlight_enabled
+                          ? 'Jouw restaurant wordt nu uitgelicht op de homepage! Dit zorgt voor meer zichtbaarheid en reserveringen.'
+                          : 'Activeer Spotlight om jouw restaurant prominent te laten zien aan alle bezoekers op de homepage.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features List */}
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-foreground">Wat krijg je met Spotlight:</p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-accent-sunset shrink-0 mt-0.5" />
+                      <span>Grote, aantrekkelijke carousel positie op de homepage</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-accent-sunset shrink-0 mt-0.5" />
+                      <span>Premium "Spotlight" badge bij jouw restaurant</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-accent-sunset shrink-0 mt-0.5" />
+                      <span>Verhoogde zichtbaarheid en meer boekingen</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-accent-sunset shrink-0 mt-0.5" />
+                      <span>Auto-roterende showcase van jouw restaurant</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Future: Stripe Payment Info */}
+                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <div className="flex gap-3">
+                    <AlertCircle className="h-5 w-5 text-primary shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-foreground mb-1">
+                        Tijdelijk Gratis
+                      </p>
+                      <p className="text-muted-foreground">
+                        Spotlight is nu gratis te activeren! Binnenkort wordt dit een betaalde premium feature met Stripe integratie.
                       </p>
                     </div>
                   </div>

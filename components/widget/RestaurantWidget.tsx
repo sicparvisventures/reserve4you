@@ -278,7 +278,7 @@ function LocationWidgetCard({ location, config, onBookingClick }: LocationWidget
             </Badge>
           )}
           {config.show_promotions && location.has_deals && (
-            <Badge className="backdrop-blur-sm bg-emerald-500 text-white border-0 shadow-md">
+            <Badge className="backdrop-blur-sm bg-gradient-to-r from-accent-sunset to-secondary-amber text-white border-0 shadow-md">
               Aanbieding
             </Badge>
           )}
@@ -317,15 +317,15 @@ function LocationWidgetCard({ location, config, onBookingClick }: LocationWidget
 
         {/* Promotions */}
         {config.show_promotions && activePromotions.length > 0 && (
-          <div className="mb-3 p-3 bg-emerald-50 dark:bg-emerald-950 rounded-lg border border-emerald-200 dark:border-emerald-800">
+          <div className="mb-3 p-3 bg-gradient-to-br from-accent-sunset/10 to-secondary-amber/10 dark:from-accent-sunset/20 dark:to-secondary-amber/20 rounded-lg border border-accent-sunset/30 dark:border-accent-sunset/40">
             <div className="flex items-start gap-2">
-              <Tag className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+              <Tag className="h-4 w-4 text-accent-sunset dark:text-accent-sunset mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-emerald-900 dark:text-emerald-100">
+                <p className="font-medium text-sm text-accent-sunset dark:text-accent-sunset/90">
                   {activePromotions[0].title}
                 </p>
                 {activePromotions[0].description && (
-                  <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1 line-clamp-2">
+                  <p className="text-xs text-accent-sunset/80 dark:text-accent-sunset/70 mt-1 line-clamp-2">
                     {activePromotions[0].description}
                   </p>
                 )}

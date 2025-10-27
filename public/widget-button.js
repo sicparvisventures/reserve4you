@@ -48,7 +48,7 @@
       html += '<span style="padding: 3px 10px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-radius: 10px; font-size: 11px; font-weight: 500;">' + location.cuisine + '</span>';
     }
     if (location.has_deals) {
-      html += '<span style="padding: 3px 10px; background: #10b981; color: white; border-radius: 10px; font-size: 11px; font-weight: 500;">Aanbieding</span>';
+      html += '<span style="padding: 3px 10px; background: linear-gradient(135deg, #FF8C42, #F59E0B); color: white; border-radius: 10px; font-size: 11px; font-weight: 500; box-shadow: 0 2px 4px rgba(255, 140, 66, 0.3);">Aanbieding</span>';
     }
     html += '</div>';
     html += '</div>';

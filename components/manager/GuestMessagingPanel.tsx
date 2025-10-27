@@ -37,7 +37,7 @@ interface MessageStats {
 const MESSAGE_TYPES = [
   { value: 'ANNOUNCEMENT', label: 'Aankondiging', icon: MessageSquare, color: 'bg-blue-500' },
   { value: 'REMINDER', label: 'Herinnering', icon: Clock, color: 'bg-purple-500' },
-  { value: 'SPECIAL_OFFER', label: 'Speciale Aanbieding', icon: Sparkles, color: 'bg-green-500' },
+  { value: 'SPECIAL_OFFER', label: 'Speciale Aanbieding', icon: Sparkles, color: 'bg-gradient-to-r from-accent-sunset to-secondary-amber' },
   { value: 'UPDATE', label: 'Update', icon: AlertCircle, color: 'bg-orange-500' },
   { value: 'WELCOME', label: 'Welkom', icon: Users, color: 'bg-pink-500' },
   { value: 'THANK_YOU', label: 'Bedankt', icon: CheckCircle2, color: 'bg-teal-500' },

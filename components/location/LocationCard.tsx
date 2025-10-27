@@ -107,7 +107,7 @@ export function LocationCard({
               </Badge>
             )}
             {location.has_deals && (
-              <Badge className="backdrop-blur-sm bg-emerald-500 text-white border-0 shadow-md">
+              <Badge className="backdrop-blur-sm bg-gradient-to-r from-accent-sunset to-secondary-amber text-white border-0 shadow-md">
                 Aanbieding
               </Badge>
             )}
