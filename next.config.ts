@@ -53,8 +53,8 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Enable modern output
-  output: 'standalone',
+  // Enable modern output - removed standalone to fix public assets
+  // output: 'standalone',
 
   // Headers for performance
   async headers() {
