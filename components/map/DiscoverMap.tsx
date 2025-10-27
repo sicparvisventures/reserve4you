@@ -204,7 +204,7 @@ export function DiscoverMap({ locations, userLocation, className = '' }: Discove
         };
 
         // Hover effect
-        marker.on('mouseover', function() {
+        marker.on('mouseover', function(this: any) {
           const markerEl = this.getElement();
           if (markerEl) {
             const innerDiv = markerEl.querySelector('.marker-inner') as HTMLElement;
@@ -215,7 +215,7 @@ export function DiscoverMap({ locations, userLocation, className = '' }: Discove
           }
         });
 
-        marker.on('mouseout', function() {
+        marker.on('mouseout', function(this: any) {
           const markerEl = this.getElement();
           if (markerEl) {
             const innerDiv = markerEl.querySelector('.marker-inner') as HTMLElement;
