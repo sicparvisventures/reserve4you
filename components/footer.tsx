@@ -112,13 +112,8 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Language Selector (Future) */}
-        <div className="mt-6 text-center">
-          <button className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2">
-            🇳🇱 Nederlands
-            <span className="text-xs">▼</span>
-          </button>
-        </div>
+        {/* Google Translate Widget Container (hidden visually, used programmatically) */}
+        <div id="google_translate_element" className="hidden"></div>
       </div>
     </footer>
   );

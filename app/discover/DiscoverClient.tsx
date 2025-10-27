@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { Search, X, SlidersHorizontal, MapPin, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface DiscoverClientProps {
   initialQuery?: string;
@@ -56,14 +56,81 @@ export function DiscoverClient({
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(initialPrice);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState(initialFilters);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [locationMessage, setLocationMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
-  const updateFilters = () => {
+  const requestUserLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      setLocationMessage({ type: 'error', text: 'Je browser ondersteunt geen locatiedetectie' });
+      setActiveFilters(prev => ({ ...prev, nearby: false }));
+      return;
+    }
+
+    setIsGettingLocation(true);
+    setLocationMessage(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(location);
+        setIsGettingLocation(false);
+        setLocationMessage({ type: 'success', text: 'Locatie gevonden! Restaurants in je buurt worden getoond.' });
+        
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => setLocationMessage(null), 5000);
+        
+        // Update URL with location coordinates
+        updateFiltersWithLocation(location);
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        
+        let errorMessage = 'Kon locatie niet ophalen';
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMessage = 'Locatietoegang geweigerd. Sta locatietoegang toe in je browser instellingen.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMessage = 'Locatie is niet beschikbaar';
+        } else if (error.code === error.TIMEOUT) {
+          errorMessage = 'Locatieverzoek time-out';
+        }
+        
+        setLocationMessage({ type: 'error', text: errorMessage });
+        setActiveFilters(prev => ({ ...prev, nearby: false }));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000, // 5 minutes cache
+      }
+    );
+  }, []);
+
+  // Request geolocation when nearby filter is activated
+  useEffect(() => {
+    if (activeFilters.nearby && !userLocation) {
+      requestUserLocation();
+    }
+  }, [activeFilters.nearby, userLocation, requestUserLocation]);
+
+  const updateFiltersWithLocation = (location?: {lat: number, lng: number}) => {
     const params = new URLSearchParams();
     
     if (query) params.set('query', query);
     if (selectedCuisine) params.set('cuisine', selectedCuisine);
     if (selectedPrice) params.set('price', selectedPrice.toString());
-    if (activeFilters.nearby) params.set('nearby', 'true');
+    if (activeFilters.nearby) {
+      params.set('nearby', 'true');
+      if (location || userLocation) {
+        const loc = location || userLocation;
+        params.set('lat', loc!.lat.toString());
+        params.set('lng', loc!.lng.toString());
+        params.set('radius', '25'); // 25km radius
+      }
+    }
     if (activeFilters.openNow) params.set('open_now', 'true');
     if (activeFilters.today) params.set('today', 'true');
     if (activeFilters.groups) params.set('groups', 'true');
@@ -74,11 +141,35 @@ export function DiscoverClient({
     });
   };
 
+  const updateFilters = () => {
+    // If nearby is active and we have location, use the location-aware update
+    if (activeFilters.nearby && userLocation) {
+      updateFiltersWithLocation();
+    } else {
+      // Regular update without location
+      const params = new URLSearchParams();
+      
+      if (query) params.set('query', query);
+      if (selectedCuisine) params.set('cuisine', selectedCuisine);
+      if (selectedPrice) params.set('price', selectedPrice.toString());
+      if (activeFilters.nearby) params.set('nearby', 'true');
+      if (activeFilters.openNow) params.set('open_now', 'true');
+      if (activeFilters.today) params.set('today', 'true');
+      if (activeFilters.groups) params.set('groups', 'true');
+      if (activeFilters.deals) params.set('deals', 'true');
+      
+      startTransition(() => {
+        router.push(`/discover${params.toString() ? `?${params.toString()}` : ''}`);
+      });
+    }
+  };
+
   const clearFilters = () => {
     setQuery('');
     setSelectedCuisine('');
     setSelectedPrice(undefined);
     setActiveFilters({});
+    setUserLocation(null);
     
     startTransition(() => {
       router.push('/discover');
@@ -91,6 +182,28 @@ export function DiscoverClient({
 
   return (
     <div className="space-y-6">
+      {/* Location Message Banner */}
+      {locationMessage && (
+        <div className={`px-4 py-3 rounded-lg flex items-center gap-3 ${
+          locationMessage.type === 'success' 
+            ? 'bg-green-50 border border-green-200 text-green-800' 
+            : 'bg-red-50 border border-red-200 text-red-800'
+        }`}>
+          {locationMessage.type === 'success' ? (
+            <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          )}
+          <span className="text-sm font-medium">{locationMessage.text}</span>
+          <button 
+            onClick={() => setLocationMessage(null)}
+            className="ml-auto hover:opacity-70 transition-opacity"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -162,12 +275,24 @@ export function DiscoverClient({
             <button
               onClick={() => {
                 setActiveFilters(prev => ({ ...prev, nearby: false }));
+                setUserLocation(null);
                 updateFilters();
               }}
               className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
+              disabled={isGettingLocation}
             >
-              Bij mij in de buurt
-              <X className="h-4 w-4" />
+              {isGettingLocation ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Locatie ophalen...
+                </>
+              ) : (
+                <>
+                  <MapPin className="h-4 w-4" />
+                  Bij mij in de buurt
+                  <X className="h-4 w-4" />
+                </>
+              )}
             </button>
           )}
 

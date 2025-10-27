@@ -61,9 +61,6 @@
   /* 1. BRAND COLOR - R4Y Accent Red */
   --primary: 0 86% 67%; /* #FF5A5F - R4Y Brand Red */
   
-  /* 2. NEUTRAL GRAY - Professional gray for borders */
-  --neutral: 240 4% 87%; /* #E7E7EC */
-  
   /* R4Y DESIGN TOKENS - Apple-like minimalism */
   --radius: 1rem; /* 16px - rounded-2xl for cards */
   --radius-button: 0.75rem; /* 12px - rounded-xl for buttons */
@@ -75,16 +72,29 @@
   --duration-slow: 0.3s; /* 300ms - Slower transitions */
   --transition-timing: cubic-bezier(0.4, 0, 0.2, 1); /* ease-out curve */
   
+  /* 🏠 CONSUMER FACING - Warm & Welcoming */
+  --background: 25 15% 96%; /* #F9F5F2 - Zacht ivoor met warme balans */
+  --border: 25 10% 88%; /* #EAE3DF - Gebroken wit-beige */
+  --neutral: 25 8% 78%; /* #D4C9C4 - Warmgrijs voor subtiele UI-lijnen */
+  
+  /* 💼 MANAGER DASHBOARD - Professional & Focused */
+  --background-manager: 220 15% 97%; /* #F5F7FA - Blauw-grijs wit (macOS-achtig) */
+  --border-manager: 220 10% 88%; /* #DCE2EA - Subtiel blauwgrijs */
+  --neutral-manager: 220 8% 80%; /* #C5CBD3 - Zachte professionele toon */
+  
+  /* 📐 PROFESSIONAL GRADIENTS & OPACITY */
+  --background-gradient: linear-gradient(180deg, hsl(25 15% 96%) 0%, hsl(0 0% 100%) 100%);
+  --background-gradient-manager: linear-gradient(180deg, hsl(220 15% 97%) 0%, hsl(0 0% 100%) 100%);
+  --border-opacity: 0.7;
+  
   /* 🤖 AUTO-GENERATED COLORS - R4Y Color System */
   --primary-foreground: 0 0% 100%; /* White text on primary */
-  --background: 240 5% 97%; /* #F7F7F9 - Light gray background */
   --foreground: 0 0% 7%; /* #111111 - Near-black text */
   
-  /* Neutral shades - All derived from --neutral */
-  --muted: 240 5% 96%; /* Light gray for backgrounds */
+  /* Neutral shades - Derived from warm neutrals */
+  --muted: 25 15% 94%; /* Warme muted achtergrond */
   --muted-foreground: 0 0% 45%; /* Medium gray for text */
-  --border: 240 4% 92%; /* #E7E7EC - Light gray borders */
-  --input: 240 4% 92%; /* Input borders match border */
+  --input: 25 10% 88%; /* Input borders match border */
   --ring: var(--primary); /* Focus rings use brand color */
   
   /* R4Y System colors */
@@ -98,6 +108,28 @@
   --warning-foreground: 0 0% 98%; /* White on orange */
   --info: 221 83% 62%; /* #3B82F6 - Info blue */
   --info-foreground: 0 0% 98%; /* White on blue */
+  
+  /* 🌈 EXTENDED COLOR PALETTE - Voor levendiger design */
+  --primary-warm: 15 85% 60%; /* #F27059 - Warmer oranje-rood */
+  --primary-deep: 355 70% 52%; /* #D93954 - Dieper rood voor CTA's */
+  --secondary-amber: 38 92% 50%; /* #F59E0B - Warm goud/amber */
+  --accent-sunset: 25 95% 60%; /* #FF8C42 - Zonsondergang oranje */
+  --accent-ocean: 195 75% 50%; /* #20A4BF - Frisse ocean blauw */
+  --accent-forest: 140 50% 40%; /* #338856 - Rijke forest groen */
+  --secondary-wine: 330 50% 40%; /* #994D6B - Elegante wijnrood */
+  --secondary-terracotta: 14 80% 55%; /* #E07142 - Aardse terracotta */
+}
+
+/* 💼 MANAGER DASHBOARD LAYOUT - Professional Colors */
+.manager-layout,
+[data-layout="manager"],
+.manager-dashboard,
+[data-context="manager"] {
+  --background: var(--background-manager);
+  --border: var(--border-manager);
+  --neutral: var(--neutral-manager);
+  --muted: 220 15% 95%; /* Koele muted achtergrond */
+  --input: var(--border-manager);
 }
 
 /* Dark Mode - Auto-generated from your 2 colors */
@@ -106,12 +138,12 @@
   --foreground: 0 0% 98%; /* Light text */
   --primary-foreground: 0 0% 9%; /* Dark text on primary */
   
-  /* Dark neutral shades - Derived from --neutral */
-  --muted: var(--neutral) / 0.15; /* Dark neutral background */
-  --muted-foreground: var(--neutral) / 1.5; /* Light neutral text */
-  --border: var(--neutral) / 0.2; /* Dark neutral borders */
-  --input: var(--neutral) / 0.2; /* Dark input borders */
-  --ring: var(--neutral) / 1.2; /* Light focus rings */
+  /* Dark neutral shades */
+  --muted: 25 8% 15%; /* Dark neutral background */
+  --muted-foreground: 25 8% 65%; /* Light neutral text */
+  --border: 25 8% 20%; /* Dark neutral borders */
+  --input: 25 8% 20%; /* Dark input borders */
+  --ring: var(--primary); /* Light focus rings */
   
   /* System colors for dark mode */
   --destructive: 0 62% 50%; /* Darker red */
@@ -239,8 +271,57 @@
   background-clip: text;
 }
 
+/* 🌟 NIEUWE WARME GRADIENTS */
+.gradient-text-warm {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)), 
+    hsl(var(--accent-sunset)),
+    hsl(var(--secondary-amber))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg-warm {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)), 
+    hsl(var(--accent-sunset))
+  );
+}
+
+.gradient-bg-sunset {
+  background: linear-gradient(135deg, 
+    hsl(var(--accent-sunset)), 
+    hsl(var(--secondary-amber))
+  );
+}
+
+.gradient-bg-ocean {
+  background: linear-gradient(135deg, 
+    hsl(var(--accent-ocean)), 
+    hsl(var(--primary))
+  );
+}
+
 .gradient-bg-subtle {
   background: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--background)), hsl(var(--primary) / 0.05));
+}
+
+.bg-gradient-warm-subtle {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.08) 0%,
+    hsl(var(--accent-sunset) / 0.05) 50%,
+    hsl(var(--secondary-amber) / 0.03) 100%
+  );
+}
+
+.bg-professional {
+  background: var(--background-gradient);
+}
+
+.bg-professional-manager {
+  background: var(--background-gradient-manager);
 }
 
 /* Status Components - Reusable badge system */

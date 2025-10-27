@@ -15,7 +15,7 @@ export default async function ManagerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background manager-layout" data-layout="manager">
       {children}
     </div>
   );

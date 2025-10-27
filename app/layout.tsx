@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth/auth-provider';
 import { ConditionalHeader } from '@/components/conditional-header';
 import { CookieBanner } from '@/components/ui/cookie-banner';
 import { AnalyticsWrapper } from '@/components/analytics-wrapper';
+import { GoogleTranslateWidget } from '@/components/GoogleTranslateWidget';
 import { getOptionalUser } from '@/lib/auth/dal';
 
 export const metadata: Metadata = {
@@ -33,14 +34,16 @@ export default async function RootLayout({
   const initialDbUser = userData?.dbUser || null;
 
   return (
-    <html lang="nl">
+    <html lang="en">
       <head>
         {/* Performance optimizations */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//vercel.live" />
+        <link rel="dns-prefetch" href="//translate.google.com" />
         <meta name="color-scheme" content="light" />
       </head>
       <body className={`min-h-[100dvh] bg-background ${manrope.className}`} suppressHydrationWarning={true}>
+        <GoogleTranslateWidget />
         <AuthProvider initialDbUser={initialDbUser}>
           <ConditionalHeader />
           {children}

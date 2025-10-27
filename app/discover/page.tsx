@@ -23,6 +23,9 @@ interface SearchParams {
   today?: string;
   groups?: string;
   deals?: string;
+  lat?: string;
+  lng?: string;
+  radius?: string;
 }
 
 export default async function DiscoverPage({
@@ -41,6 +44,9 @@ export default async function DiscoverPage({
   const today = params.today === 'true';
   const groups = params.groups === 'true';
   const deals = params.deals === 'true';
+  const latitude = params.lat ? parseFloat(params.lat) : undefined;
+  const longitude = params.lng ? parseFloat(params.lng) : undefined;
+  const radius = params.radius ? parseFloat(params.radius) : undefined;
   
   // Fetch locations based on filters
   const locations = await searchLocations({
@@ -52,6 +58,9 @@ export default async function DiscoverPage({
     today,
     groups,
     deals,
+    latitude,
+    longitude,
+    radius,
   });
 
   return (

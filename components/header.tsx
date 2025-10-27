@@ -13,6 +13,7 @@ import { User, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RotatingLogo, RotatingLogoMobile } from '@/components/rotating-logo';
 import { NotificationBadge } from '@/components/NotificationBadge';
+import { LanguageSelector } from '@/components/language/LanguageSelector';
 
 interface HeaderProps {
   userData: {
@@ -60,8 +61,9 @@ export function Header({ userData, pathname }: HeaderProps) {
             <RotatingLogoMobile />
           </div>
 
-          {/* Right: Notification Icon (if logged in) */}
+          {/* Right: Language & Notification Icons */}
           <div className="flex items-center gap-1">
+            <LanguageSelector />
             {userData && (
               <>
                 {/* Notifications */}
@@ -100,6 +102,7 @@ export function Header({ userData, pathname }: HeaderProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSelector />
             {userData ? (
               <>
                 <NotificationBadge />
