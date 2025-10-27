@@ -120,23 +120,28 @@ export async function POST(
 
       // Create notification for review author
       try {
-        const { data: reviewWithConsumer } = await supabase
+        const { data: reviewData } = await supabase
           .from('reviews')
           .select(`
-            consumer:consumers(
+            consumer_id,
+            consumers!inner(
               auth_user_id
             )
           `)
           .eq('id', reviewId)
           .single();
 
-        if (reviewWithConsumer?.consumer?.auth_user_id) {
+        // Extract auth_user_id from the consumer
+        const consumerData = reviewData?.consumers as any;
+        const authUserId = Array.isArray(consumerData) ? consumerData[0]?.auth_user_id : consumerData?.auth_user_id;
+
+        if (authUserId) {
           await supabase.from('notifications').insert({
-            user_id: (reviewWithConsumer.consumer as any).auth_user_id,
+            user_id: authUserId,
             type: 'REVIEW_REPLY',
             title: 'Reactie op je review',
             message: `${(review.location as any).name} heeft gereageerd op je review`,
-            action_url: `/p/${(review.location as any).slug}?tab=reviews`, // TODO: Get slug
+            action_url: `/p/${(review.location as any).slug}?tab=reviews`,
             metadata: {
               review_id: reviewId,
               location_id: review.location_id,
