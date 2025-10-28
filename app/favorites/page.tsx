@@ -1,6 +1,7 @@
 import { verifySession } from '@/lib/auth/dal';
 import { getConsumerFavorites } from '@/lib/auth/tenant-dal';
 import { LocationCard } from '@/components/location/LocationCard';
+import { LocationCardWithFavorite } from '@/components/location/LocationCardWithFavorite';
 import { Footer } from '@/components/footer';
 import { PageHero } from '@/components/hero/PageHero';
 import { Heart } from 'lucide-react';
@@ -49,9 +50,10 @@ export default async function FavoritesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {favorites.map((favorite: any) => (
-                <LocationCard
+                <LocationCardWithFavorite
                   key={favorite.location_id}
                   location={favorite.location}
+                  initialIsFavorite={true}
                   showBookButton={true}
                 />
               ))}

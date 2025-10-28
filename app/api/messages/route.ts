@@ -1,337 +1,243 @@
 /**
- * Messages API Routes
- * GET: List conversations or messages in a conversation
- * POST: Send a new message
+ * SUPER SIMPLE Messages API - JUST WORKS
+ * Vervang app/api/messages/route.ts met deze file
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { verifySession } from '@/lib/auth/dal';
 
+// GET: List conversations or messages
 export async function GET(request: NextRequest) {
   try {
-    const session = await verifySession();
     const supabase = await createClient();
-    const searchParams = request.nextUrl.searchParams;
-    const conversationId = searchParams.get('conversation_id');
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
 
-    // Get consumer ID
+    const conversationId = request.nextUrl.searchParams.get('conversation_id');
+
+    // Get consumer
     const { data: consumer } = await supabase
       .from('consumers')
       .select('id')
-      .eq('auth_user_id', session.userId)
+      .eq('auth_user_id', user.id)
       .single();
 
     if (!consumer) {
       return NextResponse.json({ error: 'Consumer not found' }, { status: 404 });
     }
 
-    // If conversation_id provided, get messages
+    // If conversation_id, get messages
     if (conversationId) {
-      const { data: messages, error } = await supabase
+      const { data: messages } = await supabase
         .from('messages')
         .select(`
           *,
-          sender:consumers!sender_id (
-            id,
-            email,
-            name
-          ),
-          location:locations (
-            id,
-            name,
-            address,
-            city,
-            postal_code,
-            image_url,
-            rating,
-            cuisine_type
-          ),
-          reads:message_reads (
-            consumer_id,
-            read_at
-          )
+          sender:consumers!sender_id(id, email, name),
+          location:locations(id, name, slug, hero_image_url, address_json, cuisine, price_range)
         `)
         .eq('conversation_id', conversationId)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true});
 
-      if (error) {
-        console.error('Error fetching messages:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      return NextResponse.json({ messages });
+      return NextResponse.json({ messages: messages || [] });
     }
 
-    // Otherwise, get conversations list
-    const { data: conversations, error } = await supabase
-      .from('conversation_list')
-      .select('*')
-      .eq('consumer_id', consumer.id)
-      .eq('is_archived', false)
-      .order('last_message_at', { ascending: false, nullsFirst: false });
+    // Otherwise get conversations with participant data
+    const { data: conversationData } = await supabase
+      .from('conversation_participants')
+      .select(`
+        conversation_id,
+        conversations:conversation_id (
+          id,
+          updated_at,
+          created_at
+        )
+      `)
+      .eq('consumer_id', consumer.id);
 
-    if (error) {
-      console.error('Error fetching conversations:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!conversationData || conversationData.length === 0) {
+      return NextResponse.json({ conversations: [] });
     }
+
+    // For each conversation, get the other participant and last message
+    const conversations = await Promise.all(
+      conversationData.map(async (item: any) => {
+        const conv = item.conversations;
+        
+        // Get other participant
+        const { data: otherParticipants } = await supabase
+          .from('conversation_participants')
+          .select('consumer_id, consumers:consumer_id(id, email, name)')
+          .eq('conversation_id', conv.id)
+          .neq('consumer_id', consumer.id)
+          .limit(1);
+
+        // Get last message
+        const { data: lastMessage } = await supabase
+          .from('messages')
+          .select('message_content, message_type, created_at')
+          .eq('conversation_id', conv.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        // Get unread count
+        const { count: unreadCount } = await supabase
+          .from('messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', conv.id)
+          .neq('sender_id', consumer.id)
+          .not('id', 'in', `(
+            SELECT message_id FROM message_reads WHERE consumer_id = '${consumer.id}'
+          )`);
+
+        return {
+          id: conv.id,
+          updated_at: conv.updated_at,
+          created_at: conv.created_at,
+          other_participants: otherParticipants?.map((p: any) => p.consumers) || [],
+          last_message_preview: lastMessage?.message_content || '',
+          last_message_type: lastMessage?.message_type || 'text',
+          last_message_at: lastMessage?.created_at || conv.created_at,
+          unread_count: unreadCount || 0,
+        };
+      })
+    );
+
+    // Sort by last message time
+    conversations.sort((a, b) => 
+      new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+    );
 
     return NextResponse.json({ conversations });
   } catch (error: any) {
-    console.error('Error in messages GET:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('GET Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+// POST: Send message
 export async function POST(request: NextRequest) {
   try {
-    const session = await verifySession();
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { conversation_id, recipient_email, message_content, message_type, location_id } = body;
+    console.log('📨 POST /api/messages:', body);
 
-    console.log('POST /api/messages - Body:', body);
+    const { recipient_email, message_content, message_type, location_id } = body;
 
-    // Validate input - need either conversation_id or recipient_email
-    if (!conversation_id && !recipient_email) {
-      return NextResponse.json(
-        { error: 'Ontvanger email of gesprek ID is verplicht' },
-        { status: 400 }
-      );
-    }
-
-    if (message_type === 'text' && !message_content) {
-      return NextResponse.json(
-        { error: 'Bericht tekst is verplicht' },
-        { status: 400 }
-      );
-    }
-
-    if (message_type === 'location' && !location_id) {
-      return NextResponse.json(
-        { error: 'Locatie ID is verplicht' },
-        { status: 400 }
-      );
-    }
-
-    // Get sender consumer
-    const { data: sender, error: senderError } = await supabase
+    // Get sender
+    const { data: sender } = await supabase
       .from('consumers')
-      .select('id, email, name')
-      .eq('auth_user_id', session.userId)
+      .select('id, email')
+      .eq('auth_user_id', user.id)
       .single();
 
-    console.log('Sender lookup:', { sender, senderError, userId: session.userId });
-
-    if (senderError || !sender) {
-      console.error('Sender not found:', senderError);
-      return NextResponse.json(
-        { 
-          error: 'Je account is nog niet compleet. Log opnieuw in om je consumer profiel aan te maken.',
-          details: senderError?.message 
-        },
-        { status: 404 }
-      );
+    if (!sender) {
+      console.error('❌ Sender not found for user:', user.id);
+      return NextResponse.json({ error: 'Sender not found' }, { status: 404 });
     }
 
-    let conversationId = conversation_id;
-    let recipient;
+    console.log('✓ Sender:', sender.email);
 
-    // If conversation_id provided, use it directly
-    if (conversationId) {
-      console.log('Using existing conversation:', conversationId);
-      
-      // Verify user is participant in this conversation
-      const { data: participant } = await supabase
-        .from('conversation_participants')
-        .select('id')
-        .eq('conversation_id', conversationId)
-        .eq('consumer_id', sender.id)
-        .single();
-
-      if (!participant) {
-        return NextResponse.json(
-          { error: 'Je bent geen deelnemer van dit gesprek' },
-          { status: 403 }
-        );
-      }
-    } else {
-      // Need to find/create conversation using recipient_email
-      if (!recipient_email) {
-        return NextResponse.json(
-          { error: 'Ontvanger email is verplicht voor nieuw gesprek' },
-          { status: 400 }
-        );
-      }
-
-      // Check if recipient exists
-      const { data: recipientData, error: recipientError } = await supabase
-        .from('consumers')
-        .select('id, email, name')
-        .eq('email', recipient_email)
-        .single();
-
-      console.log('Recipient lookup:', { recipient: recipientData, recipientError, recipient_email });
-
-      if (recipientError || !recipientData) {
-        console.error('Recipient not found:', recipientError);
-        return NextResponse.json(
-          { 
-            error: `Gebruiker met email ${recipient_email} niet gevonden. Zorg dat deze gebruiker is ingelogd.`,
-            details: recipientError?.message 
-          },
-          { status: 404 }
-        );
-      }
-
-      recipient = recipientData;
-
-      // Can't message yourself
-      if (sender.id === recipient.id) {
-        return NextResponse.json(
-          { error: 'Je kunt geen bericht naar jezelf sturen' },
-          { status: 400 }
-        );
-      }
-
-      console.log('Creating conversation between:', sender.email, 'and', recipient.email);
-
-      // Get or create conversation
-      const { data: conversationIdResult, error: convError } = await supabase.rpc(
-        'get_or_create_conversation',
-        {
-          user1_email: sender.email,
-          user2_email: recipient.email,
-        }
-      );
-
-      console.log('Conversation result:', { conversationIdResult, convError });
-
-      if (convError) {
-        console.error('Error getting/creating conversation:', convError);
-        return NextResponse.json(
-          { 
-            error: 'Kon gesprek niet aanmaken',
-            details: convError.message,
-            hint: convError.hint 
-          },
-          { status: 500 }
-        );
-      }
-
-      conversationId = conversationIdResult;
+    if (!recipient_email) {
+      return NextResponse.json({ error: 'Recipient email required' }, { status: 400 });
     }
 
-    // Get location data if location message
-    let locationData = null;
-    if (message_type === 'location' && location_id) {
-      const { data: location } = await supabase
-        .from('locations')
-        .select('id, name, address, city, postal_code, image_url, rating, cuisine_type')
-        .eq('id', location_id)
-        .single();
+    // Get or create conversation
+    console.log('🔄 Getting conversation between:', sender.email, 'and', recipient_email);
+    
+    const { data: conversationId, error: convError } = await supabase
+      .rpc('get_or_create_conversation', {
+        email1: sender.email,
+        email2: recipient_email
+      });
 
-      if (location) {
-        locationData = location;
-      }
+    if (convError) {
+      console.error('❌ Conversation error:', convError);
+      return NextResponse.json({ 
+        error: 'Could not create conversation',
+        details: convError.message 
+      }, { status: 500 });
     }
+
+    console.log('✓ Conversation ID:', conversationId);
 
     // Create message
-    const { data: message, error: messageError } = await supabase
+    const { data: message, error: msgError } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
         sender_id: sender.id,
         message_type: message_type || 'text',
-        message_content: message_content || null,
-        location_id: location_id || null,
-        location_data: locationData,
+        message_content: message_content,
+        location_id: location_id
       })
       .select(`
         *,
-        sender:consumers!sender_id (
-          id,
-          email,
-          name
-        ),
-        location:locations (
-          id,
-          name,
-          address,
-          city,
-          postal_code,
-          image_url,
-          rating,
-          cuisine_type
-        )
+        sender:consumers!sender_id(id, email, name)
       `)
       .single();
 
-    if (messageError) {
-      console.error('Error creating message:', messageError);
-      return NextResponse.json(
-        { error: 'Kon bericht niet versturen' },
-        { status: 500 }
-      );
+    if (msgError) {
+      console.error('❌ Message error:', msgError);
+      return NextResponse.json({ 
+        error: 'Could not send message',
+        details: msgError.message 
+      }, { status: 500 });
     }
 
-    // Create notification for recipient (only if we have recipient info)
-    if (recipient) {
-      await supabase.from('notifications').insert({
-        user_id: recipient.id,
-        type: 'MESSAGE_RECEIVED',
-        priority: 'MEDIUM',
-        title: 'Nieuw bericht',
-        message: `${sender.name || sender.email} heeft je een bericht gestuurd`,
-        action_url: `/notifications?tab=berichten&conversation=${conversationId}`,
-        action_label: 'Bekijk bericht',
-      });
-    } else {
-      // Get other participant for notification
-      const { data: participants } = await supabase
-        .from('conversation_participants')
-        .select('consumer_id')
-        .eq('conversation_id', conversationId)
-        .neq('consumer_id', sender.id);
+    console.log('✓✓✓ Message sent successfully!');
 
-      if (participants && participants.length > 0) {
-        await supabase.from('notifications').insert({
-          user_id: participants[0].consumer_id,
-          type: 'MESSAGE_RECEIVED',
-          priority: 'MEDIUM',
+    // Get recipient to create notification
+    const { data: recipient } = await supabase
+      .from('consumers')
+      .select('id, email, auth_user_id')
+      .eq('email', recipient_email)
+      .single();
+
+    if (recipient && recipient.id !== sender.id && recipient.auth_user_id) {
+      // Create notification for recipient
+      const notificationContent = message_type === 'location' 
+        ? `Nieuwe locatie gedeeld` 
+        : message_content?.substring(0, 50) || 'Nieuw bericht';
+      
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: recipient.auth_user_id,
+          type: 'GENERAL',
           title: 'Nieuw bericht',
-          message: `${sender.name || sender.email} heeft je een bericht gestuurd`,
-          action_url: `/notifications?tab=berichten&conversation=${conversationId}`,
-          action_label: 'Bekijk bericht',
+          message: notificationContent,
+          action_url: '/notifications',
+          metadata: {
+            conversation_id: conversationId,
+            sender_email: sender.email,
+            message_type: message_type
+          }
         });
-      }
+      
+      console.log('✓ Notification created for recipient');
     }
 
-    return NextResponse.json(
-      { message, conversation_id: conversationId },
-      { status: 201 }
-    );
+    return NextResponse.json({ 
+      message, 
+      conversation_id: conversationId 
+    }, { status: 201 });
+
   } catch (error: any) {
-    console.error('❌ CRITICAL ERROR in messages POST:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint,
-      stack: error.stack
-    });
-    return NextResponse.json(
-      { 
-        error: error.message || 'Internal server error',
-        details: error.details || error.hint || 'Geen extra details',
-        code: error.code
-      },
-      { status: 500 }
-    );
+    console.error('❌❌❌ CRITICAL ERROR:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 });
   }
 }
 

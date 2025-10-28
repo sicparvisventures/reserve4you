@@ -153,9 +153,10 @@ export function ComposeMessage({ onSendMessage, disabled }: ComposeMessageProps)
           size="icon"
           onClick={handleSend}
           disabled={!canSend}
+          style={canSend ? { backgroundColor: '#FF5A5F' } : {}}
           className={`flex-shrink-0 rounded-full h-9 w-9 transition-all ${
             canSend
-              ? 'bg-[#007AFF] hover:bg-[#0051D5] text-white'
+              ? 'text-white hover:opacity-90'
               : 'bg-muted text-muted-foreground'
           }`}
         >

@@ -73,26 +73,22 @@ export function HeroSection() {
 
   return (
     <div className="relative overflow-hidden border-b border-border min-h-[600px] sm:min-h-[550px] md:h-[420px]">
-      {/* Background Image - heray.png met 60% opacity */}
+      {/* Background Image - heray.png met 70% opacity */}
       <div className="absolute inset-0 w-full h-full">
         <Image
           src="/heray.png"
           alt="Reserve4You Hero Background"
           fill
           className="object-cover"
-          style={{ opacity: 0.6 }}
+          style={{ opacity: 0.7 }}
           priority
           quality={90}
         />
       </div>
 
-      {/* Gradient Overlay voor leesbaarheid - Multi-layer */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/85" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/98 via-transparent to-transparent" />
-      
-      {/* Subtle Warm Accent Gradients */}
-      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-primary/6 via-accent-sunset/4 to-transparent blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-primary/5 via-secondary-amber/3 to-transparent blur-3xl" />
+      {/* Light Gradient Overlay voor tekst leesbaarheid */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-background/30 to-background/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-6 sm:py-8 md:py-12">

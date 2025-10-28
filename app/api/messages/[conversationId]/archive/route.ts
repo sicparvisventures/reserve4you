@@ -31,8 +31,7 @@ export async function POST(
     const { error } = await supabase
       .from('conversation_participants')
       .update({ 
-        is_archived: true,
-        archived_at: new Date().toISOString()
+        is_archived: true
       })
       .eq('conversation_id', conversationId)
       .eq('consumer_id', consumer.id);

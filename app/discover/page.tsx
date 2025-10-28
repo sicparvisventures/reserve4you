@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
 import { searchLocations } from '@/lib/auth/tenant-dal';
 import { getAvailableCuisineTypes } from '@/lib/actions/discover';
+import { getFavoriteLocationIds } from '@/lib/actions/favorites';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
+import { LocationCardWithFavorite } from '@/components/location/LocationCardWithFavorite';
 import { DiscoverClient } from './DiscoverClient';
 import { PageHeroWithMap } from '@/components/hero/PageHeroWithMap';
 import { DiscoverMap } from '@/components/map/DiscoverMap';
@@ -74,6 +76,9 @@ export default async function DiscoverPage({
     // Continue with empty array - component will handle it
   }
 
+  // Get favorite location IDs for the current user
+  const favoriteLocationIds = await getFavoriteLocationIds();
+
   // Prepare user location for map
   const userLocation = latitude && longitude ? { lat: latitude, lng: longitude } : null;
 
@@ -143,9 +148,10 @@ export default async function DiscoverPage({
         {locations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {locations.map((location) => (
-              <LocationCard
+              <LocationCardWithFavorite
                 key={location.id}
                 location={location}
+                initialIsFavorite={favoriteLocationIds.includes(location.id)}
                 showBookButton={true}
               />
             ))}

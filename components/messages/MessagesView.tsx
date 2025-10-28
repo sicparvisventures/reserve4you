@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { ConversationList } from './ConversationList';
 import { MessageBubble } from './MessageBubble';
 import { ComposeMessage } from './ComposeMessage';
+import { UserSelector } from './UserSelector';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { createClient } from '@/lib/supabase/client';
@@ -177,15 +178,18 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
     type: 'text' | 'location',
     locationId?: string
   ) => {
-    if (!selectedConversationId && !newRecipientEmail) {
-      throw new Error('Selecteer een gesprek of voer een email in');
-    }
-
-    // Get recipient email for existing conversation
+    // Determine recipient email
     let recipientEmail = newRecipientEmail;
+    
+    // If we have a selected conversation but no email yet, get it from the conversation
     if (selectedConversationId && !recipientEmail) {
       const conversation = conversations.find(c => c.id === selectedConversationId);
       recipientEmail = conversation?.other_participants?.[0]?.email || '';
+    }
+
+    // Must have either a conversation or recipient email
+    if (!selectedConversationId && !recipientEmail) {
+      throw new Error('Selecteer een gesprek of voer een email in');
     }
 
     console.log('Sending message with:', { 
@@ -200,8 +204,7 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversation_id: selectedConversationId || undefined,
-          recipient_email: recipientEmail || undefined,
+          recipient_email: recipientEmail || undefined, // ALWAYS send email for now (simpel!)
           message_content: content,
           message_type: type,
           location_id: locationId,
@@ -218,11 +221,12 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
 
       const data = await response.json();
 
-      // If this was a new conversation, select it
+      // If this was a new conversation, select it and clear the email
       if (!selectedConversationId && data.conversation_id) {
         setSelectedConversationId(data.conversation_id);
         setShowNewConversation(false);
-        setNewRecipientEmail('');
+        // Keep email for subsequent messages in this conversation
+        // Don't clear it immediately
       }
 
       // Add message to list
@@ -270,18 +274,10 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
     }
   };
 
-  const handleStartConversation = async () => {
-    if (!newRecipientEmail.trim()) return;
-
-    setCreatingConversation(true);
-    try {
-      // Send initial empty message to create conversation
-      await handleSendMessage('Hallo! 👋', 'text');
-    } catch (err: any) {
-      alert(err.message || 'Kon gesprek niet starten');
-    } finally {
-      setCreatingConversation(false);
-    }
+  const handleSelectUser = (email: string, name: string) => {
+    setNewRecipientEmail(email);
+    setShowNewConversation(false);
+    // Email is now set, compose bar will appear
   };
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
@@ -336,11 +332,11 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
 
       {/* Messages View */}
       <Card className={`${
-        !selectedConversationId && !showNewConversation
+        !selectedConversationId && !showNewConversation && !newRecipientEmail
           ? 'hidden lg:flex'
           : 'flex'
       } flex-1 flex-col overflow-hidden h-full`}>
-        {selectedConversationId || showNewConversation ? (
+        {selectedConversationId || showNewConversation || newRecipientEmail ? (
           <>
             {/* Header */}
             <div className="p-4 border-b bg-card flex items-center justify-between">
@@ -351,6 +347,7 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
                   onClick={() => {
                     setSelectedConversationId(null);
                     setShowNewConversation(false);
+                    setNewRecipientEmail('');
                   }}
                   className="lg:hidden"
                 >
@@ -359,6 +356,8 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
                 <div>
                   {showNewConversation ? (
                     <h3 className="font-semibold text-foreground">Nieuw Gesprek</h3>
+                  ) : newRecipientEmail && !selectedConversationId ? (
+                    <h3 className="font-semibold text-foreground">{newRecipientEmail.split('@')[0]}</h3>
                   ) : (
                     <>
                       <h3 className="font-semibold text-foreground">
@@ -373,41 +372,12 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
               </div>
             </div>
 
-            {/* New Conversation Input */}
+            {/* User Selector */}
             {showNewConversation && (
-              <div className="p-4 border-b bg-muted/30">
-                <Label htmlFor="recipient" className="text-sm font-medium mb-2 block">
-                  Naar (email adres):
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="recipient"
-                    type="email"
-                    placeholder="naam@example.com"
-                    value={newRecipientEmail}
-                    onChange={(e) => setNewRecipientEmail(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleStartConversation();
-                      }
-                    }}
-                    disabled={creatingConversation}
-                  />
-                  <Button
-                    onClick={handleStartConversation}
-                    disabled={!newRecipientEmail.trim() || creatingConversation}
-                  >
-                    {creatingConversation ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      'Start'
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Voer het email adres in van de gebruiker die je een bericht wilt sturen
-                </p>
-              </div>
+              <UserSelector
+                onSelectUser={handleSelectUser}
+                onClose={() => setShowNewConversation(false)}
+              />
             )}
 
             {/* Messages */}
@@ -434,12 +404,12 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
                   })}
                   <div ref={messagesEndRef} />
                 </div>
-              ) : showNewConversation ? (
+              ) : showNewConversation || newRecipientEmail ? (
                 <div className="flex items-center justify-center h-full text-center">
                   <div>
                     <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                     <p className="text-sm text-muted-foreground">
-                      Voer een email adres in om te beginnen
+                      {showNewConversation ? 'Selecteer een ontvanger hierboven' : 'Type je eerste bericht hieronder'}
                     </p>
                   </div>
                 </div>
@@ -456,10 +426,10 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
             </ScrollArea>
 
             {/* Compose */}
-            {(selectedConversationId || (showNewConversation && newRecipientEmail)) && (
+            {(selectedConversationId || newRecipientEmail) && !showNewConversation && (
               <ComposeMessage
                 onSendMessage={handleSendMessage}
-                disabled={showNewConversation && !newRecipientEmail}
+                disabled={false}
               />
             )}
           </>

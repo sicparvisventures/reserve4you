@@ -1,14 +1,19 @@
 import { getOptionalUser } from '@/lib/auth/dal';
-import { searchLocations, getTrendingLocations, getBestRatedLocations, getNewLocations, getSpotlightLocations } from '@/lib/auth/tenant-dal';
+import { searchLocations, getTrendingLocations, getBestRatedLocations, getNewLocations, getSpotlightLocations, getOnzeKeuzeLocations } from '@/lib/auth/tenant-dal';
+import { getFavoriteLocationIds } from '@/lib/actions/favorites';
+import { getAvailableCuisineTypes } from '@/lib/actions/discover';
 import { Footer } from '@/components/footer';
 import { LocationCard } from '@/components/location/LocationCard';
+import { LocationCardWithFavorite } from '@/components/location/LocationCardWithFavorite';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { VideoHeroSection } from '@/components/hero/VideoHeroSection';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { SpotlightCarousel } from '@/components/spotlight/SpotlightCarousel';
+import { OnzeKeuzeCarousel } from '@/components/onzekeuze/OnzeKeuzeCarousel';
 import { StaffLoginFloatingButton } from '@/components/staff/StaffLoginFloatingButton';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -30,12 +35,33 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   
   // Get sections for homepage
   const spotlightLocations = await getSpotlightLocations(6);
+  const onzeKeuzeLocations = await getOnzeKeuzeLocations(10);
   const trendingLocations = await getTrendingLocations(5);
   const bestRatedLocations = await getBestRatedLocations(5);
   const newLocations = await getNewLocations(5);
   
+  // Get favorite location IDs for the current user
+  const favoriteLocationIds = await getFavoriteLocationIds();
+  
+  // Get available cuisine types from database
+  const availableCuisines = await getAvailableCuisineTypes();
+  
   return (
-    <main className="min-h-screen bg-background">
+    <main className="relative min-h-screen bg-background">
+      {/* Background Image for entire page */}
+      <div className="fixed inset-0 w-full h-full -z-10">
+        <Image
+          src="/heray.png"
+          alt="Reserve4You Background"
+          fill
+          className="object-cover"
+          style={{ opacity: 0.7 }}
+          quality={90}
+        />
+        {/* Light gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background/40 to-background/30" />
+      </div>
+
       {/* Staff Login Floating Button */}
       <StaffLoginFloatingButton />
       
@@ -51,13 +77,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Vanavond beschikbaar */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Vanavond beschikbaar
+                Vandaag Beschikbaar
               </h2>
               <p className="text-muted-foreground">
                 Restaurants met direct beschikbare tafels
@@ -73,9 +99,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {featuredLocations.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {featuredLocations.map((location) => (
-                <LocationCard
+                <LocationCardWithFavorite
                   key={location.id}
                   location={location}
+                  initialIsFavorite={favoriteLocationIds.includes(location.id)}
                   showBookButton={true}
                 />
               ))}
@@ -93,7 +120,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Stijgen
+                  Stijgers
                 </h2>
                 <p className="text-muted-foreground">
                   Populaire restaurants met stijgende beoordelingen
@@ -108,16 +135,25 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {trendingLocations.map((location) => (
-                <LocationCard
+                <LocationCardWithFavorite
                   key={location.id}
                   location={location}
+                  initialIsFavorite={favoriteLocationIds.includes(location.id)}
                   showBookButton={true}
                 />
               ))}
             </div>
           </section>
         )}
+      </div>
 
+      {/* Onze Keuze Carousel - Top 10 This Week */}
+      {onzeKeuzeLocations.length > 0 && (
+        <OnzeKeuzeCarousel locations={onzeKeuzeLocations} />
+      )}
+
+      {/* Main Content Continued */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Best Beoordeeld (Best Rated) */}
         {bestRatedLocations.length > 0 && (
           <section className="mb-16">
@@ -139,9 +175,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {bestRatedLocations.map((location) => (
-                <LocationCard
+                <LocationCardWithFavorite
                   key={location.id}
                   location={location}
+                  initialIsFavorite={favoriteLocationIds.includes(location.id)}
                   showBookButton={true}
                 />
               ))}
@@ -170,9 +207,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {newLocations.map((location) => (
-                <LocationCard
+                <LocationCardWithFavorite
                   key={location.id}
                   location={location}
+                  initialIsFavorite={favoriteLocationIds.includes(location.id)}
                   showBookButton={true}
                 />
               ))}
@@ -181,34 +219,42 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         )}
 
         {/* Popular Cuisines */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-foreground mb-6">
-            Populaire keukens
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {['Italiaans', 'Sushi', 'Frans', 'Grieks', 'Mexicaans', 'Thais'].map((cuisine) => (
-              <Link
-                key={cuisine}
-                href={`/discover?cuisine=${cuisine.toLowerCase()}`}
-                className="group"
-              >
-                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 transition-all p-6 flex flex-col items-center justify-center text-center border border-border hover:border-primary">
-                  <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {cuisine}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {availableCuisines.length > 0 && (
+          <section className="mb-16">
+            <h2 className="text-2xl font-bold text-foreground mb-6">
+              Populaire keukens
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {availableCuisines.slice(0, 12).map((cuisine) => (
+                <Link
+                  key={cuisine}
+                  href={`/discover?cuisine=${encodeURIComponent(cuisine)}`}
+                  className="group"
+                >
+                  <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 transition-all p-6 flex flex-col items-center justify-center text-center border border-border hover:border-primary">
+                    <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {cuisine}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* CTA Section - Voor Restaurant Owners */}
         <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-2xl border-2 border-primary/20 p-8 md:p-12 text-center shadow-lg">
           <div className="max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-6 shadow-md">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+            <div className="inline-flex items-center justify-center w-24 h-24 gradient-bg rounded-2xl mb-6 shadow-md p-2 overflow-hidden">
+              <div className="relative w-full h-full">
+                <Image
+                  src="/raylogo.png"
+                  alt="Reserve4You Logo"
+                  fill
+                  className="object-contain"
+                  quality={100}
+                />
+              </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Heb je een restaurant?

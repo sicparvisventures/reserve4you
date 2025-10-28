@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Footer } from '@/components/footer';
 import { createClient } from '@/lib/supabase/server';
+import { MobileRedirect } from './MobileRedirect';
 
 // Force dynamic rendering since we use cookies for authentication
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,9 @@ export default async function AppPage({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile Redirect - Redirect to /discover after 1 second on mobile */}
+      <MobileRedirect />
+      
       {/* Success Banner - Only for new signups */}
       {isNewSignup && (
         <div className="bg-green-50 border-b border-green-200">

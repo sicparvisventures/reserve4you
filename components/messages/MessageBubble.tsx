@@ -42,7 +42,22 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, isOwnMessage, showSender = true }: MessageBubbleProps) {
   const senderName = message.sender.name || message.sender.email.split('@')[0];
-  const location = message.location || message.location_data;
+  
+  // Parse location data
+  let location = message.location || message.location_data;
+  
+  // Parse address_json if present
+  if (location && location.address_json) {
+    const addr = location.address_json;
+    location = {
+      ...location,
+      address: [addr.street, addr.number].filter(Boolean).join(' '),
+      city: addr.city || '',
+      postal_code: addr.postalCode || '',
+      image_url: location.hero_image_url || location.image_url,
+      cuisine_type: location.cuisine || location.cuisine_type
+    };
+  }
 
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4 group`}>
@@ -56,10 +71,15 @@ export function MessageBubble({ message, isOwnMessage, showSender = true }: Mess
 
         {/* Message Bubble */}
         <div
-          className={`rounded-2xl px-4 py-2 shadow-sm transition-all ${
-            isOwnMessage
-              ? 'bg-[#007AFF] text-white rounded-br-md'
-              : 'bg-muted text-foreground rounded-bl-md'
+          style={isOwnMessage ? { backgroundColor: '#FF5A5F' } : {}}
+          className={`rounded-2xl shadow-sm transition-all ${
+            message.message_type === 'text'
+              ? isOwnMessage
+                ? 'text-white rounded-br-md px-4 py-2'
+                : 'bg-muted text-foreground rounded-bl-md px-4 py-2'
+              : isOwnMessage
+                ? 'rounded-br-md p-1'
+                : 'bg-muted rounded-bl-md p-1'
           }`}
         >
           {/* Text Message */}
@@ -71,8 +91,8 @@ export function MessageBubble({ message, isOwnMessage, showSender = true }: Mess
 
           {/* Location Message */}
           {message.message_type === 'location' && location && (
-            <Link href={`/location/${location.id}`} className="block">
-              <Card className="overflow-hidden hover:shadow-md transition-shadow bg-white text-foreground min-w-[200px]">
+            <Link href={`/p/${location.slug}`} className="block">
+              <Card className="overflow-hidden hover:shadow-md transition-shadow bg-white text-foreground min-w-[200px] border-2 border-white">
                 {/* Location Image */}
                 {location.image_url && (
                   <div className="relative h-32 w-full bg-muted">

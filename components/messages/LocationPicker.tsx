@@ -51,7 +51,31 @@ export function LocationPicker({ onSelectLocation, onClose }: LocationPickerProp
       
       // Extract location data from favorites
       const favoriteLocations = data.favorites
-        ?.map((fav: any) => fav.location)
+        ?.map((fav: any) => {
+          const loc = fav.location;
+          if (!loc) return null;
+          
+          // Parse address_json if it exists
+          let address = '';
+          let city = '';
+          let postal_code = '';
+          
+          if (loc.address_json) {
+            const addr = loc.address_json;
+            address = [addr.street, addr.number].filter(Boolean).join(' ');
+            city = addr.city || '';
+            postal_code = addr.postalCode || '';
+          }
+          
+          return {
+            ...loc,
+            address,
+            city,
+            postal_code,
+            image_url: loc.hero_image_url,
+            cuisine_type: loc.cuisine
+          };
+        })
         .filter((loc: any) => loc !== null) || [];
 
       setLocations(favoriteLocations);

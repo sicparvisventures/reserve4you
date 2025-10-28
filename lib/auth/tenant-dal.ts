@@ -512,6 +512,83 @@ export const getSpotlightLocations = cache(async (limit: number = 10) => {
 });
 
 /**
+ * Get Onze Keuze locations (top 10 based on metrics)
+ * Locations are ranked by: views, clicks, ratings, reviews, bookings
+ */
+export const getOnzeKeuzeLocations = cache(async (limit: number = 10) => {
+  const supabase = await createClient();
+  
+  try {
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select(`
+        id,
+        name,
+        slug,
+        description,
+        cuisine,
+        price_range,
+        address_json,
+        banner_image_url,
+        hero_image_url,
+        onze_keuze_rank,
+        onze_keuze_score,
+        average_rating,
+        review_count,
+        weekly_views,
+        weekly_clicks,
+        promotions(id, is_active, valid_until, valid_from)
+      `)
+      .eq('is_active', true)
+      .eq('is_public', true)
+      .not('onze_keuze_rank', 'is', null)
+      .order('onze_keuze_rank', { ascending: true })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Error fetching Onze Keuze locations:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      
+      // If the column doesn't exist, return empty array gracefully
+      if (error.code === '42703') {
+        console.warn('Onze Keuze columns not yet created. Run onze_keuze_metrics migration');
+        return [];
+      }
+      
+      return [];
+    }
+    
+    // Add has_deals flag and extract address info from JSON
+    const locationsWithDeals = (locations || []).map(location => {
+      const addressJson = location.address_json || {};
+      return {
+        ...location,
+        cuisine: location.cuisine,
+        cuisine_type: location.cuisine, // For backwards compatibility
+        address_line1: addressJson.street || '',
+        city: addressJson.city || '',
+        average_rating: location.average_rating || 0,
+        review_count: location.review_count || 0,
+        has_deals: location.promotions?.some((p: any) => 
+          p.is_active && 
+          (!p.valid_until || new Date(p.valid_until) > new Date()) &&
+          (!p.valid_from || new Date(p.valid_from) <= new Date())
+        ) || false,
+      };
+    });
+    
+    return locationsWithDeals;
+  } catch (err) {
+    console.error('Unexpected error in getOnzeKeuzeLocations:', err);
+    return [];
+  }
+});
+
+/**
  * Get billing state for tenant
  * Note: No cache() to ensure fresh billing data after upgrades
  */

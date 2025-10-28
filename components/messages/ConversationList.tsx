@@ -73,11 +73,17 @@ export function ConversationList({
     if (participant?.email) {
       return participant.email.slice(0, 2).toUpperCase();
     }
-    return '??';
+    return 'U';
   };
 
   const getDisplayName = (participant: any) => {
-    return participant?.name || participant?.email || 'Onbekend';
+    if (participant?.name && participant.name !== '') {
+      return participant.name;
+    }
+    if (participant?.email && participant.email !== '') {
+      return participant.email.split('@')[0];
+    }
+    return 'Gebruiker';
   };
 
   return (
