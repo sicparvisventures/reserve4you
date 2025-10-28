@@ -285,11 +285,13 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
 
   return (
     <div className="h-[calc(100vh-200px)] md:h-[calc(100vh-180px)] flex flex-col lg:flex-row gap-0 lg:gap-4">
-      {/* Conversations List - Mobile/Desktop */}
+      {/* Conversations List - Mobile: hide when conversation selected, Desktop: always show */}
       <Card
         className={`${
-          selectedConversationId ? 'hidden lg:block' : 'block'
-        } w-full lg:w-96 flex-shrink-0 overflow-hidden flex flex-col h-full`}
+          selectedConversationId || showNewConversation || newRecipientEmail
+            ? 'hidden lg:flex' 
+            : 'flex'
+        } w-full lg:w-96 flex-shrink-0 overflow-hidden flex-col h-full`}
       >
         {/* Header */}
         <div className="p-4 border-b bg-card flex items-center justify-between">
@@ -330,11 +332,11 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
         )}
       </Card>
 
-      {/* Messages View */}
+      {/* Messages View - Mobile: show when conversation selected, Desktop: always show */}
       <Card className={`${
-        !selectedConversationId && !showNewConversation && !newRecipientEmail
-          ? 'hidden lg:flex'
-          : 'flex'
+        selectedConversationId || showNewConversation || newRecipientEmail
+          ? 'flex'
+          : 'hidden lg:flex'
       } flex-1 flex-col overflow-hidden h-full`}>
         {selectedConversationId || showNewConversation || newRecipientEmail ? (
           <>
