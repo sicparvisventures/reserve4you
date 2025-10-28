@@ -12,13 +12,14 @@ import { HeroSection } from '@/components/hero/HeroSection';
 import { SpotlightCarousel } from '@/components/spotlight/SpotlightCarousel';
 import { OnzeKeuzeCarousel } from '@/components/onzekeuze/OnzeKeuzeCarousel';
 import { StaffLoginFloatingButton } from '@/components/staff/StaffLoginFloatingButton';
+import { BusinessCategoriesSection } from '@/components/home/BusinessCategoriesSection';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Reserve4You - Stop guessing Start booking',
-  description: 'Ontdek en reserveer bij de beste restaurants in België. Direct online reserveren bij jouw favoriete restaurant.',
+  description: 'Ontdek en reserveer bij professionele bedrijven in heel België. Direct online boeken voor alle diensten.',
 };
 
 // Force dynamic rendering since we use cookies for authentication
@@ -78,7 +79,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* Main Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Vanavond beschikbaar */}
+        {/* Business Categories */}
+        <BusinessCategoriesSection className="mb-20" />
+
+        {/* Vandaag beschikbaar */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -86,7 +90,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 Vandaag Beschikbaar
               </h2>
               <p className="text-muted-foreground">
-                Restaurants met direct beschikbare tafels
+                Vandaag beschikbare locaties
               </p>
             </div>
             <Link href="/discover">
@@ -109,7 +113,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              <p>Geen restaurants gevonden. Voeg eerst locaties toe in het manager portaal.</p>
+              <p>Geen locaties gevonden. Voeg eerst locaties toe in het manager portaal.</p>
             </div>
           )}
         </section>
@@ -123,7 +127,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   Stijgers
                 </h2>
                 <p className="text-muted-foreground">
-                  Populaire restaurants met stijgende beoordelingen
+                  Populaire locaties met stijgende beoordelingen
                 </p>
               </div>
               <Link href="/discover">
@@ -163,7 +167,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   Best Beoordeeld
                 </h2>
                 <p className="text-muted-foreground">
-                  Restaurants met de hoogste beoordelingen
+                  Locaties met de hoogste beoordelingen
                 </p>
               </div>
               <Link href="/discover">
@@ -195,7 +199,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   Nieuw op Reserve4You
                 </h2>
                 <p className="text-muted-foreground">
-                  Ontdek de nieuwste restaurants op ons platform
+                  Ontdek de nieuwste locaties op ons platform
                 </p>
               </div>
               <Link href="/discover">
@@ -257,10 +261,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Heb je een restaurant?
+              Heb je een bedrijf?
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Sluit je aan bij R4Y en begin vandaag nog met het ontvangen van reserveringen. 
+              Sluit je aan bij R4Y en begin vandaag nog met het ontvangen van boekingen. 
               Gratis starten, geen creditcard nodig.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

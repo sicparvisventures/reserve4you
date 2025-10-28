@@ -1,16 +1,17 @@
 'use client';
 
-// TEMPORARY DEBUG VERSION - Add this to see what's happening
-// Replace StepLocatie.tsx with this temporarily to debug
-
 import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { locationCreateSchema } from '@/lib/validation/manager';
-import { MapPin, Clock, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Clock, Upload, X, Image as ImageIcon, Building2, Sparkles, Loader2 as LoaderIcon } from 'lucide-react';
 import { uploadLocationImage, compressImage, validateImageDimensions } from '@/lib/utils/image-upload';
+import { getSectorsByCategory } from '@/lib/terminology';
+import type { BusinessSector } from '@/lib/types/terminology';
+import { GooglePlacesAutocomplete } from '@/components/google/GooglePlacesAutocomplete';
+import type { LocationFromGoogle } from '@/lib/google-places';
 
 interface StepLocatieProps {
   data: any;
@@ -22,7 +23,10 @@ const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', '
 
 export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sectorCategories = getSectorsByCategory();
+  
   const [formData, setFormData] = useState({
+    businessSector: data.location?.businessSector || 'RESTAURANT' as BusinessSector,
     name: data.location?.name || '',
     slug: data.location?.slug || '',
     address: data.location?.address || {
@@ -52,10 +56,80 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [importingFromGoogle, setImportingFromGoogle] = useState(false);
+  const [googleImportSuccess, setGoogleImportSuccess] = useState(false);
 
   const addDebug = (message: string) => {
     console.log('🔍 DEBUG:', message);
     setDebugInfo(prev => [...prev, `${new Date().toISOString().split('T')[1].split('.')[0]} - ${message}`]);
+  };
+
+  // Handle Google Place selection and import
+  const handleGooglePlaceSelected = async (placeId: string) => {
+    setImportingFromGoogle(true);
+    setGoogleImportSuccess(false);
+    setErrors({});
+    addDebug(`🌍 Importing from Google Place ID: ${placeId}`);
+
+    try {
+      // Fetch place details from our API
+      const response = await fetch(`/api/google-places/details?place_id=${encodeURIComponent(placeId)}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch place details');
+      }
+
+      const data = await response.json();
+      const locationData: LocationFromGoogle = data.locationData;
+
+      addDebug(`✅ Google data fetched: ${locationData.name}`);
+      addDebug(`   Address: ${locationData.address_line1}, ${locationData.city}`);
+      addDebug(`   Business Sector: ${locationData.business_sector}`);
+
+      // Auto-fill form data
+      setFormData({
+        ...formData,
+        businessSector: (locationData.business_sector || 'OTHER') as BusinessSector,
+        name: locationData.name,
+        slug: locationData.name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .substring(0, 50),
+        address: {
+          street: locationData.address_line1.split(' ').slice(1).join(' ') || locationData.address_line1,
+          number: locationData.address_line1.split(' ')[0] || '',
+          city: locationData.city,
+          postalCode: locationData.postal_code,
+          country: locationData.country || 'BE',
+        },
+        phone: locationData.phone || '',
+        email: formData.email, // Keep existing email
+        cuisine: locationData.cuisine_type || formData.cuisine,
+        priceRange: locationData.price_range === 1 ? '€' : locationData.price_range === 3 ? '€€€' : '€€',
+        description: locationData.description || formData.description,
+        // Keep existing timing settings
+        slotMinutes: formData.slotMinutes,
+        bufferMinutes: formData.bufferMinutes,
+        openingHours: formData.openingHours,
+      });
+
+      setGoogleImportSuccess(true);
+      addDebug('✅ Form data updated from Google');
+
+      // Auto-scroll to form
+      setTimeout(() => {
+        document.getElementById('locationName')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 500);
+
+    } catch (error: any) {
+      console.error('Error importing from Google:', error);
+      addDebug(`❌ Google import failed: ${error.message}`);
+      setErrors({ google: error.message || 'Fout bij importeren van Google' });
+    } finally {
+      setImportingFromGoogle(false);
+    }
   };
 
   // Auto-generate slug from name
@@ -131,6 +205,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
 
       const payload = {
         ...formData,
+        business_sector: formData.businessSector, // Map to snake_case for API
         tenantId: data.tenantId,
       };
 
@@ -242,7 +317,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-foreground">Locatie informatie</h2>
-            <p className="text-muted-foreground">Voeg je eerste restaurant locatie toe</p>
+            <p className="text-muted-foreground">Configureer je eerste locatie</p>
           </div>
         </div>
       </div>
@@ -260,18 +335,100 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* SAME FORM FIELDS AS ORIGINAL... */}
-        {/* Restaurant Name */}
+        {/* Google Places Import - NEW! */}
+        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20">
+          <div className="flex items-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center mr-3">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Importeer van Google</h3>
+              <p className="text-sm text-muted-foreground">
+                Staat je bedrijf al op Google? We vullen automatisch alle velden in
+              </p>
+            </div>
+          </div>
+
+          <GooglePlacesAutocomplete
+            onPlaceSelected={handleGooglePlaceSelected}
+            disabled={importingFromGoogle}
+            placeholder="Zoek je bedrijf op Google Maps..."
+          />
+
+          {importingFromGoogle && (
+            <div className="flex items-center gap-2 mt-3 text-primary">
+              <LoaderIcon className="h-4 w-4 animate-spin" />
+              <span className="text-sm font-medium">Gegevens importeren van Google...</span>
+            </div>
+          )}
+
+          {googleImportSuccess && (
+            <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl">
+              <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                ✅ Succesvol geïmporteerd van Google! Controleer en pas de gegevens aan indien nodig.
+              </p>
+            </div>
+          )}
+
+          {errors.google && (
+            <div className="mt-3 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                ❌ {errors.google}
+              </p>
+            </div>
+          )}
+        </Card>
+
+        {/* Divider */}
+        <div className="relative py-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-background text-muted-foreground font-medium">
+              Of vul handmatig in
+            </span>
+          </div>
+        </div>
+
+        {/* Business Sector Selection */}
+        <div>
+          <div className="flex items-center mb-3">
+            <Building2 className="h-5 w-5 text-primary mr-2" />
+            <Label className="text-base font-medium">Type Bedrijf *</Label>
+          </div>
+          <select
+            value={formData.businessSector}
+            onChange={(e) => setFormData({ ...formData, businessSector: e.target.value as BusinessSector })}
+            className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+            required
+          >
+            {Object.entries(sectorCategories).map(([category, sectors]) => (
+              <optgroup key={category} label={category}>
+                {sectors.map((sector) => (
+                  <option key={sector} value={sector}>
+                    {sector.replace(/_/g, ' ')}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <p className="text-sm text-muted-foreground mt-2">
+            Selecteer je bedrijfstype - dit bepaalt de terminologie in je dashboard
+          </p>
+        </div>
+
+        {/* Location Name */}
         <div>
           <Label htmlFor="locationName" className="text-base font-medium">
-            Restaurant naam *
+            Locatie naam *
           </Label>
           <Input
             id="locationName"
             type="text"
             value={formData.name}
             onChange={(e) => handleNameChange(e.target.value)}
-            placeholder="Bijv. La Bella Italia Amsterdam Centrum"
+            placeholder="Bijv. Studio Amsterdam Centrum, Salon de Luxe, Praktijk West"
             className="mt-2 h-12 rounded-xl"
             required
           />
@@ -292,7 +449,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
               type="text"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              placeholder="la-bella-italia-centrum"
+              placeholder="mijn-locatie-centrum"
               className="h-12 rounded-xl flex-1"
               required
             />
@@ -305,11 +462,11 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
         {/* Location Image */}
         <div>
           <Label className="text-base font-medium">
-            Restaurant foto
+            Locatie foto
             <span className="text-muted-foreground font-normal ml-2">(optioneel)</span>
           </Label>
           <p className="text-sm text-muted-foreground mt-1 mb-3">
-            Upload een foto van je restaurant. Deze wordt getoond op de homepage en discover pagina.
+            Upload een foto van je locatie. Deze wordt getoond op de homepage en discover pagina.
           </p>
           
           {imagePreview ? (
@@ -317,7 +474,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
               <div className="relative">
                 <img
                   src={imagePreview}
-                  alt="Restaurant preview"
+                  alt="Locatie preview"
                   className="w-full h-64 object-cover rounded-lg"
                 />
                 <Button
@@ -445,7 +602,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="info@restaurant.nl"
+              placeholder="info@mijnbedrijf.nl"
               className="mt-2 h-12 rounded-xl"
               required
             />
@@ -456,16 +613,19 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="cuisine" className="text-base font-medium">
-              Keuken type
+              Specialisatie / Categorie
             </Label>
             <Input
               id="cuisine"
               type="text"
               value={formData.cuisine}
               onChange={(e) => setFormData({ ...formData, cuisine: e.target.value })}
-              placeholder="Bijv. Italiaans, Frans, Japans"
+              placeholder="Bijv. Italiaans, Kapsel & Kleur, Huisartsgeneeskunde"
               className="mt-2 h-12 rounded-xl"
             />
+            <p className="text-sm text-muted-foreground mt-1">
+              Optioneel: Jouw specialisatie of categorie
+            </p>
           </div>
           <div>
             <Label htmlFor="priceRange" className="text-base font-medium">
@@ -526,11 +686,11 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
           </div>
         </div>
 
-        {/* Reservation Settings */}
+        {/* Booking Settings */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="slotMinutes" className="text-base font-medium">
-              Reservering duur (minuten)
+              Standaard duur (minuten)
             </Label>
             <Input
               id="slotMinutes"
@@ -543,7 +703,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
               className="mt-2 h-12 rounded-xl"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Standaard tijd per reservering
+              Standaard tijd per boeking
             </p>
           </div>
           <div>
@@ -561,7 +721,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
               className="mt-2 h-12 rounded-xl"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Tijd tussen reserveringen
+              Tijd tussen boekingen
             </p>
           </div>
         </div>
@@ -575,7 +735,7 @@ export function StepLocatie({ data, updateData, onNext }: StepLocatieProps) {
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Vertel iets over je restaurant..."
+            placeholder="Vertel iets over je bedrijf..."
             className="mt-2 w-full min-h-[120px] px-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none"
             maxLength={1000}
           />

@@ -46,6 +46,7 @@ import { ReviewsManagement } from '@/components/manager/ReviewsManagement';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { useTerminology } from '@/lib/hooks/useTerminology';
 
 interface LocationManagementProps {
   tenant: any;
@@ -72,6 +73,9 @@ export function LocationManagement({
   permissions,
   isVenueUser = false,
 }: LocationManagementProps) {
+  // 🔥 Get dynamic terminology
+  const t = useTerminology();
+  
   // Default permissions for owner/manager
   const hasPermission = permissions || {
     can_view_dashboard: true,

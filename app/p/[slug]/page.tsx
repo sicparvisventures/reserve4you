@@ -14,6 +14,8 @@ import { getPublicLocation } from '@/lib/auth/tenant-dal';
 import { notFound } from 'next/navigation';
 import { LocationDetailClient } from './LocationDetailClient';
 import { createClient } from '@/lib/supabase/server';
+import { BusinessSectorProvider } from '@/lib/contexts/business-sector-context';
+import { BusinessSector } from '@/lib/types/terminology';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -101,13 +103,15 @@ export default async function LocationPage({ params }: LocationPageProps) {
   console.log('✍️ Can leave review:', canLeaveReview);
   
   return (
-    <div className="min-h-screen bg-background">
-      <LocationDetailClient 
-        location={location} 
-        menuData={menuData}
-        canLeaveReview={canLeaveReview}
-      />
-    </div>
+    <BusinessSectorProvider sector={location.business_sector as BusinessSector}>
+      <div className="min-h-screen bg-background">
+        <LocationDetailClient 
+          location={location} 
+          menuData={menuData}
+          canLeaveReview={canLeaveReview}
+        />
+      </div>
+    </BusinessSectorProvider>
   );
 }
 

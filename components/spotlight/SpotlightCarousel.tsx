@@ -206,7 +206,7 @@ export function SpotlightCarousel({ locations }: SpotlightCarouselProps) {
                     </div>
                     <div className="text-center relative z-10">
                       <Sparkles className="h-20 w-20 md:h-24 md:w-24 mx-auto text-primary/40 mb-4 animate-pulse" />
-                      <p className="text-muted-foreground font-semibold text-lg">Spotlight Restaurant</p>
+                      <p className="text-muted-foreground font-semibold text-lg">Spotlight Locatie</p>
                     </div>
                   </div>
                 )}

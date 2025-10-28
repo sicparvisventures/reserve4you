@@ -310,37 +310,126 @@ export function LocationDetailClient({ location, menuData = [], canLeaveReview =
           {activeTab === 'location' && (
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">Locatie</h2>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium mb-1">Adres:</p>
-                  <p className="text-muted-foreground">
-                    {location.address_line1}
-                    {location.address_line2 && `, ${location.address_line2}`}
-                    <br />
-                    {location.postal_code} {location.city}
-                  </p>
-                </div>
-
-                {location.latitude && location.longitude && (
-                  <div className="h-[400px] bg-muted rounded-lg flex items-center justify-center">
+              <div className="space-y-6">
+                {/* Address Info */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1 text-foreground">Adres</p>
                     <p className="text-muted-foreground">
-                      Map integration coming soon (lat: {location.latitude}, lng: {location.longitude})
+                      {location.address_line1}
+                      {location.address_line2 && `, ${location.address_line2}`}
+                      <br />
+                      {location.postal_code} {location.city}
+                      {location.country && `, ${location.country}`}
                     </p>
                   </div>
-                )}
+                </div>
 
-                <Button variant="outline" asChild>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                      `${location.address_line1}, ${location.city}`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Open in Google Maps
-                  </a>
-                </Button>
+                {/* Google Maps Embed */}
+                <div className="rounded-xl overflow-hidden border-2 border-border shadow-lg">
+                  <iframe
+                    width="100%"
+                    height="450"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={(() => {
+                      // Priority 1: Use google_place_id if available (most accurate)
+                      if (location.google_place_id) {
+                        return `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&q=place_id:${location.google_place_id}&zoom=15`;
+                      }
+                      // Priority 2: Use lat/lng if available
+                      if (location.latitude && location.longitude) {
+                        return `https://www.google.com/maps/embed/v1/view?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&center=${location.latitude},${location.longitude}&zoom=15`;
+                      }
+                      // Priority 3: Fallback to address search
+                      const address = encodeURIComponent(`${location.address_line1}, ${location.postal_code} ${location.city}`);
+                      return `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&q=${address}&zoom=15`;
+                    })()}
+                    title={`Locatie van ${location.name}`}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Contact & Actions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Open in Google Maps */}
+                  <Button variant="outline" asChild className="h-auto py-3">
+                    <a
+                      href={
+                        location.google_place_id
+                          ? `https://www.google.com/maps/place/?q=place_id:${location.google_place_id}`
+                          : location.latitude && location.longitude
+                          ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`
+                          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.address_line1}, ${location.city}`)}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      <span>Open in Google Maps</span>
+                    </a>
+                  </Button>
+
+                  {/* Get Directions */}
+                  <Button variant="outline" asChild className="h-auto py-3">
+                    <a
+                      href={
+                        location.latitude && location.longitude
+                          ? `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}`
+                          : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${location.address_line1}, ${location.city}`)}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      <span>Routebeschrijving</span>
+                    </a>
+                  </Button>
+                </div>
+
+                {/* Phone & Website (if available) */}
+                {(location.phone || location.website) && (
+                  <div className="pt-4 border-t border-border space-y-3">
+                    {location.phone && (
+                      <a
+                        href={`tel:${location.phone}`}
+                        className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Phone className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Telefoon</p>
+                          <p className="text-sm">{location.phone}</p>
+                        </div>
+                      </a>
+                    )}
+
+                    {location.website && (
+                      <a
+                        href={location.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Globe className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Website</p>
+                          <p className="text-sm truncate">{location.website}</p>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
           )}

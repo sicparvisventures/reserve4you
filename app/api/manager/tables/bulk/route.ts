@@ -33,26 +33,49 @@ export async function POST(request: Request) {
       .eq('location_id', validated.locationId);
 
     // Insert new tables
-    const tablesToInsert = validated.tables.map(table => ({
+    const tablesToInsert = validated.tables.map((table, index) => ({
       location_id: validated.locationId,
       name: table.name,
       seats: table.seats,
       is_combinable: table.combinable, // Map 'combinable' from frontend to 'is_combinable' in DB
       group_id: table.groupId || null,
+      table_number: index + 1, // 🔥 FIX: Add table_number (auto-incrementing)
     }));
+
+    console.log('📝 Inserting tables:', tablesToInsert);
 
     const { data: tables, error: tablesError } = await supabase
       .from('tables')
       .insert(tablesToInsert)
       .select();
 
-    if (tablesError) throw tablesError;
+    if (tablesError) {
+      console.error('❌ Error inserting tables:', tablesError);
+      console.error('   Full error:', JSON.stringify(tablesError, null, 2));
+      console.error('   Attempted to insert:', tablesToInsert);
+      throw tablesError;
+    }
+
+    console.log('✅ Tables created successfully:', tables);
 
     return NextResponse.json(tables);
   } catch (error: any) {
-    console.error('Error creating tables:', error);
+    console.error('💥 Error creating tables:', error);
+    
+    // Better error message
+    let errorMessage = error.message || 'Failed to create tables';
+    
+    // Check for schema cache issues
+    if (errorMessage.includes('schema cache') || errorMessage.includes('column')) {
+      errorMessage = `Database schema issue: ${errorMessage}. Please refresh the schema cache in Supabase dashboard or run FIX_TABLES_SCHEMA.sql`;
+    }
+    
     return NextResponse.json(
-      { error: error.message || 'Failed to create tables' },
+      { 
+        error: errorMessage,
+        details: error.details || error.hint || null,
+        code: error.code || null,
+      },
       { status: 500 }
     );
   }

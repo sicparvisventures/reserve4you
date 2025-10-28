@@ -4,6 +4,8 @@ import { getVenueUserByAuthId } from '@/lib/auth/venue-user-dal';
 import { createClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import { LocationManagement } from './LocationManagement';
+import { BusinessSectorProvider } from '@/lib/contexts/business-sector-context';
+import { BusinessSector } from '@/lib/types/terminology';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -98,15 +100,17 @@ export default async function LocationPage({
   };
 
   return (
-    <LocationManagement
-      tenant={tenant}
-      role={role}
-      location={location}
-      tables={tables || []}
-      bookings={bookings || []}
-      stats={stats}
-      permissions={venueUserPermissions}
-      isVenueUser={isVenueUser}
-    />
+    <BusinessSectorProvider sector={location.business_sector as BusinessSector}>
+      <LocationManagement
+        tenant={tenant}
+        role={role}
+        location={location}
+        tables={tables || []}
+        bookings={bookings || []}
+        stats={stats}
+        permissions={venueUserPermissions}
+        isVenueUser={isVenueUser}
+      />
+    </BusinessSectorProvider>
   );
 }

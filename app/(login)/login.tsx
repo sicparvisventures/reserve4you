@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UtensilsCrossed, Loader2, ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
+import { Loader2, ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
 // Using semantic Tailwind classes and @apply helpers
 import { useAuth } from '@/lib/auth/auth-provider';
 import { config } from '@/lib/config';
@@ -115,8 +116,14 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           {/* Content */}
           <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white animate-slide-up">
             <div className="mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/25 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl">
-                <UtensilsCrossed className="h-8 w-8 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/25 backdrop-blur-md rounded-2xl mb-6 animate-scale-in shadow-2xl p-3">
+                <Image
+                  src="/raylogo.png"
+                  alt="Reserve4You"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <h1 className="text-4xl font-bold mb-4 animate-fade-in delay-100 leading-tight">
                 <span className="text-white drop-shadow-lg">Welkom bij</span>
@@ -127,7 +134,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 </span>
               </h1>
               <p className="text-lg text-white leading-relaxed animate-fade-in delay-200 max-w-md drop-shadow-md">
-                Het intelligente reserveringssysteem voor professioneel restaurantbeheer.
+                Het intelligente boekingssysteem voor professionele bedrijven in heel België.
               </p>
             </div>
             
@@ -157,11 +164,11 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               <div className="flex items-center space-x-6">
                 <div className="text-white">
                   <span className="text-2xl font-bold text-white drop-shadow-lg">500+</span>
-                  <p className="text-xs drop-shadow">Restaurants</p>
+                  <p className="text-xs drop-shadow">Bedrijven</p>
                 </div>
                 <div className="text-white">
                   <span className="text-2xl font-bold text-white drop-shadow-lg">50K+</span>
-                  <p className="text-xs drop-shadow">Reserveringen</p>
+                  <p className="text-xs drop-shadow">Boekingen</p>
                 </div>
                 <div className="text-white">
                   <span className="text-2xl font-bold text-white drop-shadow-lg">4.9</span>
@@ -190,8 +197,14 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             {/* Header */}
             <div className="mb-6 animate-fade-in delay-200">
               <div className="mb-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#FF5A5F] to-[#FF7A7F] rounded-xl shadow-lg mb-4">
-                  <UtensilsCrossed className="h-6 w-6 text-white" />
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#FF5A5F] to-[#FF7A7F] rounded-xl shadow-lg mb-4 p-2">
+                  <Image
+                    src="/raylogo.png"
+                    alt="Reserve4You"
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
               <h1 className="text-2xl font-bold text-[#111111] mb-2">

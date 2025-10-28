@@ -16,8 +16,8 @@ import { StepPreview } from './steps/StepPreview';
 
 const STEPS = [
   { number: 1, title: 'Bedrijf', description: 'Basisinformatie en branding' },
-  { number: 2, title: 'Locatie', description: 'Adres en openingstijden' },
-  { number: 3, title: 'Tafels & Shifts', description: 'Capaciteit en diensten' },
+  { number: 2, title: 'Locatie', description: 'Type, adres en openingstijden' },
+  { number: 3, title: 'Resources & Diensten', description: 'Capaciteit en beschikbaarheid' },
   { number: 4, title: 'Policies', description: 'Annulering en aanbetalingen' },
   { number: 5, title: 'Betaalinstellingen', description: 'Stripe Connect' },
   { number: 6, title: 'Abonnement', description: 'Kies je plan' },
@@ -223,42 +223,49 @@ export function OnboardingWizard() {
 
             {/* Steps */}
             <div className="relative flex justify-between">
-              {visibleSteps.map((step) => (
-                <button
-                  key={step.number}
-                  onClick={() => step.number <= currentStep && goToStep(step.number)}
-                  className={`flex flex-col items-center group ${
-                    step.number <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
-                  }`}
-                  disabled={step.number > currentStep}
-                >
-                  <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg mb-2 transition-all duration-300 ${
-                      step.number === currentStep
-                        ? 'gradient-bg text-white shadow-lg scale-110'
-                        : step.number < currentStep
-                        ? 'bg-primary text-white'
-                        : 'bg-card border-2 border-border text-muted-foreground'
+              {visibleSteps.map((step, index) => {
+                // Display visual step number (1, 2, 3, etc.) instead of actual step number
+                const visualStepNumber = index + 1;
+                const isCurrentStep = step.number === currentStep;
+                const isCompletedStep = step.number < currentStep;
+                
+                return (
+                  <button
+                    key={step.number}
+                    onClick={() => step.number <= currentStep && goToStep(step.number)}
+                    className={`flex flex-col items-center group ${
+                      step.number <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
                     }`}
+                    disabled={step.number > currentStep}
                   >
-                    {step.number < currentStep ? (
-                      <Check className="h-6 w-6" />
-                    ) : (
-                      step.number
-                    )}
-                  </div>
-                  <div className="text-center hidden md:block">
-                    <div className={`text-sm font-medium ${
-                      step.number <= currentStep ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
-                      {step.title}
+                    <div
+                      className={`w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg mb-2 transition-all duration-300 ${
+                        isCurrentStep
+                          ? 'gradient-bg text-white shadow-lg scale-110'
+                          : isCompletedStep
+                          ? 'bg-primary text-white'
+                          : 'bg-card border-2 border-border text-muted-foreground'
+                      }`}
+                    >
+                      {isCompletedStep ? (
+                        <Check className="h-6 w-6" />
+                      ) : (
+                        visualStepNumber
+                      )}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 max-w-[100px]">
-                      {step.description}
+                    <div className="text-center hidden md:block">
+                      <div className={`text-sm font-medium ${
+                        step.number <= currentStep ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {step.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 max-w-[100px]">
+                        {step.description}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { getOptionalUser } from '@/lib/auth/dal';
 
 export const metadata: Metadata = {
   title: 'Reserve4You - Stop guessing Start booking',
-  description: 'Ontdek en reserveer bij de beste restaurants in België. Direct online reserveren bij jouw favoriete restaurant.'
+  description: 'Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness - Direct online boeken.'
 };
 
 export const viewport: Viewport = {

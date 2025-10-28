@@ -28,13 +28,14 @@ export function StepPreview({ data }: StepPreviewProps) {
   const [error, setError] = useState('');
 
   // Check if all required steps are completed
+  // Note: Betaalinstellingen en Abonnement zijn OPTIONEEL
   const isComplete = Boolean(
     data.tenantId &&
     data.locationId &&
     data.tables?.length > 0 &&
     data.shifts?.length > 0 &&
-    data.policy &&
-    data.subscription
+    data.policy
+    // subscription is NIET verplicht - gebruikers kunnen starten met FREE plan
   );
 
   const handlePublish = async () => {
@@ -250,7 +251,7 @@ export function StepPreview({ data }: StepPreviewProps) {
             ) : (
               <>
                 <Zap className="h-5 w-5 mr-2" />
-                Publiceer mijn restaurant!
+                Publiceer mijn locatie!
               </>
             )}
           </Button>
@@ -258,7 +259,7 @@ export function StepPreview({ data }: StepPreviewProps) {
 
         {/* Info Text */}
         <p className="text-sm text-center text-muted-foreground">
-          Door te publiceren maak je je restaurant zichtbaar voor klanten en kunnen ze direct reserveren
+          Door te publiceren maak je je locatie zichtbaar voor klanten en kunnen ze direct boeken
         </p>
       </div>
     </div>

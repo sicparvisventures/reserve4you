@@ -34,6 +34,7 @@ import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { format, addDays } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { useTerminology } from '@/lib/hooks/useTerminology';
 
 interface ReserveBookingModalProps {
   open: boolean;
@@ -51,6 +52,9 @@ type BookingStep = 1 | 2 | 3;
 const GUEST_OPTIONS = [2, 4, 6, 8];
 
 export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBookingModalProps) {
+  // 🔥 Get dynamic terminology
+  const t = useTerminology();
+  
   const [step, setStep] = useState<BookingStep>(1);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
@@ -377,7 +381,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
               </button>
             </div>
             <SheetDescription className="text-sm text-muted-foreground mt-2 text-left">
-              {step === 1 && 'Selecteer het aantal gasten'}
+              {step === 1 && `Selecteer het aantal ${t.customer.plural.toLowerCase()}`}
               {step === 2 && 'Kies uw gewenste datum en tijd'}
               {step === 3 && 'Vul uw contactgegevens in'}
             </SheetDescription>
@@ -403,7 +407,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                   'text-sm font-medium',
                   s === step ? 'text-foreground' : s < step ? 'text-primary' : 'text-muted-foreground'
                 )}>
-                  {s === 1 && 'Gasten'}
+                  {s === 1 && t.customer.plural}
                   {s === 2 && 'Datum & Tijd'}
                   {s === 3 && 'Gegevens'}
                 </span>
@@ -444,7 +448,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                     >
                       <Users className="h-6 w-6 text-primary mb-2" />
                       <span className="text-lg font-bold">{size}</span>
-                      <span className="text-xs text-muted-foreground mt-1">gasten</span>
+                      <span className="text-xs text-muted-foreground mt-1">{t.customer.plural.toLowerCase()}</span>
                     </button>
                   ))}
                 </div>
@@ -658,7 +662,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                     <span className="font-semibold text-foreground">{location.name}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground text-sm">Aantal gasten</span>
+                    <span className="text-muted-foreground text-sm">Aantal {t.customer.plural.toLowerCase()}</span>
                     <span className="font-semibold text-foreground">{guests}</span>
                   </div>
                   <div className="flex justify-between items-center">

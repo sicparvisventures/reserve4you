@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Mijn Favorieten - Reserve4You',
-  description: 'Bekijk je favoriete restaurants',
+  description: 'Bekijk je favoriete locaties',
 };
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ export default async function FavoritesPage() {
             </span>
           </>
         }
-        description="Bekijk en beheer je favoriete restaurants op één plek"
+        description="Bekijk en beheer je favoriete locaties op één plek"
       />
 
       {/* Main Content */}
@@ -40,10 +40,10 @@ export default async function FavoritesPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Jouw favoriete restaurants
+                  Jouw favoriete locaties
                 </h2>
                 <p className="text-muted-foreground">
-                  {favorites.length} {favorites.length === 1 ? 'favoriet restaurant' : 'favoriete restaurants'}
+                  {favorites.length} {favorites.length === 1 ? 'favoriete locatie' : 'favoriete locaties'}
                 </p>
               </div>
             </div>
@@ -68,14 +68,14 @@ export default async function FavoritesPage() {
               Nog geen favorieten
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Voeg restaurants toe aan je favorieten om ze hier terug te vinden.
-              Klik op het hartje bij een restaurant om het toe te voegen.
+              Voeg locaties toe aan je favorieten om ze hier terug te vinden.
+              Klik op het hartje bij een locatie om het toe te voegen.
             </p>
             <a
               href="/discover"
               className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
             >
-              Ontdek Restaurants
+              Ontdek Locaties
             </a>
           </section>
         )}

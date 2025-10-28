@@ -109,7 +109,17 @@ export async function POST(request: NextRequest) {
       priceId === 'price_premium' ||
       !priceId.startsWith('price_1');
     
+    console.log('🔍 UPGRADE DEBUG:', {
+      plan,
+      priceId,
+      isPlaceholderPrice,
+      customerId,
+      tenantId,
+    });
+    
     if (isPlaceholderPrice) {
+      console.log('✅ TEST MODE: Activating plan directly (no Stripe payment)');
+      
       // Update billing state directly (bypass Stripe)
       // Set plan limits based on plan type
       const planLimits: Record<string, { maxLocations: number; maxBookings: number }> = {
@@ -126,7 +136,13 @@ export async function POST(request: NextRequest) {
 
       const limits = planLimits[plan] || { maxLocations: 1, maxBookings: 50 };
 
-      await supabase
+      console.log('📝 Updating billing_state:', {
+        tenant_id: tenantId,
+        plan,
+        limits,
+      });
+
+      const { data: updatedBilling, error: billingError } = await supabase
         .from('billing_state')
         .upsert({
           tenant_id: tenantId,
@@ -135,9 +151,21 @@ export async function POST(request: NextRequest) {
           stripe_customer_id: customerId,
           max_locations: limits.maxLocations,
           max_bookings_per_month: limits.maxBookings,
+          bookings_used_this_month: 0, // Reset counter
           trial_end: null, // Clear trial when activating paid plan
           updated_at: new Date().toISOString(),
-        });
+        }, {
+          onConflict: 'tenant_id', // Ensure we update existing record
+        })
+        .select()
+        .single();
+
+      if (billingError) {
+        console.error('❌ Error updating billing_state:', billingError);
+        throw new Error(`Failed to update billing state: ${billingError.message}`);
+      }
+
+      console.log('✅ Billing state updated successfully:', updatedBilling);
 
       // Redirect back to profile with success
       return NextResponse.json({ 

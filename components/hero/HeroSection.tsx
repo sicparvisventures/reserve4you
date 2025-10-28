@@ -103,7 +103,7 @@ export function HeroSection() {
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-foreground/90 mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-md font-medium">
-              Ontdek de beste restaurants bij jou in de buurt en reserveer direct online.
+              Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness.
             </p>
           </div>
 
@@ -184,7 +184,7 @@ export function HeroSection() {
                   </>
                 ) : (
                   <>
-                    Toon alle restaurants
+                    Toon alle locaties
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

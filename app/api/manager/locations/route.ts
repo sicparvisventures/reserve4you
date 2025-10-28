@@ -13,10 +13,26 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validated = locationCreateSchema.parse(body);
 
+    // 🔍 DEBUG: Log session info
+    console.log('🔍 DEBUG - Location POST:');
+    console.log('  Session userId:', session.userId);
+    console.log('  Tenant ID:', validated.tenantId);
+
     // Verify user has access to tenant
     const hasAccess = await checkTenantRole(session.userId, validated.tenantId, ['OWNER', 'MANAGER']);
+    
+    // 🔍 DEBUG: Log access check result
+    console.log('  Has access?', hasAccess);
+    
     if (!hasAccess) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      console.error('❌ Access denied for userId:', session.userId, 'to tenant:', validated.tenantId);
+      return NextResponse.json({ 
+        error: 'Unauthorized',
+        debug: {
+          userId: session.userId,
+          tenantId: validated.tenantId
+        }
+      }, { status: 403 });
     }
 
     // Check quota
@@ -62,6 +78,7 @@ export async function POST(request: Request) {
       .from('locations')
       .insert({
         tenant_id: validated.tenantId,
+        business_sector: validated.business_sector || 'RESTAURANT', // 🔥 Multi-sector support
         name: validated.name,
         slug: validated.slug,
         address_json: validated.address,

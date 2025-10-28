@@ -10,6 +10,7 @@ export const tenantCreateSchema = z.object({
 // Step 2: Locatie (adres, openingstijden)
 export const locationCreateSchema = z.object({
   tenantId: z.string().uuid(),
+  business_sector: z.string().optional().default('RESTAURANT'), // Multi-sector support
   name: z.string().min(2, 'Locatie naam is verplicht').max(100),
   slug: z.string()
     .min(3, 'Slug moet minimaal 3 karakters zijn')

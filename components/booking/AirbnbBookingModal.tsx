@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+import { useTerminology } from '@/lib/hooks/useTerminology';
 
 interface AirbnbBookingModalProps {
   open: boolean;
@@ -44,6 +45,9 @@ type BookingStep = 'guests' | 'date' | 'time' | 'details' | 'loading' | 'success
 const GUEST_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export function AirbnbBookingModal({ open, onOpenChange, location }: AirbnbBookingModalProps) {
+  // 🔥 Get dynamic terminology
+  const t = useTerminology();
+  
   const [step, setStep] = useState<BookingStep>('guests');
   const [error, setError] = useState<string>('');
   
@@ -329,7 +333,7 @@ export function AirbnbBookingModal({ open, onOpenChange, location }: AirbnbBooki
             <div className="space-y-6">
               <div>
                 <Label className="text-base font-semibold mb-4 block">
-                  Aantal personen
+                  Aantal {t.customer.plural.toLowerCase()}
                 </Label>
                 <div className="grid grid-cols-4 gap-3">
                   {GUEST_OPTIONS.map((count) => (
@@ -376,7 +380,7 @@ export function AirbnbBookingModal({ open, onOpenChange, location }: AirbnbBooki
                   Kies een datum
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground">
-                  {guests} {guests === 1 ? 'persoon' : 'personen'}
+                  {guests} {guests === 1 ? t.customer.singular.toLowerCase() : t.customer.plural.toLowerCase()}
                 </p>
               </div>
             </div>
@@ -557,7 +561,7 @@ export function AirbnbBookingModal({ open, onOpenChange, location }: AirbnbBooki
             <div className="mb-6 p-4 rounded-lg bg-muted/50 space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span>{guests} {guests === 1 ? 'persoon' : 'personen'}</span>
+                <span>{guests} {guests === 1 ? t.customer.singular.toLowerCase() : t.customer.plural.toLowerCase()}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -679,7 +683,7 @@ export function AirbnbBookingModal({ open, onOpenChange, location }: AirbnbBooki
                 <span className="font-medium">{selectedTime}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Personen:</span>
+                <span className="text-muted-foreground">{t.customer.plural}:</span>
                 <span className="font-medium">{guests}</span>
               </div>
             </div>

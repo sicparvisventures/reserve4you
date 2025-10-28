@@ -32,6 +32,7 @@ import { format, addDays, parse } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Users, Calendar, User, Phone, Mail, MessageSquare, Check, AlertCircle, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTerminology } from '@/lib/hooks/useTerminology';
 
 interface BookingSheetProps {
   open: boolean;
@@ -58,6 +59,9 @@ export function BookingSheet({
   locationId,
   locationName,
 }: BookingSheetProps) {
+  // 🔥 Get dynamic terminology
+  const t = useTerminology();
+  
   const [step, setStep] = useState<BookingStep>(1);
   const [bookingData, setBookingData] = useState<Partial<BookingData>>({});
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
@@ -308,7 +312,7 @@ export function BookingSheet({
                   'text-sm font-medium',
                   s === step ? 'text-foreground' : s < step ? 'text-primary' : 'text-muted-foreground'
                 )}>
-                  {s === 1 && 'Gasten'}
+                  {s === 1 && t.customer.plural}
                   {s === 2 && 'Datum & Tijd'}
                   {s === 3 && 'Gegevens'}
                 </span>
@@ -328,7 +332,7 @@ export function BookingSheet({
             {success && (
               <div className="mb-4 rounded-lg bg-success/10 border border-success/20 p-4 text-sm text-success flex items-start gap-3">
                 <Check className="h-5 w-5 shrink-0 mt-0.5" />
-                <span className="font-medium">Reservering gelukt! Je ontvangt een bevestiging per email.</span>
+                <span className="font-medium">{t.booking.singular} gelukt! Je ontvangt een bevestiging per email.</span>
               </div>
             )}
 

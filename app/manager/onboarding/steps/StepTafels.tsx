@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { tablesBulkCreateSchema, shiftsBulkCreateSchema } from '@/lib/validation/manager';
-import { Table2, Clock, Plus, Trash2 } from 'lucide-react';
+import { Table2, Clock, Plus, Trash2, Layers } from 'lucide-react';
 
 interface StepTafelsProps {
   data: any;
@@ -18,8 +18,8 @@ const DAYS_OF_WEEK = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'];
 
 export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
   const [tables, setTables] = useState(data.tables || [
-    { name: 'Tafel 1', seats: 2, combinable: false, groupId: '' },
-    { name: 'Tafel 2', seats: 2, combinable: false, groupId: '' },
+    { name: 'Resource 1', seats: 2, combinable: false, groupId: '' },
+    { name: 'Resource 2', seats: 2, combinable: false, groupId: '' },
   ]);
   
   // Ensure shifts always have daysOfWeek array
@@ -43,7 +43,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addTable = () => {
-    setTables([...tables, { name: `Tafel ${tables.length + 1}`, seats: 2, combinable: false, groupId: '' }]);
+    setTables([...tables, { name: `Resource ${tables.length + 1}`, seats: 2, combinable: false, groupId: '' }]);
   };
 
   const removeTable = (index: number) => {
@@ -151,25 +151,28 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
       <div className="mb-8">
         <div className="flex items-center mb-4">
           <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mr-4">
-            <Table2 className="h-6 w-6 text-white" />
+            <Layers className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Tafels & Shifts</h2>
-            <p className="text-muted-foreground">Configureer je capaciteit en diensten</p>
+            <h2 className="text-2xl font-bold text-foreground">Resources & Diensten</h2>
+            <p className="text-muted-foreground">Configureer je capaciteit en beschikbaarheid</p>
           </div>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Tables Section */}
+        {/* Resources Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <Label className="text-lg font-semibold">Tafels</Label>
+            <Label className="text-lg font-semibold">Resources (Tafels / Kamers / Stoelen)</Label>
             <Button type="button" variant="outline" onClick={addTable} className="rounded-xl">
               <Plus className="h-4 w-4 mr-2" />
-              Tafel toevoegen
+              Resource toevoegen
             </Button>
           </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Voeg je bookbare resources toe. Dit kunnen tafels, kamers, behandelstoelen, of andere bookbare eenheden zijn.
+          </p>
           <div className="space-y-3">
             {tables.map((table: any, index: number) => (
               <Card key={index} className="p-4">
@@ -178,7 +181,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
                     type="text"
                     value={table.name}
                     onChange={(e) => updateTable(index, 'name', e.target.value)}
-                    placeholder="Tafel naam"
+                    placeholder="Bijv. Tafel 1, Kamer 2, Stoel A"
                     className="h-10 rounded-xl flex-1"
                   />
                   <Input
@@ -187,7 +190,7 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
                     max="20"
                     value={table.seats}
                     onChange={(e) => updateTable(index, 'seats', parseInt(e.target.value))}
-                    placeholder="Zitplaatsen"
+                    placeholder="Capaciteit"
                     className="h-10 rounded-xl w-24"
                   />
                   <label className="flex items-center gap-2 text-sm whitespace-nowrap">
@@ -217,12 +220,15 @@ export function StepTafels({ data, updateData, onNext }: StepTafelsProps) {
         {/* Shifts Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <Label className="text-lg font-semibold">Shifts</Label>
+            <Label className="text-lg font-semibold">Diensten / Shifts</Label>
             <Button type="button" variant="outline" onClick={addShift} className="rounded-xl">
               <Plus className="h-4 w-4 mr-2" />
               Shift toevoegen
             </Button>
           </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Definieer je beschikbare tijdsblokken. Bijvoorbeeld: Lunch (12:00-15:00), Diner (18:00-22:00), of Ochtend/Middag shifts.
+          </p>
           <div className="space-y-4">
             {shifts.map((shift: any, index: number) => (
               <Card key={index} className="p-4">

@@ -11,8 +11,8 @@ import { DiscoverMap } from '@/components/map/DiscoverMap';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Ontdek Restaurants - Reserve4You',
-  description: 'Ontdek en reserveer bij de beste restaurants in België. Filter op keuken, prijs en meer.',
+  title: 'Ontdek Locaties - Reserve4You',
+  description: 'Ontdek en boek bij professionele bedrijven in België. Filter op categorie, specialisatie en meer.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -90,11 +90,11 @@ export default async function DiscoverPage({
           <>
             Ontdek{' '}
             <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              restaurants
+              locaties
             </span>
           </>
         }
-        description="Vind het perfecte restaurant voor elke gelegenheid"
+        description="Vind het perfecte bedrijf voor elke behoefte"
         showMap={true}
         mapComponent={
           <DiscoverMap 
@@ -127,7 +127,7 @@ export default async function DiscoverPage({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
-              {locations.length} {locations.length === 1 ? 'restaurant' : 'restaurants'} gevonden
+              {locations.length} {locations.length === 1 ? 'locatie' : 'locaties'} gevonden
             </h2>
             {(searchQuery || cuisineType || priceRange || nearby || openNow || today || groups || deals) && (
               <p className="text-muted-foreground mt-2">
@@ -174,7 +174,7 @@ export default async function DiscoverPage({
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              Geen restaurants gevonden
+              Geen locaties gevonden
             </h3>
             <p className="text-muted-foreground mb-6">
               Probeer andere filters of zoektermen

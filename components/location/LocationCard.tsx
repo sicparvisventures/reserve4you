@@ -16,6 +16,8 @@ import { MapPin, Clock, Euro, Heart, Calendar, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ReserveBookingModal } from '@/components/booking/ReserveBookingModal';
 import { StarRating } from '@/components/reviews/StarRating';
+import { getTerminology } from '@/lib/terminology';
+import { BusinessSector } from '@/lib/types/terminology';
 
 interface LocationCardProps {
   location: {
@@ -34,6 +36,7 @@ interface LocationCardProps {
     has_deals?: boolean; // Has active promotions
     review_count?: number; // Number of reviews
     average_rating?: number; // Average rating
+    business_sector?: string; // For dynamic terminology
   };
   onFavoriteToggle?: (locationId: string) => void;
   isFavorite?: boolean;
@@ -47,6 +50,9 @@ export function LocationCard({
   showBookButton = true,
 }: LocationCardProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  
+  // 🔥 Get dynamic terminology based on location sector
+  const t = getTerminology(location.business_sector as BusinessSector);
   
   // Get city from either direct field or address_json
   const city = location.city || location.address_json?.city;
@@ -172,7 +178,7 @@ export function LocationCard({
                 }}
               >
                 <Calendar className="mr-2 h-4 w-4" />
-                Reserveren
+                {t.booking.verb || 'Reserveren'}
               </Button>
             </div>
           )}
