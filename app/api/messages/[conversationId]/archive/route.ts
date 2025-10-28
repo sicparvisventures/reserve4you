@@ -9,12 +9,12 @@ import { verifySession } from '@/lib/auth/dal';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const session = await verifySession();
     const supabase = await createClient();
-    const { conversationId } = params;
+    const { conversationId } = await params;
 
     // Get consumer ID
     const { data: consumer } = await supabase
