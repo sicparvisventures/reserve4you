@@ -160,28 +160,37 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (action === 'alert_click') {
-      // Update alert_click_count
-      const { error } = await supabase
-        .from('favorite_insights')
-        .upsert({
-          consumer_id: consumer.id,
-          location_id: locationId,
-          alert_click_count: 1,
-        }, {
-          onConflict: 'consumer_id,location_id',
-          ignoreDuplicates: false,
-        });
+      // Gebruik RPC functie voor atomic increment van alert_click_count
+      const { error } = await supabase.rpc('increment_alert_click', {
+        p_consumer_id: consumer.id,
+        p_location_id: locationId,
+      });
 
       if (error) {
-        // If upsert doesn't work, try update
+        // Als RPC niet bestaat, probeer handmatige update
+        console.error('RPC increment_alert_click not found, using manual update:', error);
+        
+        // Haal huidige data op
+        const { data: existing } = await supabase
+          .from('favorite_insights')
+          .select('alert_click_count')
+          .eq('consumer_id', consumer.id)
+          .eq('location_id', locationId)
+          .single();
+
+        const currentCount = existing?.alert_click_count || 0;
+
+        // Update met geïncrementeerde waarde
         const { error: updateError } = await supabase
           .from('favorite_insights')
-          .update({
-            alert_click_count: supabase.raw('alert_click_count + 1'),
+          .upsert({
+            consumer_id: consumer.id,
+            location_id: locationId,
+            alert_click_count: currentCount + 1,
             updated_at: new Date().toISOString(),
-          })
-          .eq('consumer_id', consumer.id)
-          .eq('location_id', locationId);
+          }, {
+            onConflict: 'consumer_id,location_id',
+          });
 
         if (updateError) {
           console.error('Error tracking alert click:', updateError);
