@@ -108,3 +108,69 @@ export async function GET(request: Request, { params }: RouteParams) {
     );
   }
 }
+
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const session = await verifyApiSession();
+    const { locationId } = await params;
+
+    const supabase = await createServiceClient();
+
+    // Get location to verify tenant access and name for logging
+    const { data: location, error: fetchError } = await supabase
+      .from('locations')
+      .select('tenant_id, name')
+      .eq('id', locationId)
+      .single();
+
+    if (fetchError || !location) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 });
+    }
+
+    // Verify user has OWNER or MANAGER role (only they can delete)
+    const hasAccess = await checkTenantRole(session.userId, location.tenant_id, ['OWNER', 'MANAGER']);
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Only tenant owners and managers can delete locations' },
+        { status: 403 }
+      );
+    }
+
+    // Call the cascade delete function
+    const { data, error: deleteError } = await supabase
+      .rpc('delete_location_cascade', {
+        p_location_id: locationId,
+        p_requesting_user_id: session.userId
+      });
+
+    if (deleteError) {
+      console.error('Error deleting location:', deleteError);
+      throw deleteError;
+    }
+
+    console.log(`Location "${location.name}" (${locationId}) deleted successfully by user ${session.userId}`);
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Location "${location.name}" deleted successfully` 
+    });
+  } catch (error: any) {
+    console.error('Error deleting location:', error);
+    
+    // Provide user-friendly error messages
+    let errorMessage = 'Failed to delete location';
+    
+    if (error.message?.includes('not found')) {
+      errorMessage = 'Location not found';
+    } else if (error.message?.includes('authorized') || error.message?.includes('permission')) {
+      errorMessage = 'You do not have permission to delete this location';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return NextResponse.json(
+      { error: errorMessage, details: error.message },
+      { status: 500 }
+    );
+  }
+}

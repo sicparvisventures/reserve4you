@@ -92,21 +92,48 @@ export async function canCreateLocation(tenantId: string): Promise<{
   currentCount?: number;
   limit?: number;
 }> {
+  // First, check how many locations this tenant already has
+  const supabase = await createClient();
+  const { count, error: countError } = await supabase
+    .from('locations')
+    .select('id', { count: 'exact', head: true })
+    .eq('tenant_id', tenantId);
+
+  if (countError) {
+    console.error('Error counting locations:', countError);
+    return { allowed: false, reason: 'Error checking quota' };
+  }
+
+  const currentCount = count || 0;
+
+  // ALWAYS allow the first location, regardless of billing status
+  // This ensures onboarding can be completed
+  if (currentCount === 0) {
+    console.log('✅ Allowing first location creation for tenant:', tenantId);
+    return { 
+      allowed: true, 
+      currentCount: 0, 
+      limit: 1,
+      reason: 'First location always allowed'
+    };
+  }
+
+  // For additional locations, check billing state
   const billing = await getTenantBilling(tenantId);
 
-  // DEVELOPMENT MODE: Allow onboarding without active subscription
-  // Comment this out in production!
+  // DEVELOPMENT MODE: Allow without active subscription
   const isDevelopment = process.env.NODE_ENV === 'development';
   
   if (!billing) {
     // If no billing state at all, allow in development
     if (isDevelopment) {
       console.warn('⚠️ DEV MODE: No billing state found, allowing location creation');
-      return { allowed: true, currentCount: 0, limit: 999 };
+      return { allowed: true, currentCount, limit: 999 };
     }
     return {
       allowed: false,
-      reason: 'No billing state found',
+      reason: 'No billing state found. Please contact support.',
+      currentCount,
     };
   }
 
@@ -114,35 +141,22 @@ export async function canCreateLocation(tenantId: string): Promise<{
     // In development, allow creation even without active subscription
     if (isDevelopment) {
       console.warn('⚠️ DEV MODE: Billing status is', billing.status, ', but allowing location creation');
-      return { allowed: true, currentCount: 0, limit: 999 };
+      return { allowed: true, currentCount, limit: 999 };
     }
     return {
       allowed: false,
-      reason: 'Active subscription required',
+      reason: 'Active subscription required to create additional locations',
+      currentCount,
     };
   }
 
   const plan = billing.plan as Plan;
   const limit = PLAN_LIMITS[plan].locations;
 
-  // Get current location count
-  const supabase = await createClient();
-  const { count, error } = await supabase
-    .from('locations')
-    .select('id', { count: 'exact', head: true })
-    .eq('tenant_id', tenantId);
-
-  if (error) {
-    console.error('Error counting locations:', error);
-    return { allowed: false, reason: 'Error checking quota' };
-  }
-
-  const currentCount = count || 0;
-
   if (currentCount >= limit) {
     return {
       allowed: false,
-      reason: `Location limit reached for ${plan} plan`,
+      reason: `Location limit reached for ${plan} plan (${currentCount}/${limit})`,
       currentCount,
       limit,
     };

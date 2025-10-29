@@ -56,6 +56,12 @@ export function GooglePlacesAutocomplete({
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Special handling for API not configured error
+        if (errorData.error?.includes('not configured')) {
+          throw new Error('Google Places API niet geconfigureerd. Vraag je administrator om de API key toe te voegen.');
+        }
+        
         throw new Error(errorData.error || 'Failed to search places');
       }
 
@@ -112,7 +118,14 @@ export function GooglePlacesAutocomplete({
 
       {/* Error Message */}
       {error && (
-        <p className="text-xs text-destructive mt-1">{error}</p>
+        <div className="mt-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <p className="text-xs text-destructive font-medium">{error}</p>
+          {error.includes('niet geconfigureerd') && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Zie <code className="bg-muted px-1 py-0.5 rounded">VERCEL_ENV_SETUP.md</code> voor instructies.
+            </p>
+          )}
+        </div>
       )}
 
       {/* Predictions Dropdown */}

@@ -45,9 +45,42 @@ export function OnboardingWizard() {
   const currentStep = parseInt(searchParams.get('step') || '1', 10);
   const [data, setData] = useState<OnboardingData>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [tenantAccessVerified, setTenantAccessVerified] = useState(false);
+
+  // Verify tenant access if tenantId is provided
+  useEffect(() => {
+    const verifyTenantAccess = async () => {
+      if (!tenantIdParam) {
+        setTenantAccessVerified(true);
+        return;
+      }
+
+      try {
+        // Check if user has access to this tenant
+        const response = await fetch(`/api/manager/tenants/${tenantIdParam}/verify-access`);
+        
+        if (!response.ok) {
+          console.error('⚠️ No access to tenant:', tenantIdParam);
+          // Redirect to step 1 to create own tenant
+          router.push('/manager/onboarding?step=1');
+          return;
+        }
+
+        setTenantAccessVerified(true);
+        setData(prev => ({ ...prev, tenantId: tenantIdParam }));
+      } catch (error) {
+        console.error('Error verifying tenant access:', error);
+        router.push('/manager/onboarding?step=1');
+      }
+    };
+
+    verifyTenantAccess();
+  }, [tenantIdParam, router]);
 
   // Load saved progress from localStorage on mount
   useEffect(() => {
+    if (!tenantAccessVerified) return;
+
     const saved = localStorage.getItem('r4y_onboarding_progress');
     if (saved) {
       try {
@@ -56,12 +89,7 @@ export function OnboardingWizard() {
         console.error('Failed to load saved progress:', e);
       }
     }
-    
-    // If tenantId is provided, we're adding a new location to existing tenant
-    if (tenantIdParam) {
-      setData(prev => ({ ...prev, tenantId: tenantIdParam }));
-    }
-  }, [tenantIdParam]);
+  }, [tenantAccessVerified]);
 
   // Handle automatic redirects for skipped steps when adding new location
   useEffect(() => {
@@ -181,6 +209,18 @@ export function OnboardingWizard() {
   const visibleSteps = data.tenantId 
     ? STEPS.filter(s => s.number > 1 && s.number !== 6 && s.number !== 7) 
     : STEPS;
+
+  // Show loading while verifying tenant access
+  if (!tenantAccessVerified) {
+    return (
+      <div className="min-h-screen gradient-bg-subtle py-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Toegang verifiëren...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-bg-subtle py-8">

@@ -55,6 +55,7 @@ const NAVIGATION = [
   { id: 'bookings', label: 'Reserveringen', icon: Calendar, description: 'Je boekingen' },
   { id: 'favorites', label: 'Favorieten', icon: Heart, description: 'Opgeslagen restaurants' },
   { id: 'users', label: 'Gebruikers', icon: Users, description: 'Personeel en toegangsbeheer' },
+  { id: 'subscription', label: 'Abonnementen', icon: CreditCard, description: 'Beheer je plannen' },
 ];
 
 export function ProfileClient({ user, consumer, bookings, favorites, tenants }: ProfileClientProps) {
@@ -72,10 +73,8 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
   const [upgradeSuccess, setUpgradeSuccess] = useState<{ plan: string; testMode: boolean } | null>(null);
   const [cancellingBooking, setCancellingBooking] = useState<string | null>(null);
 
-  // Add subscription to navigation if user has tenants
-  const navigation = tenants.length > 0
-    ? [...NAVIGATION, { id: 'subscription', label: 'Abonnementen', icon: CreditCard, description: 'Beheer je plannen' }]
-    : NAVIGATION;
+  // Always show all navigation items including subscription tab
+  const navigation = NAVIGATION;
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
@@ -755,13 +754,18 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
               </div>
             )}
 
-            {/* Subscription Section */}
-            {activeSection === 'subscription' && tenants.length > 0 && (
+            {/* Subscription Section - Always show upgrade options */}
+            {activeSection === 'subscription' && (
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-semibold mb-1">Abonnementen</h2>
-                  <p className="text-sm text-muted-foreground">Beheer je abonnementen</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tenants.length > 0 
+                      ? 'Beheer je abonnementen en upgrade je plan' 
+                      : 'Start met een gratis proefperiode en kies je abonnement'}
+                  </p>
                 </div>
+                {/* Always show SubscriptionSection - it handles empty state */}
                 <SubscriptionSection tenants={tenants} />
               </div>
             )}

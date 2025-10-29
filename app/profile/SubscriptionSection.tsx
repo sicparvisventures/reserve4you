@@ -114,7 +114,7 @@ export function SubscriptionSection({ tenants }: SubscriptionSectionProps) {
     <div className="space-y-8">
       {tenants.map((tenant) => {
         const currentPlan = tenant.billingState?.plan || 'FREE';
-        const currentStatus = tenant.billingState?.status || 'INACTIVE';
+        const currentStatus = tenant.billingState?.status || 'TRIALING';
         const isOwner = tenant.role === 'OWNER';
         const selectedPlan = selectedPlanForTenant[tenant.id];
 
@@ -310,19 +310,100 @@ export function SubscriptionSection({ tenants }: SubscriptionSectionProps) {
         );
       })}
 
+      {/* Always show upgrade options if no tenants */}
       {tenants.length === 0 && (
-        <Card className="p-12 text-center">
-          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Geen restaurants</h3>
-          <p className="text-muted-foreground mb-6">
-            Je hebt nog geen restaurants. Start je eerste restaurant om abonnementen te beheren.
-          </p>
-          <Button asChild className="rounded-xl">
-            <Link href="/manager/onboarding?step=1">
-              Start nieuw restaurant
-            </Link>
-          </Button>
-        </Card>
+        <div className="space-y-6">
+          <Card className="p-8 text-center bg-muted/30">
+            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Start je eerste bedrijf</h3>
+            <p className="text-muted-foreground mb-6">
+              Begin met onze gratis proefperiode en kies later je abonnement.
+            </p>
+            <Button asChild className="rounded-xl">
+              <Link href="/manager/onboarding?step=1">
+                Start nu gratis
+              </Link>
+            </Button>
+          </Card>
+
+          {/* Show upgrade plans even without tenants */}
+          <div>
+            <h3 className="text-xl font-bold mb-4">Kies je abonnement</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PLANS.map((plan) => {
+                const isPopular = plan.popular;
+
+                return (
+                  <Card
+                    key={plan.id}
+                    className={`relative p-6 transition-all duration-200 flex flex-col border border-border hover:border-primary/50 hover:shadow-lg ${
+                      isPopular ? 'ring-2 ring-primary/20' : ''
+                    }`}
+                  >
+                    {/* Popular Badge */}
+                    {isPopular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span className="px-4 py-1 bg-primary text-white text-xs font-semibold rounded-full shadow-md">
+                          Meest Gekozen
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Header */}
+                    <div className="mb-4">
+                      <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+                    </div>
+
+                    {/* Price */}
+                    <div className="mb-6 pb-6 border-b border-border">
+                      <div className="flex items-baseline">
+                        <span className="text-4xl font-bold text-foreground">
+                          €{plan.price}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">/maand</p>
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-2.5 mb-4 flex-1">
+                      {plan.features.map((feature, index) => (
+                        <li key={index} className="flex items-start text-sm">
+                          <Check className="h-4 w-4 text-success mr-2.5 mt-0.5 flex-shrink-0" />
+                          <span className="text-foreground/90">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Limitations */}
+                    {plan.limitations && plan.limitations.length > 0 && (
+                      <ul className="space-y-2 pt-4 mt-4 border-t border-border">
+                        {plan.limitations.map((limitation, index) => (
+                          <li key={index} className="flex items-start text-sm">
+                            <X className="h-4 w-4 text-muted-foreground/50 mr-2.5 mt-0.5 flex-shrink-0" />
+                            <span className="text-muted-foreground">{limitation}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {/* Action Button */}
+                    <div className="mt-6">
+                      <Button
+                        asChild
+                        className="w-full h-12 rounded-xl gradient-bg text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                      >
+                        <Link href="/manager/onboarding?step=1">
+                          Start gratis proefperiode
+                        </Link>
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

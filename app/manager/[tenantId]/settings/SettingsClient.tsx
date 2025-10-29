@@ -64,6 +64,8 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
   const [selectedLocationId, setSelectedLocationId] = useState<string>(locations[0]?.id || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const selectedLocation = locations.find(l => l.id === selectedLocationId);
 
@@ -299,6 +301,38 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
     } finally {
       setSaving(false);
       setUploadingImage(false);
+    }
+  };
+
+  const deleteLocation = async () => {
+    if (!selectedLocation) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/manager/locations/${selectedLocation.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete location');
+      }
+
+      showMessage('success', `Locatie "${selectedLocation.name}" succesvol verwijderd!`);
+      setDeleteConfirmOpen(false);
+      
+      // Redirect to dashboard after deletion
+      setTimeout(() => {
+        router.push(`/manager/${tenantId}/dashboard`);
+        router.refresh();
+      }, 1500);
+    } catch (error: any) {
+      console.error('Error deleting location:', error);
+      showMessage('error', error.message || 'Fout bij verwijderen locatie');
+      setDeleteConfirmOpen(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -860,17 +894,29 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
                       </div>
                     </Card>
 
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-between items-center gap-3 pt-4">
                       <Button
-                        variant="outline"
-                        onClick={() => router.push(`/manager/${tenantId}/location/${selectedLocationId}`)}
+                        variant="destructive"
+                        onClick={() => setDeleteConfirmOpen(true)}
+                        disabled={saving || uploadingImage || deleting || locations.length === 1}
+                        title={locations.length === 1 ? 'Je kunt je laatste locatie niet verwijderen' : 'Verwijder deze locatie permanent'}
                       >
-                        Ga naar Dashboard
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Locatie Verwijderen
                       </Button>
-                      <Button onClick={saveLocation} disabled={saving || uploadingImage} size="lg">
-                        <Save className="h-4 w-4 mr-2" />
-                        {uploadingImage ? 'Uploaden...' : saving ? 'Opslaan...' : 'Wijzigingen Opslaan'}
-                      </Button>
+                      
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => router.push(`/manager/${tenantId}/location/${selectedLocationId}`)}
+                        >
+                          Ga naar Dashboard
+                        </Button>
+                        <Button onClick={saveLocation} disabled={saving || uploadingImage} size="lg">
+                          <Save className="h-4 w-4 mr-2" />
+                          {uploadingImage ? 'Uploaden...' : saving ? 'Opslaan...' : 'Wijzigingen Opslaan'}
+                        </Button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -1082,6 +1128,53 @@ export function SettingsClient({ tenantId, tenant, locations, billing, membershi
           </main>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmOpen && selectedLocation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full p-6 space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">Locatie Verwijderen?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Weet je zeker dat je <strong>"{selectedLocation.name}"</strong> wilt verwijderen? 
+                  Deze actie kan niet ongedaan worden gemaakt.
+                </p>
+                <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3 mb-4">
+                  <p className="text-xs text-destructive font-medium mb-2">⚠️ Dit verwijdert ook:</p>
+                  <ul className="text-xs text-muted-foreground space-y-1 ml-4 list-disc">
+                    <li>Alle tafels en vloerplannen</li>
+                    <li>Alle reserveringen</li>
+                    <li>Alle shifts en openingstijden</li>
+                    <li>Alle reviews en berichten</li>
+                    <li>Alle promoties en menu items</li>
+                  </ul>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteConfirmOpen(false)}
+                    disabled={deleting}
+                  >
+                    Annuleren
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={deleteLocation}
+                    disabled={deleting}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {deleting ? 'Verwijderen...' : 'Ja, Verwijderen'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

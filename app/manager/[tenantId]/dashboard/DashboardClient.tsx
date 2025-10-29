@@ -19,6 +19,7 @@ import {
   Store,
   Plus,
   Trash2,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -36,6 +37,7 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
   const [selectedLocationId, setSelectedLocationId] = useState(locations[0]?.id || null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const published = searchParams.get('published');
 
   const selectedLocation = locations.find(l => l.id === selectedLocationId);
@@ -72,6 +74,7 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
 
     setDeletingId(locationId);
     setError('');
+    setSuccessMessage('');
 
     try {
       const response = await fetch(`/api/manager/locations/${locationId}`, {
@@ -82,6 +85,12 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
         const data = await response.json();
         throw new Error(data.error || 'Failed to delete location');
       }
+
+      // Show success message
+      setSuccessMessage(`Vestiging "${locationName}" is succesvol verwijderd`);
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
 
       // Refresh the page
       router.refresh();
@@ -117,7 +126,7 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Success Banner */}
+      {/* Published Success Banner */}
       {published === 'true' && (
         <div className="bg-success/10 border-b border-success/20 py-4">
           <div className="container mx-auto px-4">
@@ -141,6 +150,48 @@ export function DashboardClient({ tenant, role, locations, bookings, billing }: 
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Bekijk pagina
                 </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Banner */}
+      {successMessage && (
+        <div className="bg-green-50 border-b border-green-200 py-3">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <p className="text-sm text-green-800 font-medium">{successMessage}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSuccessMessage('')}
+              >
+                <X className="h-4 w-4 text-green-600" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-destructive/10 border-b border-destructive/20 py-3">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-destructive" />
+                <p className="text-sm text-destructive font-medium">{error}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setError('')}
+              >
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>

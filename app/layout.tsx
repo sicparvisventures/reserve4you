@@ -4,6 +4,7 @@ import { Manrope } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth/auth-provider';
 import { ConditionalHeader } from '@/components/conditional-header';
 import { CookieBanner } from '@/components/ui/cookie-banner';
+import { NewsletterPopup } from '@/components/ui/newsletter-popup';
 import { AnalyticsWrapper } from '@/components/analytics-wrapper';
 import { GoogleTranslateWidget } from '@/components/GoogleTranslateWidget';
 import { getOptionalUser } from '@/lib/auth/dal';
@@ -49,6 +50,7 @@ export default async function RootLayout({
           {children}
         </AuthProvider>
         <CookieBanner />
+        <NewsletterPopup />
         <AnalyticsWrapper />
       </body>
     </html>

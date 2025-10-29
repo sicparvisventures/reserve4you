@@ -73,10 +73,12 @@ export function ProfessionalDashboard({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [stats, setStats] = useState<any>(initialStats || {});
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Auto-process pending emails
   useEmailProcessor();
@@ -107,6 +109,26 @@ export function ProfessionalDashboard({
   const confirmedCount = upcomingBookings.filter(b => b.status === 'confirmed').length;
   const pendingCount = upcomingBookings.filter(b => b.status === 'pending').length;
   const totalGuests = todayBookings.reduce((sum, b) => sum + (b.number_of_guests || 0), 0);
+
+  // Handle refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setError('');
+    
+    try {
+      // Refresh the server-side data
+      router.refresh();
+      
+      // Give a small delay for visual feedback
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setIsRefreshing(false);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+      setError('Fout bij verversen. Probeer het opnieuw.');
+      setIsRefreshing(false);
+    }
+  };
 
   // Handle logout
   const handleLogout = async () => {
@@ -174,6 +196,7 @@ export function ProfessionalDashboard({
 
     setDeletingId(locationId);
     setError('');
+    setSuccessMessage('');
 
     try {
       const response = await fetch(`/api/manager/locations/${locationId}`, {
@@ -184,6 +207,12 @@ export function ProfessionalDashboard({
         const data = await response.json();
         throw new Error(data.error || 'Failed to delete location');
       }
+
+      // Show success message
+      setSuccessMessage(`Vestiging "${locationName}" is succesvol verwijderd`);
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
 
       router.refresh();
     } catch (err: any) {
@@ -258,11 +287,12 @@ export function ProfessionalDashboard({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.refresh()}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
                 className="hidden sm:flex"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Verversen
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Bezig...' : 'Verversen'}
               </Button>
               
               <Button
@@ -292,6 +322,27 @@ export function ProfessionalDashboard({
           </div>
         </div>
       </div>
+
+      {/* Success Banner */}
+      {successMessage && (
+        <div className="bg-green-50 border-b border-green-200 py-3">
+          <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <p className="text-sm text-green-800 font-medium">{successMessage}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSuccessMessage('')}
+              >
+                <X className="h-4 w-4 text-green-600" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error Banner */}
       {error && (

@@ -20,8 +20,14 @@ export async function GET(request: NextRequest) {
 
   if (!apiKey) {
     console.error('❌ GOOGLE_PLACES_API_KEY not configured');
+    console.error('📝 Fix: Add GOOGLE_PLACES_API_KEY to your .env.local (local) or Vercel Environment Variables (production)');
+    console.error('📚 See: VERCEL_ENV_SETUP.md for detailed instructions');
     return NextResponse.json(
-      { error: 'Google Places API not configured' },
+      { 
+        error: 'Google Places API not configured',
+        details: 'Add GOOGLE_PLACES_API_KEY to environment variables. See VERCEL_ENV_SETUP.md for setup instructions.',
+        helpUrl: '/api/debug/env-check'
+      },
       { status: 500 }
     );
   }
