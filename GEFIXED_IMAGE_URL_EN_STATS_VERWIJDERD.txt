@@ -1,0 +1,103 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║         ✅  IMAGE URL GEFIXED + STATISTIEK BOXES VERWIJDERD  ✅     ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+PROBLEEM 1 OPGELOST: primary_image_url → hero_image_url
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FOUT:
+   column locations_1.primary_image_url does not exist
+
+OORZAAK:
+   - In /api/favorites/route.ts werd hero_image_url gebruikt
+   - Maar in /api/favorites/alerts/ en insights/ werd primary_image_url gebruikt
+   - De locations tabel heeft GEEN primary_image_url kolom!
+
+OPLOSSING:
+   ✅ app/api/favorites/alerts/route.ts
+      primary_image_url → hero_image_url (3x vervangen)
+   
+   ✅ app/api/favorites/insights/route.ts
+      primary_image_url → hero_image_url (1x vervangen)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEEM 2 OPGELOST: Statistiek Boxes Verwijderd
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERWIJDERD VAN /favorites:
+
+   ❌ Totaal Favorieten (1)
+   ❌ Actieve Alerts (0)
+   ❌ Totaal Geboekt (0)
+
+FILE AANGEPAST:
+   ✅ app/favorites/FavoritesClient.tsx
+      - Volledige grid met 3 statistiek cards verwijderd
+      - Houdt wel de "Smart Alerts Feature Banner"
+      - Layout blijft schoon en professioneel
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SERVER RESTART
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Alle Node processen gestopt
+✅ .next cache gewist
+✅ Server opnieuw gestart
+✅ Verse code geladen
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 NU TESTEN
+
+STAP 1: Hard Refresh
+   Cmd+Shift+R (Mac) of Ctrl+Shift+R (Windows)
+
+STAP 2: Ga naar
+   http://localhost:3007/favorites
+
+STAP 3: Verwacht Resultaat
+
+   ✅ GEEN statistiek boxes meer (Totaal Favorieten etc)
+   ✅ Wel de "Smart Availability Alerts" banner bovenaan
+   ✅ Je favorieten met alert buttons
+   ✅ GEEN 500 errors meer in console!
+   ✅ GEEN "primary_image_url does not exist" errors
+
+STAP 4: Test Alert Aanmaken
+   
+   1. Klik "Alert instellen" bij een favoriet
+   2. Kies dag, tijd, aantal personen
+   3. Klik "Alert aanmaken"
+   
+   Verwacht:
+   ✅ Groene toast: "Alert succesvol aangemaakt!"
+   ✅ Dialog sluit
+   ✅ Rode badge 🔔 verschijnt
+   ✅ Alert info wordt getoond
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SAMENVATTING FIXES
+
+Issue #1: city kolom → OPGELOST ✅
+Issue #2: primary_image_url kolom → OPGELOST ✅
+Issue #3: Statistiek boxes → VERWIJDERD ✅
+
+Alles zou nu moeten werken!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Als je NOG STEEDS errors ziet, stuur me:
+
+1. Console errors (F12 → Console)
+2. Network response (F12 → Network → alerts → Response)
+3. Server terminal output
+
+Maar het zou nu MOETEN werken! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

@@ -222,11 +222,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </section>
         )}
 
-        {/* Popular Cuisines */}
+        {/* Popular Specialties */}
         {availableCuisines.length > 0 && (
           <section className="mb-16">
             <h2 className="text-2xl font-bold text-foreground mb-6">
-              Populaire keukens
+              Populaire specialiteiten
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {availableCuisines.slice(0, 12).map((cuisine) => (

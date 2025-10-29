@@ -1,0 +1,161 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║      ✅  "TYPE KEUKEN" → DROPDOWN "SPECIALITEIT" (MULTI-SECTOR)     ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+AANPASSINGEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FILE: app/discover/DiscoverClient.tsx
+
+VERANDERING 1: Imports
+   ✅ Select components toegevoegd van shadcn/ui
+
+VERANDERING 2: Filter UI
+   WAS: Grid met buttons voor cuisine types
+   NU:  Dropdown (Select) met alle specialiteiten
+   
+VERANDERING 3: Terminologie
+   WAS: "Type keuken"
+   NU:  "Specialiteit"
+   
+   WAS: "Geen keuken types beschikbaar"
+   NU:  "Geen specialiteiten beschikbaar"
+
+VERANDERING 4: Default optie
+   ✅ "Alle specialiteiten" als eerste optie
+   ✅ Wist filter als je "Alle specialiteiten" selecteert
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAAROM DROPDOWN?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SCHAALBAARHEID
+   - Grid met buttons wordt te groot bij veel opties
+   - Dropdown blijft compact bij 100+ specialiteiten
+   - Geen UI breakage bij groei
+
+✅ MULTI-SECTOR READY
+   Nu kunnen alle bedrijven hun specialiteit toevoegen:
+   
+   🍽️ RESTAURANTS:
+      - Italiaans
+      - Frans
+      - Japans
+      - Pizza
+      - Sushi
+      
+   💅 BEAUTY:
+      - Manicure
+      - Pedicure
+      - Gelnagels
+      - Acrylnagels
+      
+   🏥 GEZONDHEID:
+      - Huisarts
+      - Tandarts
+      - Dermatoloog
+      - Fysiotherapeut
+      
+   💪 FITNESS:
+      - Yoga
+      - Pilates
+      - CrossFit
+      - Personal Training
+      
+   ⚖️ JURIDISCH:
+      - Familierecht
+      - Strafrecht
+      - Bedrijfsrecht
+      
+   🎓 EDUCATIE:
+      - Bijles Wiskunde
+      - Pianolessen
+      - Gitaarlessen
+      
+   🚗 AUTO:
+      - APK
+      - Onderhoud
+      - Reparatie
+      - Airco service
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GEBRUIKERSERVARING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VOOR (Grid met buttons):
+┌─────────────────────────────────────────────┐
+│ Type keuken                                 │
+│ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐        │
+│ │Itali.│ │Frans │ │Japan │ │Pizza │        │
+│ └──────┘ └──────┘ └──────┘ └──────┘        │
+│ ┌──────┐ ┌──────┐ ... (12 buttons)         │
+│ │Sushi │ │Kip   │                           │
+│ └──────┘ └──────┘                           │
+└─────────────────────────────────────────────┘
+
+NA (Dropdown):
+┌─────────────────────────────────────────────┐
+│ Specialiteit                                │
+│ ┌─────────────────────────────────────────┐ │
+│ │ Alle specialiteiten             ▼      │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│ Click → Dropdown met 100+ opties           │
+│ Zoekbaar, scrollbaar, compact               │
+└─────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FUNCTIONALITEIT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Default: "Alle specialiteiten" (geen filter actief)
+✅ Selecteer specialiteit → filter wordt actief
+✅ Kies "Alle specialiteiten" → filter wordt gewist
+✅ Dynamische data uit database (wat bedrijven invullen)
+✅ Werkt met bestaande filter logic
+✅ URL parameter blijft `?cuisine=...` (backwards compatible)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAAR TE ZIEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+http://localhost:3007/discover
+
+1. Click op "Filters" button (rechts)
+2. Scroll naar "Specialiteit" sectie
+3. Zie dropdown in plaats van grid met buttons
+4. Click dropdown → Zie alle specialiteiten
+5. Selecteer één → Filter wordt actief
+6. Selecteer "Alle specialiteiten" → Filter gewist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TESTEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Server draait al, dus hot reload zou dit moeten laden.
+
+Test scenario:
+1. Ga naar /discover
+2. Open filters
+3. Zie "Specialiteit" dropdown
+4. Kies "Kip" → Zie alleen Poule & Poulette
+5. Kies "Alle specialiteiten" → Zie alle locaties weer
+6. Check dat andere filters blijven werken
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PERFECT VOOR MULTI-SECTOR GROEI! 🚀
+
+Nu kan elk bedrijf hun eigen specialiteit toevoegen
+zonder de UI kapot te maken. De dropdown schaalt
+perfect van 10 tot 1000+ specialiteiten.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

@@ -39,9 +39,9 @@
     // Image
     html += '<div style="position: relative; height: 192px; overflow: hidden; background: linear-gradient(135deg, #f5f5f5, #e0e0e0);">';
     if (imageUrl) {
-      html += '<img src="' + imageUrl + '" alt="' + location.name + '" style="width: 100%; height: 100%; object-fit: cover;" />';
+      html += '<img src="' + imageUrl + '" alt="' + location.name + '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src=\'/raylogo.png\'; this.style.objectFit=\'contain\'; this.style.padding=\'32px\';" />';
     } else {
-      html += '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e5e7eb;"></div>';
+      html += '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 32px;"><img src="/raylogo.png" alt="Reserve4You" style="width: 100%; height: 100%; object-fit: contain;" /></div>';
     }
     
     // Badges

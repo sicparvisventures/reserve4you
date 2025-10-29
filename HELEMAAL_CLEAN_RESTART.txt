@@ -1,0 +1,121 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║          ✅  NUCLEAR RESTART COMPLEET - VERSE CODE!  ✅             ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+WAT ER IS GEBEURD:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ALLE Node processen gestopt (pkill -9 node)
+✅ Poort 3007 vrijgegeven
+✅ .next folder volledig verwijderd
+✅ node_modules/.cache verwijderd
+✅ Server VERS gestart met npm run dev
+✅ Health check succesvol
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CODE VERIFICATIE:
+✅ alerts/route.ts: GEEN city kolom
+✅ insights/route.ts: GEEN city kolom
+✅ Alle select statements gecorrigeerd
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 NU TESTEN IN BROWSER:
+
+STAP 1: BROWSER CACHE WISSEN (VERPLICHT!)
+   
+   Mac:
+   1. Cmd+Shift+R (Hard refresh)
+   2. Of: Developer Tools (F12) → Network tab → 
+      "Disable cache" aanvinken → pagina refreshen
+   
+   Windows:
+   1. Ctrl+Shift+R (Hard refresh)
+   2. Of: F12 → Network → "Disable cache" → refresh
+
+STAP 2: Ga naar
+   http://localhost:3007/favorites
+
+STAP 3: Test Alert Aanmaken
+   1. Klik op "Alert instellen"
+   2. Selecteer dag, tijd, aantal personen
+   3. Klik "Alert aanmaken"
+
+STAP 4: Wat te Verwachten
+
+   ✅ SUCCES:
+      - Groene toast: "Alert succesvol aangemaakt!"
+      - Dialog sluit automatisch
+      - Rode badge "🔔" verschijnt
+      - Alert details worden getoond
+      - Console: GEEN 500 errors
+   
+   ❌ ALS HET NOG STEEDS FAALT:
+      - Open F12 → Network tab
+      - Klik op de "alerts" request (rood)
+      - Klik op "Response" tab
+      - KOPIEER de response en stuur naar mij
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DEBUG CHECKS (als het niet werkt):
+
+CHECK 1: Nieuwe Server Logs
+   Kijk naar terminal waar npm run dev draait
+   Na hard refresh zou je moeten zien:
+   
+   GET /favorites 200 in XXms
+   GET /api/favorites/alerts 200 in XXms  ← Dit moet 200 zijn!
+   GET /api/favorites/insights 200 in XXms ← Dit moet 200 zijn!
+   
+   Zie je nog "Error fetching alerts: column city does not exist"?
+   → Geef me dan ALLE output van de terminal
+
+CHECK 2: Browser Console
+   F12 → Console
+   Zie je nog 500 errors?
+   → Kopieer de EXACTE error message
+
+CHECK 3: Network Response
+   F12 → Network → alerts → Response
+   → Kopieer de JSON response
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAAROM DIT KEER ZOU MOETEN WERKEN:
+
+1. ✅ Code is correct (gecontroleerd)
+2. ✅ ALLE node processen gestopt (niet alleen npm)
+3. ✅ ALLE cache gewist (ook node_modules cache)
+4. ✅ Server volledig opnieuw gecompileerd
+5. ✅ Health check succesvol
+
+De oude gecompileerde code is NU weg!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 TEST HET NU:
+
+1. Hard refresh in browser (Cmd+Shift+R)
+2. Ga naar /favorites
+3. Maak een alert aan
+
+Als het WERKT:
+→ Je ziet een groene toast en een rode badge 🔔
+
+Als het NIET werkt:
+→ Stuur me:
+   - Browser console errors
+   - Network response
+   - Server terminal output
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Let op: De source map warning kun je negeren!
+Focus alleen op de 500 error bij /api/favorites/alerts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

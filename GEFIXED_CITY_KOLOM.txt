@@ -1,0 +1,76 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║              ✅  CITY KOLOM PROBLEEM GEFIXED!  ✅                    ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+PROBLEEM:
+  column locations_1.city does not exist
+  
+OORZAAK:
+  De locations tabel heeft geen 'city' kolom.
+  API routes probeerden deze kolom op te halen.
+
+OPLOSSING:
+  Alle 'city' references verwijderd uit:
+  ✅ app/api/favorites/alerts/route.ts (3 plekken)
+  ✅ app/api/favorites/insights/route.ts (1 plek)
+  ✅ TEST_ALERT_IN_DATABASE.sql
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAT NU?
+
+1. SERVER OPNIEUW GESTART
+   → Wacht 5 seconden
+   → Server draait op http://localhost:3007
+
+2. HARD REFRESH BROWSER
+   → Cmd+Shift+R (Mac)
+   → Ctrl+Shift+R (Windows)
+
+3. TEST OPNIEUW
+   → Ga naar: http://localhost:3007/favorites
+   → Klik "Alert instellen"
+   → Configureer opties
+   → Klik "Alert aanmaken"
+   → ✅ Zou nu moeten werken!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERWACHT RESULTAAT:
+
+✅ Groene toast: "Alert succesvol aangemaakt!"
+✅ "Alert actief" badge verschijnt op card
+✅ Alert info wordt getoond
+✅ Geen 500 errors meer in console
+✅ Notificatie in /notifications
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ALS HET NOG NIET WERKT:
+
+1. Check Browser Console (F12 → Console)
+   → Kopieer nieuwe error
+
+2. Check Network Tab (F12 → Network)
+   → Filter "alerts"
+   → Klik op request
+   → Response tab
+   → Kopieer response
+
+3. Run SQL Test:
+   → Supabase SQL Editor
+   → Run: TEST_ALERT_IN_DATABASE.sql
+   → Zou nu geen 'city' error moeten geven
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STATUS: GEFIXED ✅
+DATUM: 29 Oktober 2025
+TIJD: Nu
+
+TEST NU: http://localhost:3007/favorites
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

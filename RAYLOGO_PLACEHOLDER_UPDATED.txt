@@ -1,0 +1,94 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║          ✅  PLACEHOLDER AFBEELDING VERVANGEN NAAR RAYLOGO  ✅      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+AANPASSINGEN DOORGEVOERD:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ components/location/LocationCard.tsx
+   WAS: 🍽️ emoji als placeholder
+   NU:  /raylogo.png met object-contain + padding
+
+✅ components/widget/RestaurantWidget.tsx
+   WAS: 🍽️ emoji als placeholder
+   NU:  /raylogo.png met object-contain + padding
+
+✅ components/favorites/FavoriteCard.tsx
+   WAS: 🍽️ emoji als placeholder
+   NU:  /raylogo.png met object-contain + padding
+
+✅ public/widget-embed.js
+   WAS: Lege grijze div als placeholder
+   NU:  /raylogo.png met object-contain + padding
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAAR WORDT DIT GETOOND:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ /discover pagina (alle locatie cards)
+✅ /favorites pagina (favoriet cards)
+✅ Widgets (embedded restaurant widgets)
+✅ Alle andere pagina's waar LocationCard gebruikt wordt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FALLBACK LOGICA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Als locatie GEEN image_url heeft:
+   → Direct raylogo.png getoond
+
+2. Als locatie WEL image_url heeft MAAR deze faalt:
+   → onError event triggered
+   → Fallback naar raylogo.png
+   → object-fit verandert naar 'contain'
+   → padding toegevoegd voor mooie weergave
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STYLING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- object-contain: Logo schaalt proportioneel
+- padding: 32px (p-8): Logo niet tegen de randen
+- Gradient achtergrond blijft behouden (from-primary/20 to-primary/5)
+- Alt text: "Reserve4You"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TESTEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Server draait al, dus:
+
+1. Hard refresh in browser (Cmd+Shift+R)
+
+2. Test op deze pagina's:
+   ✅ http://localhost:3007/discover
+   ✅ http://localhost:3007/favorites
+   
+3. Kijk naar locaties ZONDER afbeelding
+   → Zou raylogo.png moeten tonen ipv 🍽️
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BELANGRIJK:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- raylogo.png bestaat al in /public/raylogo.png ✅
+- Alle changes zijn in React components (hot reload zou moeten werken)
+- Geen server restart nodig TENZIJ je cached versie ziet
+
+Als je nog steeds emoji's ziet:
+→ Hard refresh (Cmd+Shift+R)
+→ Of clear browser cache
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KLAAR! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

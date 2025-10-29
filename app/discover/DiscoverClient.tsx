@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X, SlidersHorizontal, MapPin, Loader2, CheckCircle2, AlertCircle, Clock, Calendar, Users, Tag } from 'lucide-react';
 
 interface DiscoverClientProps {
@@ -413,28 +414,29 @@ export function DiscoverClient({
             </div>
           </div>
 
-          {/* Cuisine Type */}
+          {/* Specialty Type */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Type keuken</h3>
-            {availableCuisines.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                {availableCuisines.map((cuisine) => (
-                  <button
-                    key={cuisine}
-                    onClick={() => setSelectedCuisine(cuisine === selectedCuisine ? '' : cuisine)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedCuisine === cuisine
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {cuisine}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Geen keuken types beschikbaar</p>
-            )}
+            <h3 className="text-sm font-semibold text-foreground mb-3">Specialiteit</h3>
+            <Select
+              value={selectedCuisine}
+              onValueChange={(value) => setSelectedCuisine(value === 'all' ? '' : value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Alle specialiteiten" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle specialiteiten</SelectItem>
+                {availableCuisines.length > 0 ? (
+                  availableCuisines.map((cuisine) => (
+                    <SelectItem key={cuisine} value={cuisine}>
+                      {cuisine}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>Geen specialiteiten beschikbaar</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Price Range */}

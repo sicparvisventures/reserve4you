@@ -161,7 +161,7 @@ export function SearchClient({ initialQuery = '' }: SearchClientProps) {
       {/* Quick Searches */}
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-4">
-          Populaire keukens
+          Populaire zoekopdrachten
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {quickSearches.map((item) => (

@@ -1,0 +1,104 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║              📋 HANDMATIG SERVER STARTEN - INSTRUCTIES              ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+De server is gefixed maar moet handmatig gestart worden.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FIXES DIE ZIJN DOORGEVOERD:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ISSUE 1: city kolom niet bestaat
+   → Alle referenties naar 'city' verwijderd
+
+✅ ISSUE 2: primary_image_url niet bestaat
+   → Veranderd naar hero_image_url in:
+      • app/api/favorites/alerts/route.ts
+      • app/api/favorites/insights/route.ts
+
+✅ ISSUE 3: Statistiek boxes verwijderen
+   → Verwijderd uit app/favorites/FavoritesClient.tsx:
+      • Totaal Favorieten box
+      • Actieve Alerts box
+      • Totaal Geboekt box
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 START DE SERVER HANDMATIG:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPTIE 1: In een nieuwe terminal:
+
+   cd /Users/dietmar/Desktop/ray2
+   npm run dev
+
+OPTIE 2: Als dat niet werkt, doe eerst een clean start:
+
+   cd /Users/dietmar/Desktop/ray2
+   pkill -9 node
+   rm -rf .next
+   npm run dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WACHT TOT JE DIT ZIET:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   ▲ Next.js 15.0.3 (Turbopack)
+   - Local:        http://localhost:3007
+   ✓ Ready in X.Xs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DAN TESTEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Hard refresh in browser (Cmd+Shift+R)
+
+2. Ga naar: http://localhost:3007/favorites
+
+3. Check dat:
+   ✅ GEEN statistiek boxes meer (Totaal Favorieten etc)
+   ✅ Wel "Smart Availability Alerts" banner
+   ✅ Je favorieten worden getoond
+   ✅ GEEN 500 errors in console
+
+4. Test alert aanmaken:
+   - Klik "Alert instellen"
+   - Kies dag, tijd, personen
+   - Klik "Alert aanmaken"
+   
+   Verwacht:
+   ✅ Groene toast
+   ✅ Alert verschijnt met rode badge 🔔
+   ✅ GEEN errors
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAT ER IS GEFIXED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VOOR:
+   ❌ Error: column city does not exist
+   ❌ Error: column primary_image_url does not exist
+   ❌ Onnodige statistiek boxes
+   ❌ 500 errors bij alerts/insights
+
+NA:
+   ✅ Alle database queries correct
+   ✅ hero_image_url gebruikt (bestaat wel!)
+   ✅ Clean UI zonder statistiek boxes
+   ✅ Alerts zouden moeten werken
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Als er NOG STEEDS errors zijn na het handmatig starten:
+→ Stuur me console errors + server terminal output
+
+Maar het zou NU moeten werken! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

@@ -1,0 +1,98 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║              ✅  SERVER HELEMAAL OPNIEUW GESTART!  ✅               ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+STATUS:
+✅ Server volledig gestopt (alle processen gedood)
+✅ Cache gewist (.next folder verwijderd)
+✅ Server opnieuw gestart met npm run dev
+✅ Health check: OK (server draait)
+✅ Code verificatie: 'city' verwijderd uit beide routes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 TEST NU IN BROWSER:
+
+STAP 1: HARD REFRESH (BELANGRIJK!)
+   Mac: Cmd+Shift+R
+   Windows: Ctrl+Shift+R
+   
+   Dit wist browser cache!
+
+STAP 2: Open
+   http://localhost:3007/favorites
+
+STAP 3: Test Alert
+   1. Klik "Alert instellen"
+   2. Kies dag, tijd, personen
+   3. Klik "Alert aanmaken"
+
+STAP 4: Check Console
+   F12 → Console tab
+   Zie je NOG STEEDS een 500 error?
+   
+   → Kopieer de EXACTE error message
+   → En kijk naar Network tab → alerts → Response
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ALS JE NOG STEEDS 500 ERROR KRIJGT:
+
+Geef me deze info:
+
+1. BROWSER CONSOLE OUTPUT (F12 → Console)
+   Kopieer alle rode errors
+
+2. NETWORK RESPONSE (F12 → Network → alerts → Response)
+   Wat staat er in de response?
+
+3. SERVER LOGS
+   In terminal waar npm run dev draait:
+   Zie je nieuwe POST /api/favorites/alerts logs?
+   Wat is de output?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ALTERNATIEF: TEST MET CURL
+
+Open nieuwe terminal en run:
+
+```bash
+# Test 1: Check if API is reachable
+curl http://localhost:3007/api/health
+
+# Test 2: Try to get alerts (will fail if not logged in, but should not 500)
+curl http://localhost:3007/api/favorites/alerts
+```
+
+Wat is de output?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SOURCE MAP WARNING:
+
+De warning over "offset.column" is NIET het probleem.
+Dit is een Next.js development warning en is normaal.
+Focus op de 500 error!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERWACHTE RESULTAAT (als het werkt):
+
+✅ Groene toast: "Alert succesvol aangemaakt!"
+✅ Dialog sluit
+✅ Badge verschijnt
+✅ Alert info getoond
+✅ In console: Geen 500 error
+✅ In server logs: POST /api/favorites/alerts 200 (niet 500!)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NU TESTEN! 🚀
+
+http://localhost:3007/favorites
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

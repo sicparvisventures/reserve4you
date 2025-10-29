@@ -258,15 +258,14 @@ function LocationWidgetCard({ location, config, onBookingClick }: LocationWidget
             alt={location.name}
             className={`w-full h-full object-cover ${config.enable_animations && config.enable_hover_effects ? 'group-hover:scale-105 transition-transform duration-300' : ''}`}
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              if (e.currentTarget.parentElement) {
-                e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center"><span class="text-6xl">🍽️</span></div>';
-              }
+              // Fallback to raylogo if image fails to load
+              e.currentTarget.src = '/raylogo.png';
+              e.currentTarget.className = 'w-full h-full object-contain p-8';
             }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-6xl">🍽️</span>
+          <div className="w-full h-full flex items-center justify-center p-8">
+            <img src="/raylogo.png" alt="Reserve4You" className="w-full h-full object-contain" />
           </div>
         )}
 

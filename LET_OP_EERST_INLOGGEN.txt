@@ -1,0 +1,61 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║              ⚠️  EERST INLOGGEN VOORDAT JE TEST!  ⚠️                ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+De /favorites pagina redirect naar /sign-in omdat authenticatie vereist is.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 STAPPEN OM TE TESTEN:
+
+1. INLOGGEN:
+   Open: http://localhost:3007/sign-in
+   
+   Als je een account hebt:
+   → Log in met je email + wachtwoord
+   
+   Als je geen account hebt:
+   → Klik "Sign Up" of ga naar /sign-up
+   → Maak nieuw account aan
+   → Bevestig email
+   → Log in
+
+2. FAVORIET TOEVOEGEN:
+   Ga naar: http://localhost:3007/discover
+   → Zoek een restaurant
+   → Klik op het hartje ❤️
+   → Hartje wordt gevuld
+
+3. FAVORITES PAGINA OPENEN:
+   Ga naar: http://localhost:3007/favorites
+   → ✅ Nu zie je de Smart Availability Alerts UI!
+
+4. ALERT INSTELLEN:
+   → Klik "Alert instellen" bij een favoriet
+   → Configureer dag, tijd, personen
+   → Klik "Alert aanmaken"
+   → ✅ Groene toast: "Alert succesvol aangemaakt!"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ DIRECT STARTEN:
+
+http://localhost:3007/sign-in ← Begin hier!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 VOLLEDIGE INSTRUCTIES:
+
+Zie: TEST_INSTRUCTIES_FAVORITES.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ALLES WERKT!
+
+De redirect naar /sign-in is normaal gedrag.
+Zodra je ingelogd bent, werkt alles perfect.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

@@ -1,0 +1,98 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║        ✅  "POPULAIRE KEUKENS" AANGEPAST NAAR MULTI-SECTOR  ✅      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+AANPASSINGEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FILE: app/page.tsx (Homepage)
+   WAS: "Populaire keukens"
+   NU:  "Populaire specialiteiten"
+   
+   REDEN: 
+   - "keukens" is specifiek voor restaurants
+   - "specialiteiten" werkt voor ALLE sectoren:
+     • Restaurants: Italiaans, Frans, Japans
+     • Kapsalons: Knippen, Kleuren, Extensions
+     • Fitness: Yoga, CrossFit, Bootcamp
+     • Artsen: Huisarts, Dermatoloog, Cardioloog
+     etc.
+
+✅ FILE: app/search/SearchClient.tsx (Search pagina)
+   WAS: "Populaire keukens"
+   NU:  "Populaire zoekopdrachten"
+   
+   REDEN:
+   - Dit zijn quick search buttons met emoji's
+   - "Populaire zoekopdrachten" is algemener
+   - Werkt voor alle business types
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MULTI-SECTOR LOGICA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Het `cuisine_type` veld in de database wordt gebruikt voor:
+
+✅ RESTAURANT: Italiaans, Frans, Japans, etc.
+✅ KAPSALON: Dames Kappers, Heren Barbier, Unisex
+✅ FITNESS: Yoga Studio, CrossFit Box, Personal Training
+✅ ARTSEN: Huisarts, Tandarts, Dermatoloog
+✅ BEAUTY: Nagelstudio, Schoonheidssalon, Spa
+✅ Auto: Autobedrijf, Garage, Wasstraat
+
+→ "Specialiteiten" dekt dit allemaal af!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TERMINOLOGIE MATRIX:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SECTOR          | VOORBEELD SPECIALITEITEN
+----------------|---------------------------
+🍽️ Horeca       | Italiaans, Frans, Aziatisch
+💅 Beauty        | Manicure, Pedicure, Gelnagels
+🏥 Gezondheid    | Huisarts, Tandarts, Fysio
+💪 Fitness       | Yoga, Pilates, CrossFit
+⚖️ Juridisch     | Familie, Straf, Bedrijfs
+🎓 Educatie      | Bijles, Piano, Gitaar
+🚗 Auto          | Reparatie, APK, Onderhoud
+🏠 Thuis         | Schoonmaak, Elektra, Loodgieter
+✨ Entertainment | Hotel, B&B, Vakantiewoning
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WAAR TE ZIEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Homepage (http://localhost:3007/)
+   Sectie: "Populaire specialiteiten"
+   
+✅ Search pagina (http://localhost:3007/search)
+   Sectie: "Populaire zoekopdrachten"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TESTEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Server draait al, dus:
+
+1. Ga naar: http://localhost:3007/
+   → Scroll naar beneden
+   → Zie "Populaire specialiteiten" (niet meer "keukens")
+
+2. Ga naar: http://localhost:3007/search
+   → Zie "Populaire zoekopdrachten" (niet meer "keukens")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PERFECT VOOR MULTI-SECTOR! 🚀
+
+De terminologie is nu generiek genoeg voor alle business types,
+maar nog steeds specifiek genoeg om relevant te zijn.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
