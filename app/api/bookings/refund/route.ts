@@ -155,14 +155,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Creëer refund
+    // Stripe accepteert alleen specifieke reason waarden
+    const stripeReason: 'duplicate' | 'fraudulent' | 'requested_by_customer' = 
+      reason === 'duplicate' || reason === 'fraudulent' 
+        ? reason 
+        : 'requested_by_customer';
+
     const refund = await stripe.refunds.create({
       charge: chargeId,
       amount: refundAmountCents,
-      reason: reason || 'requested_by_customer',
+      reason: stripeReason,
       metadata: {
         booking_id: bookingId,
         location_id: booking.location_id,
         refund_type: manualOverride ? 'manual' : 'automatic',
+        custom_reason: reason || 'requested_by_customer', // Sla originele reason op in metadata
       },
       reverse_transfer: true, // Reverse de transfer naar restaurant
       refund_application_fee: false, // Platform fee blijft bij R4Y
