@@ -150,6 +150,29 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
     try {
       const supabase = createClient();
 
+      // First, check if there are any shifts configured for this location
+      const selectedDateObj = new Date(selectedDate);
+      const dayOfWeek = selectedDateObj.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+      const { data: shifts, error: shiftsError } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('location_id', location.id)
+        .eq('is_active', true)
+        .contains('days_of_week', [dayOfWeek]);
+
+      if (shiftsError) {
+        console.error('Error loading shifts:', shiftsError);
+        throw new Error('Fout bij laden van openingstijden');
+      }
+
+      if (!shifts || shifts.length === 0) {
+        setError('Dit restaurant heeft nog geen openingstijden geconfigureerd. Neem contact op met het restaurant.');
+        setAvailableTimeSlots([]);
+        setLoadingTimeSlots(false);
+        return;
+      }
+
       // Get existing bookings for this date
       const { data: bookings } = await supabase
         .from('bookings')
@@ -159,34 +182,60 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
         .in('status', ['pending', 'confirmed', 'seated']);
 
       // Get all tables for this location
-      const { data: tables } = await supabase
+      const { data: tables, error: tablesError } = await supabase
         .from('tables')
         .select('id, seats')
         .eq('location_id', location.id)
         .eq('is_active', true);
 
-      // Generate time slots from 12:00 to 22:00
-      const slots = [];
-      for (let hour = 12; hour <= 22; hour++) {
-        for (let minute of [0, 30]) {
-          if (hour === 22 && minute === 30) continue;
+      if (tablesError) {
+        console.error('Error loading tables:', tablesError);
+        throw new Error('Fout bij laden van tafels');
+      }
+
+      if (!tables || tables.length === 0) {
+        setError('Dit restaurant heeft geen actieve tafels. Neem contact op met het restaurant.');
+        setAvailableTimeSlots([]);
+        setLoadingTimeSlots(false);
+        return;
+      }
+
+      // Generate time slots based on shifts
+      const slots: Array<{time: string, available: boolean}> = [];
+      for (const shift of shifts) {
+        const [startHour, startMinute] = shift.start_time.split(':').map(Number);
+        const [endHour, endMinute] = shift.end_time.split(':').map(Number);
+        
+        const startMinutes = startHour * 60 + startMinute;
+        const endMinutes = endHour * 60 + endMinute;
+        
+        // Generate 30-minute intervals
+        for (let minutes = startMinutes; minutes < endMinutes; minutes += 30) {
+          const hour = Math.floor(minutes / 60);
+          const minute = minutes % 60;
           const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
           
           const isAvailable = checkTimeSlotAvailability(
             time,
             guests,
-            tables || [],
+            tables,
             bookings || []
           );
 
-          slots.push({ time, available: isAvailable });
+          // Avoid duplicate time slots from overlapping shifts
+          if (!slots.find(s => s.time === time)) {
+            slots.push({ time, available: isAvailable });
+          }
         }
       }
 
+      // Sort slots by time
+      slots.sort((a, b) => a.time.localeCompare(b.time));
+
       setAvailableTimeSlots(slots);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading time slots:', err);
-      setError('Fout bij laden van beschikbare tijden');
+      setError(err.message || 'Fout bij laden van beschikbare tijden');
     } finally {
       setLoadingTimeSlots(false);
     }
@@ -341,7 +390,21 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
       }, 2500);
     } catch (err: any) {
       console.error('Booking error:', err);
-      setError(err.message || 'Er ging iets mis bij het maken van de reservering.');
+      
+      // Better error message handling
+      let errorMessage = 'Er ging iets mis bij het maken van de reservering.';
+      
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.error_description) {
+        errorMessage = err.error_description;
+      } else if (err?.error) {
+        errorMessage = typeof err.error === 'string' ? err.error : JSON.stringify(err.error);
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }

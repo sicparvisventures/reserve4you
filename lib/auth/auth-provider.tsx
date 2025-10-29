@@ -248,6 +248,9 @@ export function AuthProvider({
           redirectTo: `${window.location.origin}${config.auth.paths.callback}${
             redirectPath ? `?next=${encodeURIComponent(redirectPath)}` : ''
           }`,
+          queryParams: {
+            prompt: 'select_account', // Force account selection on every login
+          },
         },
       });
 

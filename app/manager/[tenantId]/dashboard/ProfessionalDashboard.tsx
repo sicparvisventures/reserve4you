@@ -10,6 +10,7 @@ import { BookingDetailModal } from '@/components/manager/BookingDetailModal';
 import { CalendarWidget } from '@/components/calendar/CalendarWidget';
 import { WaitlistWidget } from '@/components/waitlist/WaitlistWidget';
 import { CRMWidget } from '@/components/crm/CRMWidget';
+import { DashboardInsights } from '@/components/manager/DashboardInsights';
 import {
   Calendar,
   Clock,
@@ -761,6 +762,15 @@ export function ProfessionalDashboard({
         {/* CRM Widget - Full Width */}
         <div className="mt-6">
           <CRMWidget tenantId={tenant.id} />
+        </div>
+
+        {/* Dashboard Insights - Full Width */}
+        <div className="mt-6">
+          <DashboardInsights 
+            tenantId={tenant.id}
+            locations={locations}
+            bookings={bookings}
+          />
         </div>
       </div>
 

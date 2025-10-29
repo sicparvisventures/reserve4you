@@ -20,6 +20,7 @@ export const config = {
   // Stripe payment settings
   stripe: {
     currency: process.env.STRIPE_CURRENCY || 'eur',
+    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'your-publishable-key',
     // Legacy one-time payment (keep for backward compatibility)
     priceId: process.env.STRIPE_PRICE_ID || 'your-price-id',
     // R4Y subscription tiers (6-tier system)
@@ -36,10 +37,13 @@ export const config = {
       PLUS: process.env.STRIPE_PRICE_ID_PLUS || 'price_premium',
     },
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || 'your-webhook-secret',
+    webhookSecretConnect: process.env.STRIPE_WEBHOOK_SECRET_CONNECT || 'your-connect-webhook-secret',
     secretKey: process.env.STRIPE_SECRET_KEY || 'your-secret-key',
     productName: process.env.STRIPE_PRODUCT_NAME || 'R4Y Subscription',
     successUrl: '/manager/onboarding?step=7&success=true',
     cancelUrl: '/manager/onboarding?step=6&cancelled=true',
+    // Platform fee defaults
+    platformFeePercentage: parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENTAGE || '2.0'),
   },
 
   // Authentication settings

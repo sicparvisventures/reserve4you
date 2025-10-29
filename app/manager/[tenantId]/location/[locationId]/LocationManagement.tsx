@@ -34,7 +34,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { FloorPlanEditor } from '@/components/floor-plan/FloorPlanEditor';
 import { PromotionsManager } from '@/components/manager/PromotionsManager';
 import { LocationImageUpload } from '@/components/manager/LocationImageUpload';
 import { GuestMessagingPanel } from '@/components/manager/GuestMessagingPanel';
@@ -43,6 +42,8 @@ import { CalendarSettings } from '@/components/calendar/CalendarSettings';
 import { WaitlistManager } from '@/components/waitlist/WaitlistManager';
 import { CRMManager } from '@/components/crm/CRMManager';
 import { ReviewsManagement } from '@/components/manager/ReviewsManagement';
+import { ShiftsManager } from '@/components/manager/ShiftsManager';
+import { UnifiedTableManagement } from '@/components/manager/UnifiedTableManagement';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -366,13 +367,18 @@ export function LocationManagement({
         </div>
 
         {/* Main Content with Tabs */}
-        <Tabs defaultValue="floorplan" className="space-y-6">
+        <Tabs defaultValue="tables" className="space-y-6">
           <div className="w-full overflow-x-auto pb-2">
             <TabsList className="inline-flex h-auto w-auto">
-              <TabsTrigger value="floorplan" className="gap-1.5 px-4 whitespace-nowrap">
-                <Grid3x3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Plattegrond</span>
-                <span className="sm:hidden">Plan</span>
+              <TabsTrigger value="tables" className="gap-1.5 px-4 whitespace-nowrap">
+                <TableIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Tafels & Plattegrond</span>
+                <span className="sm:hidden">Tafels</span>
+              </TabsTrigger>
+              <TabsTrigger value="shifts" className="gap-1.5 px-4 whitespace-nowrap">
+                <Clock className="h-4 w-4" />
+                <span className="hidden sm:inline">Diensten</span>
+                <span className="sm:hidden">Diensten</span>
               </TabsTrigger>
               <TabsTrigger value="bookings" className="gap-1.5 px-4 whitespace-nowrap">
                 <ListOrdered className="h-4 w-4" />
@@ -414,16 +420,18 @@ export function LocationManagement({
             </TabsList>
           </div>
 
-          {/* Floor Plan Tab */}
-          <TabsContent value="floorplan" className="space-y-4">
+          {/* Unified Table Management Tab */}
+          <TabsContent value="tables" className="space-y-4">
+            <UnifiedTableManagement
+              locationId={location.id}
+              locationName={location.name}
+            />
+          </TabsContent>
+
+          {/* Shifts Tab */}
+          <TabsContent value="shifts" className="space-y-4">
             <Card className="p-6">
-              <div className="mb-4">
-                <h2 className="text-xl font-bold text-foreground">Plattegrond Beheer</h2>
-                <p className="text-sm text-muted-foreground">
-                  Sleep tafels naar de gewenste positie op de plattegrond
-                </p>
-              </div>
-              <FloorPlanEditor
+              <ShiftsManager
                 locationId={location.id}
                 locationName={location.name}
               />
