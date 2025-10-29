@@ -138,10 +138,10 @@ export function PaymentsOverview({ locationId }: { locationId: string }) {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      SUCCEEDED: 'default',
-      PENDING: 'secondary',
-      FAILED: 'destructive',
+    const variants: Record<string, 'default' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'outline'> = {
+      SUCCEEDED: 'success',
+      PENDING: 'warning',
+      FAILED: 'error',
       CANCELLED: 'outline',
     };
 
