@@ -60,14 +60,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform the data to a simpler format
-    const friends = (following || []).map(f => ({
-      id: f.following.id,
-      name: f.following.name,
-      email: f.following.email,
-      profile_picture_url: f.following.profile_picture_url,
-      bio: f.following.bio,
-      followed_since: f.created_at,
-    }));
+    const friends = (following || []).map(f => {
+      const followingUser = Array.isArray(f.following) 
+        ? f.following[0] 
+        : f.following;
+      
+      return {
+        id: followingUser?.id,
+        name: followingUser?.name,
+        email: followingUser?.email,
+        profile_picture_url: followingUser?.profile_picture_url,
+        bio: followingUser?.bio,
+        followed_since: f.created_at,
+      };
+    });
 
     return NextResponse.json({ 
       friends: friends,
