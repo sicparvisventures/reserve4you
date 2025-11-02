@@ -84,13 +84,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to flatten consumer info
-    const followers = follows?.map(follow => ({
-      id: follow.consumer.id,
-      name: follow.consumer.name,
-      profile_picture_url: follow.consumer.profile_picture_url,
-      is_profile_public: follow.consumer.is_profile_public,
-      followed_at: follow.created_at,
-    })) || [];
+    const followers = follows?.map(follow => {
+      const consumer = Array.isArray(follow.consumer) 
+        ? follow.consumer[0] 
+        : follow.consumer;
+      
+      return {
+        id: consumer?.id,
+        name: consumer?.name,
+        profile_picture_url: consumer?.profile_picture_url,
+        is_profile_public: consumer?.is_profile_public,
+        followed_at: follow.created_at,
+      };
+    }) || [];
 
     return NextResponse.json({
       followers: followers,
