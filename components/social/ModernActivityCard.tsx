@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { UserLink } from './UserLink';
+import { LikesModal } from './LikesModal';
 import { cn } from '@/lib/utils';
 
 interface ModernActivityCardProps {
