@@ -33,6 +33,8 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { SubscriptionSection } from './SubscriptionSection';
 import { UsersManager } from '@/components/manager/UsersManager';
+import { CreditsDisplay } from '@/components/loyalty/CreditsDisplay';
+import { PhotoUpload } from '@/components/social/PhotoUpload';
 import {
   Dialog,
   DialogContent,
@@ -406,6 +408,9 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                   </div>
                 </Card>
 
+                {/* FlowCredits Display */}
+                <CreditsDisplay variant="detailed" />
+
                 <Card className="p-6">
                   <h3 className="text-lg font-semibold mb-4">Voorkeuren</h3>
                   <div className="space-y-4">
@@ -598,6 +603,23 @@ export function ProfileClient({ user, consumer, bookings, favorites, tenants }: 
                             })}
                           </span>
                         </div>
+
+                        {/* Photo Upload for Completed Bookings */}
+                        {booking.status === 'completed' && booking.location?.id && (
+                          <div className="pt-4 border-t border-border">
+                            <PhotoUpload
+                              locationId={booking.location.id}
+                              bookingId={booking.id}
+                              onUploadSuccess={() => {
+                                // Optionally refresh or show success
+                              }}
+                              onUploadError={(error) => {
+                                console.error('Photo upload error:', error);
+                              }}
+                              compact={true}
+                            />
+                          </div>
+                        )}
 
                         {/* Action Buttons */}
                         {booking.status !== 'cancelled' && booking.status !== 'completed' && (

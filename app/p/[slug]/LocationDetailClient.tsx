@@ -12,6 +12,7 @@ import { BookingSheet } from '@/components/booking/BookingSheet';
 import { PromotionsDisplay } from '@/components/promotions/PromotionsDisplay';
 import { PublicMenuDisplay } from '@/components/menu/PublicMenuDisplay';
 import { ReviewsDisplay } from '@/components/reviews/ReviewsDisplay';
+import { PhotoUpload } from '@/components/social/PhotoUpload';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -298,13 +299,28 @@ export function LocationDetailClient({ location, menuData = [], canLeaveReview =
           )}
 
           {activeTab === 'reviews' && (
-            <ReviewsDisplay
-              locationId={location.id}
-              locationName={location.name}
-              averageRating={location.average_rating}
-              reviewCount={location.review_count}
-              canLeaveReview={canLeaveReview}
-            />
+            <div className="space-y-6">
+              <ReviewsDisplay
+                locationId={location.id}
+                locationName={location.name}
+                averageRating={location.average_rating}
+                reviewCount={location.review_count}
+                canLeaveReview={canLeaveReview}
+              />
+              
+              {/* Photo Upload Section */}
+              <Card className="p-6">
+                <PhotoUpload
+                  locationId={location.id}
+                  onUploadSuccess={() => {
+                    // Optionally refresh feed or show success message
+                  }}
+                  onUploadError={(error) => {
+                    console.error('Photo upload error:', error);
+                  }}
+                />
+              </Card>
+            </div>
           )}
 
           {activeTab === 'location' && (

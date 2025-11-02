@@ -18,6 +18,7 @@ interface MessageBubbleProps {
     id: string;
     message_type: 'text' | 'location' | 'system';
     message_content?: string;
+    message_text?: string; // Support new structure
     created_at: string;
     sender: {
       id: string;
@@ -85,7 +86,7 @@ export function MessageBubble({ message, isOwnMessage, showSender = true }: Mess
           {/* Text Message */}
           {message.message_type === 'text' && (
             <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
-              {message.message_content}
+              {message.message_content || message.message_text || ''}
             </p>
           )}
 

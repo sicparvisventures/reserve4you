@@ -33,6 +33,7 @@ import { nl } from 'date-fns/locale';
 import { Users, Calendar, User, Phone, Mail, MessageSquare, Check, AlertCircle, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTerminology } from '@/lib/hooks/useTerminology';
+import { PhotoUpload } from '@/components/social/PhotoUpload';
 
 interface BookingSheetProps {
   open: boolean;
@@ -69,6 +70,7 @@ export function BookingSheet({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [bookingId, setBookingId] = useState<string | null>(null);
   const [authUser, setAuthUser] = useState<any | null>(null);
   const [consumer, setConsumer] = useState<any | null>(null);
 
@@ -241,10 +243,8 @@ export function BookingSheet({
         alert('Payment required! Redirect to Stripe (not implemented in this demo)');
       }
 
+      setBookingId(data.booking?.id || null);
       setSuccess(true);
-      setTimeout(() => {
-        onOpenChange(false);
-      }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error creating booking');
     } finally {
@@ -330,10 +330,29 @@ export function BookingSheet({
             )}
 
             {success && (
-              <div className="mb-4 rounded-lg bg-success/10 border border-success/20 p-4 text-sm text-success flex items-start gap-3">
-                <Check className="h-5 w-5 shrink-0 mt-0.5" />
-                <span className="font-medium">{t.booking.singular} gelukt! Je ontvangt een bevestiging per email.</span>
-              </div>
+              <>
+                <div className="mb-4 rounded-lg bg-success/10 border border-success/20 p-4 text-sm text-success flex items-start gap-3">
+                  <Check className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium">{t.booking.singular} gelukt! Je ontvangt een bevestiging per email.</p>
+                  </div>
+                </div>
+                {bookingId && (
+                  <div className="mb-6">
+                    <PhotoUpload
+                      locationId={locationId}
+                      bookingId={bookingId}
+                      onUploadSuccess={() => {
+                        // Optionally refresh or show success
+                      }}
+                      onUploadError={(error) => {
+                        setError(error);
+                      }}
+                      compact={true}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
           {/* Step 1: Party Size */}
@@ -605,10 +624,10 @@ export function BookingSheet({
               </Button>
             )}
 
-            {step === 3 && (
+            {step === 3 && !success && (
               <Button
                 onClick={handleSubmit(onSubmit)}
-                disabled={submitting || success}
+                disabled={submitting}
                 className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-lg h-11 font-semibold transition-colors"
               >
                 {submitting ? (
@@ -616,14 +635,17 @@ export function BookingSheet({
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Bezig...
                   </>
-                ) : success ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4" />
-                    Gelukt!
-                  </>
                 ) : (
                   'Bevestig reservering'
                 )}
+              </Button>
+            )}
+            {success && (
+              <Button
+                onClick={() => onOpenChange(false)}
+                className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-lg h-11 font-semibold transition-colors"
+              >
+                Sluiten
               </Button>
             )}
           </SheetFooter>

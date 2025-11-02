@@ -28,7 +28,7 @@ interface HeaderProps {
 
 export function Header({ userData, pathname }: HeaderProps) {
   // Check if we're on a consumer page that will have bottom navigation
-  const isConsumerPage = pathname === '/' || pathname === '/discover' || pathname === '/favorites';
+  const isConsumerPage = pathname === '/' || pathname === '/discover' || pathname === '/feed' || pathname === '/favorites';
   
   // Check if we're on homepage for transparent header
   const isHomepage = pathname === '/';
@@ -36,6 +36,7 @@ export function Header({ userData, pathname }: HeaderProps) {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/discover', label: 'Ontdek' },
+    ...(userData?.isAuth ? [{ href: '/feed', label: 'Feed' }] : []),
     { href: '/favorites', label: 'Favorieten' },
   ];
 

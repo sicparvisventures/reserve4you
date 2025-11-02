@@ -10,7 +10,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Heart, Menu, User, Building2, LogIn, UserPlus, Lock } from 'lucide-react';
+import { Home, Compass, Heart, Menu, User, Building2, LogIn, UserPlus, Lock, LayoutGrid, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
 
@@ -64,6 +64,12 @@ export function BottomNavigation({ userData }: BottomNavigationProps) {
       icon: Compass,
       isActive: pathname === '/discover'
     },
+    ...(userData?.isAuth ? [{
+      href: '/feed',
+      label: 'Feed',
+      icon: LayoutGrid,
+      isActive: pathname === '/feed'
+    }] : []),
     { 
       href: '/favorites', 
       label: 'Favorieten', 
@@ -71,6 +77,8 @@ export function BottomNavigation({ userData }: BottomNavigationProps) {
       isActive: pathname === '/favorites'
     },
   ];
+
+  // Add Friends link to menu if authenticated
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 sm:px-4 sm:pb-4">
@@ -166,6 +174,16 @@ export function BottomNavigation({ userData }: BottomNavigationProps) {
                       >
                         <User className="h-5 w-5" />
                         <span>Profiel</span>
+                      </Link>
+                      
+                      {/* Friends Link */}
+                      <Link
+                        href="/friends"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        <Users className="h-5 w-5" />
+                        <span>Vind Vrienden</span>
                       </Link>
                       
                       <div className="h-px bg-border my-2" />

@@ -264,6 +264,23 @@ export function BookingsClient({ user, consumer, bookings }: BookingsClientProps
                         </span>
                       </div>
 
+                      {/* Photo Upload for Completed Bookings */}
+                      {booking.status === 'completed' && booking.location?.id && (
+                        <div className="pt-4 border-t border-border">
+                          <PhotoUpload
+                            locationId={booking.location.id}
+                            bookingId={booking.id}
+                            onUploadSuccess={() => {
+                              // Optionally refresh or show success
+                            }}
+                            onUploadError={(error) => {
+                              console.error('Photo upload error:', error);
+                            }}
+                            compact={true}
+                          />
+                        </div>
+                      )}
+
                       {/* Action Buttons */}
                       {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                         <div className="flex gap-2 pt-4">

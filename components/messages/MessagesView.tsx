@@ -23,6 +23,7 @@ interface Message {
   id: string;
   message_type: 'text' | 'location' | 'system';
   message_content?: string;
+  message_text?: string; // Support new structure
   created_at: string;
   sender: {
     id: string;
@@ -130,14 +131,17 @@ export function MessagesView({ currentUserId }: MessagesViewProps) {
   const fetchConversations = async () => {
     try {
       const response = await fetch('/api/messages');
-      if (!response.ok) throw new Error('Kon gesprekken niet ophalen');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || 'Kon gesprekken niet ophalen');
+      }
 
       const data = await response.json();
       setConversations(data.conversations || []);
       setError(null);
     } catch (err: any) {
       console.error('Error fetching conversations:', err);
-      setError(err.message);
+      setError(err.message || 'Kon gesprekken niet ophalen');
     } finally {
       setLoading(false);
     }

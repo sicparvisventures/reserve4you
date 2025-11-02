@@ -21,7 +21,7 @@ export function ConditionalHeader() {
     pathname.startsWith('/manager');
   
   // Show bottom navigation on consumer pages
-  const showBottomNav = pathname === '/' || pathname === '/discover' || pathname === '/favorites';
+  const showBottomNav = pathname === '/' || pathname === '/discover' || pathname === '/feed' || pathname === '/favorites' || pathname === '/friends';
   
   if (hideHeader) {
     return null;

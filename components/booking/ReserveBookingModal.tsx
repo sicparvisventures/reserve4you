@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { format, addDays } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useTerminology } from '@/lib/hooks/useTerminology';
+import { InviteFriendsSelect } from './InviteFriendsSelect';
 
 interface ReserveBookingModalProps {
   open: boolean;
@@ -70,6 +71,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [specialRequests, setSpecialRequests] = useState('');
+  const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
 
   // Time slots state
   const [availableTimeSlots, setAvailableTimeSlots] = useState<Array<{time: string, available: boolean}>>([]);
@@ -130,6 +132,7 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
         setEmail('');
         setPhone('');
         setSpecialRequests('');
+        setSelectedFriendIds([]);
         setAvailableTimeSlots([]);
       }, 300);
     }
@@ -384,6 +387,30 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
         console.log('Could not auto-assign table:', assignError);
       }
 
+      // Invite friends if selected
+      if (selectedFriendIds.length > 0 && booking) {
+        try {
+          const inviteResponse = await fetch('/api/bookings/invite-friends', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              bookingId: booking.id,
+              friendIds: selectedFriendIds,
+            }),
+          });
+
+          if (!inviteResponse.ok) {
+            console.error('Error inviting friends:', await inviteResponse.text());
+            // Don't fail the booking if friend invites fail
+          }
+        } catch (inviteError) {
+          console.error('Error inviting friends:', inviteError);
+          // Don't fail the booking if friend invites fail
+        }
+      }
+
       setSuccess(true);
       setTimeout(() => {
         onOpenChange(false);
@@ -496,45 +523,63 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
 
             {/* Step 1: Party Size */}
             {step === 1 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-4 gap-3">
-                  {GUEST_OPTIONS.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => handlePartySizeSelect(size)}
-                      className={cn(
-                        'flex flex-col items-center justify-center h-24 rounded-lg border-2 transition-all',
-                        'hover:border-primary hover:bg-primary/5',
-                        'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-                        'border-border bg-card'
-                      )}
-                    >
-                      <Users className="h-6 w-6 text-primary mb-2" />
-                      <span className="text-lg font-bold">{size}</span>
-                      <span className="text-xs text-muted-foreground mt-1">{t.customer.plural.toLowerCase()}</span>
-                    </button>
-                  ))}
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-3">
+                    {GUEST_OPTIONS.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => handlePartySizeSelect(size)}
+                        className={cn(
+                          'flex flex-col items-center justify-center h-24 rounded-lg border-2 transition-all',
+                          'hover:border-primary hover:bg-primary/5',
+                          'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                          'border-border bg-card'
+                        )}
+                      >
+                        <Users className="h-6 w-6 text-primary mb-2" />
+                        <span className="text-lg font-bold">{size}</span>
+                        <span className="text-xs text-muted-foreground mt-1">{t.customer.plural.toLowerCase()}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="custom-size">Of voer een ander aantal in:</Label>
+                    <Input
+                      id="custom-size"
+                      type="number"
+                      min="1"
+                      max="50"
+                      placeholder="Bijv. 10"
+                      className="mt-2"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const value = parseInt(e.currentTarget.value);
+                          if (value >= 1 && value <= 50) {
+                            handlePartySizeSelect(value);
+                          }
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="custom-size">Of voer een ander aantal in:</Label>
-                  <Input
-                    id="custom-size"
-                    type="number"
-                    min="1"
-                    max="50"
-                    placeholder="Bijv. 10"
-                    className="mt-2"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const value = parseInt(e.currentTarget.value);
-                        if (value >= 1 && value <= 50) {
-                          handlePartySizeSelect(value);
-                        }
-                      }
-                    }}
-                  />
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Of</span>
+                  </div>
                 </div>
+
+                {/* Invite Friends Section */}
+                <InviteFriendsSelect
+                  selectedFriendIds={selectedFriendIds}
+                  onSelectionChange={setSelectedFriendIds}
+                />
               </div>
             )}
 
@@ -734,6 +779,14 @@ export function ReserveBookingModal({ open, onOpenChange, location }: ReserveBoo
                       {selectedDate && format(new Date(selectedDate), 'd MMM', { locale: nl })} om {selectedTime}
                     </span>
                   </div>
+                  {selectedFriendIds.length > 0 && (
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <span className="text-muted-foreground text-sm">Uitgenodigde vrienden</span>
+                      <span className="font-semibold text-foreground">
+                        {selectedFriendIds.length} {selectedFriendIds.length === 1 ? 'vriend' : 'vrienden'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

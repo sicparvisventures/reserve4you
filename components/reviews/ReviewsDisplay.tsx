@@ -9,6 +9,7 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -164,14 +165,16 @@ export function ReviewsDisplay({
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Link href={`/profile/${review.consumer.id}`} className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors">
                       <span className="text-sm font-semibold text-primary">
                         {review.consumer.name.charAt(0).toUpperCase()}
                       </span>
-                    </div>
+                    </Link>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold">{review.consumer.name}</p>
+                        <Link href={`/profile/${review.consumer.id}`} className="font-semibold hover:underline hover:text-primary transition-colors">
+                          {review.consumer.name}
+                        </Link>
                         {review.is_verified && (
                           <Badge variant="secondary" className="gap-1">
                             <CheckCircle className="h-3 w-3" />
