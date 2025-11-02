@@ -28,6 +28,7 @@ interface Review {
   is_verified: boolean;
   created_at: string;
   consumer: {
+    id: string;
     name: string;
   };
   reply?: {
