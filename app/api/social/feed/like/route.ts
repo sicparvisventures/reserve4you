@@ -9,7 +9,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
   try {
     const session = await verifyApiSession();
-    const supabase = await createClient();
+    const serviceSupabase = await createServiceClient();
 
     const { activityId } = await request.json();
 
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await verifyApiSession();
-    const supabase = await createClient();
+    const serviceSupabase = await createServiceClient();
 
     const { searchParams } = new URL(request.url);
     const activityId = searchParams.get('activityId');
