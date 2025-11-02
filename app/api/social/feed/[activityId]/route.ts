@@ -8,13 +8,13 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { activityId: string } }
+  { params }: { params: Promise<{ activityId: string }> }
 ) {
   try {
     const session = await verifyApiSession();
     const supabase = await createClient();
 
-    const { activityId } = params;
+    const { activityId } = await params;
 
     // Get current user's consumer_id
     const { data: currentConsumer, error: consumerError } = await supabase

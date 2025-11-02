@@ -9,10 +9,10 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { consumerId: string } }
+  { params }: { params: Promise<{ consumerId: string }> }
 ) {
   try {
-    const { consumerId } = params;
+    const { consumerId } = await params;
     const supabase = await createClient();
 
     // Try to get authenticated user (optional)

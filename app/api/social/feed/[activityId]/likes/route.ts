@@ -8,12 +8,12 @@ import { createServiceClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { activityId: string } }
+  { params }: { params: Promise<{ activityId: string }> }
 ) {
   try {
     const session = await verifyApiSession();
     const serviceSupabase = await createServiceClient();
-    const { activityId } = params;
+    const { activityId } = await params;
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
 
