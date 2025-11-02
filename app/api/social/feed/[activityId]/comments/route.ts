@@ -60,10 +60,17 @@ export async function GET(
     }
 
     // Mark own comments
-    const enrichedComments = (comments || []).map(comment => ({
-      ...comment,
-      is_own_comment: currentConsumer?.id === comment.consumer.id,
-    }));
+    const enrichedComments = (comments || []).map(comment => {
+      const consumer = Array.isArray(comment.consumer) 
+        ? comment.consumer[0] 
+        : comment.consumer;
+      
+      return {
+        ...comment,
+        consumer: consumer,
+        is_own_comment: currentConsumer?.id === consumer?.id,
+      };
+    });
 
     // Determine if there are more items
     const hasMore = (comments?.length || 0) === limit;
