@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
+import { PhotoUpload } from '@/components/social/PhotoUpload';
 
 interface BookingsClientProps {
   user: any;
