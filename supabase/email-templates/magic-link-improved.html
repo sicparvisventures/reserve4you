@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Inloggen bij Reserve4You</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, sans-serif !important;}
+  </style>
+  <![endif]-->
+  <style>
+    /* Reset styles */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+    
+    /* Main styles */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      height: 100% !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #F9F5F2;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .email-wrapper {
+      width: 100%;
+      background-color: #F9F5F2;
+      padding: 20px 0;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #FF5A5F 0%, #E84347 100%);
+      padding: 48px 20px;
+      text-align: center;
+    }
+    
+    .logo {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    
+    .tagline {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 14px;
+      margin: 8px 0 0 0;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Content */
+    .content {
+      padding: 48px 40px;
+    }
+    
+    .greeting {
+      color: #111111;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 24px 0;
+      line-height: 1.4;
+    }
+    
+    .title {
+      color: #111111;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 24px 0;
+      line-height: 1.3;
+      letter-spacing: -0.3px;
+    }
+    
+    .text {
+      color: #52525B;
+      font-size: 16px;
+      line-height: 1.7;
+      margin: 0 0 20px 0;
+    }
+    
+    /* Button */
+    .button-container {
+      text-align: center;
+      margin: 36px 0;
+    }
+    
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #FF5A5F 0%, #E84347 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 18px 48px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+      box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    /* Expiry notice */
+    .expiry-notice {
+      text-align: center;
+      color: #71717A;
+      font-size: 14px;
+      margin: 20px 0 0 0;
+      font-style: italic;
+    }
+    
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #EAE3DF;
+      margin: 32px 0;
+    }
+    
+    /* Alternative link */
+    .alternative-link {
+      background-color: #F9F5F2;
+      border: 1px solid #EAE3DF;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    
+    .alternative-link-title {
+      color: #111111;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+    
+    .alternative-link-text {
+      color: #52525B;
+      font-size: 14px;
+      margin: 0 0 12px 0;
+      line-height: 1.6;
+    }
+    
+    .alternative-link-url {
+      color: #FF5A5F;
+      word-break: break-all;
+      font-size: 13px;
+      line-height: 1.6;
+      text-decoration: none;
+    }
+    
+    /* Security notice */
+    .security-notice {
+      background-color: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 8px;
+    }
+    
+    .security-notice p {
+      color: #92400E;
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.6;
+    }
+    
+    .security-notice strong {
+      font-weight: 600;
+    }
+    
+    /* Signature */
+    .signature {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #EAE3DF;
+    }
+    
+    .signature-text {
+      color: #52525B;
+      font-size: 16px;
+      line-height: 1.7;
+      margin: 0 0 8px 0;
+    }
+    
+    .signature-name {
+      color: #111111;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    
+    /* Footer */
+    .footer {
+      background-color: #F9F5F2;
+      padding: 32px 40px;
+      text-align: center;
+      border-top: 1px solid #EAE3DF;
+    }
+    
+    .footer-brand {
+      color: #111111;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    
+    .footer-tagline {
+      color: #71717A;
+      font-size: 14px;
+      margin: 0 0 24px 0;
+      font-style: italic;
+    }
+    
+    .footer-links {
+      margin: 20px 0;
+    }
+    
+    .footer-links a {
+      color: #FF5A5F;
+      text-decoration: none;
+      font-size: 14px;
+      margin: 0 8px;
+    }
+    
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    
+    .footer-copyright {
+      color: #A1A1AA;
+      font-size: 12px;
+      margin: 24px 0 0 0;
+      line-height: 1.6;
+    }
+    
+    /* Support link */
+    .support-link {
+      color: #FF5A5F;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .support-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Mobile responsive */
+    @media only screen and (max-width: 600px) {
+      .email-wrapper {
+        padding: 0;
+      }
+      
+      .email-container {
+        border-radius: 0;
+      }
+      
+      .header {
+        padding: 36px 20px;
+      }
+      
+      .logo {
+        font-size: 28px;
+      }
+      
+      .content {
+        padding: 36px 24px;
+      }
+      
+      .title {
+        font-size: 24px;
+      }
+      
+      .text {
+        font-size: 15px;
+      }
+      
+      .button {
+        padding: 16px 36px;
+        font-size: 15px;
+        display: block;
+        width: fit-content;
+        margin: 0 auto;
+      }
+      
+      .footer {
+        padding: 24px 20px;
+      }
+      
+      .footer-links a {
+        display: block;
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">Reserve4You</h1>
+        <p class="tagline">Stop guessing, Start booking</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p class="greeting">Hallo!</p>
+        
+        <h2 class="title">Inloggen bij je account</h2>
+        
+        <p class="text">
+          Je hebt een inlogverzoek gedaan voor Reserve4You. Klik op de knop hieronder om direct in te loggen zonder wachtwoord:
+        </p>
+
+        <!-- CTA Button -->
+        <div class="button-container">
+          <a href="{{ .ConfirmationURL }}" class="button">Inloggen bij Reserve4You</a>
+        </div>
+
+        <p class="expiry-notice">Deze link is 1 uur geldig en kan maar één keer gebruikt worden</p>
+
+        <hr class="divider">
+
+        <!-- Alternative Link -->
+        <div class="alternative-link">
+          <p class="alternative-link-title">Werkt de knop niet?</p>
+          <p class="alternative-link-text">Kopieer en plak deze link in je browser:</p>
+          <a href="{{ .ConfirmationURL }}" class="alternative-link-url">{{ .ConfirmationURL }}</a>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+          <p>
+            <strong>Veiligheid:</strong> Heb je niet geprobeerd in te loggen bij Reserve4You? 
+            Negeer deze email dan. Niemand kan inloggen zonder toegang tot je email adres.
+          </p>
+        </div>
+
+        <p class="text">
+          Heb je problemen met inloggen? Neem gerust contact met ons op via 
+          <a href="mailto:support@reserve4you.com" class="support-link">support@reserve4you.com</a>
+        </p>
+
+        <!-- Signature -->
+        <div class="signature">
+          <p class="signature-text">
+            Met vriendelijke groet,
+          </p>
+          <p class="signature-text signature-name">
+            Het Reserve4You Team
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-brand">Reserve4You</p>
+        <p class="footer-tagline">Stop guessing, Start booking</p>
+        
+        <div class="footer-links">
+          <a href="https://reserve4you.com">Website</a>
+          <a href="https://reserve4you.com/privacy">Privacy</a>
+          <a href="https://reserve4you.com/terms">Voorwaarden</a>
+        </div>
+        
+        <p class="footer-copyright">
+          © 2025 Reserve4You. Alle rechten voorbehouden.<br>
+          Je ontvangt deze email omdat je een inlogverzoek hebt gedaan bij Reserve4You.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

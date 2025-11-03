@@ -11,7 +11,10 @@ import { getOptionalUser } from '@/lib/auth/dal';
 
 export const metadata: Metadata = {
   title: 'Reserve4You - Stop guessing Start booking',
-  description: 'Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness - Direct online boeken.'
+  description: 'Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness - Direct online boeken.',
+  icons: {
+    apple: '/raylogo.png',
+  },
 };
 
 export const viewport: Viewport = {
@@ -42,6 +45,9 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//vercel.live" />
         <link rel="dns-prefetch" href="//translate.google.com" />
         <meta name="color-scheme" content="light" />
+        {/* iOS App Icon */}
+        <link rel="apple-touch-icon" href="/raylogo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/raylogo.png" />
       </head>
       <body className={`min-h-[100dvh] bg-background ${manrope.className}`} suppressHydrationWarning={true}>
         <GoogleTranslateWidget />
