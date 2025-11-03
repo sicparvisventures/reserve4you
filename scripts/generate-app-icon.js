@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const CORAL_COLOR = '#FF5A5F'; // Reserve4You brand coral
 const SIZE = 1024; // 1024x1024 for high quality, iOS will scale down
-const LOGO_SIZE = 980; // Very large logo size - fills most of the icon
+const LOGO_SIZE = 1024; // Full icon size - fills the entire icon completely
 const OUTPUT_PATH = path.join(__dirname, '..', 'public', 'apple-touch-icon.png');
 const LOGO_PATH = path.join(__dirname, '..', 'public', 'raylogo2.png');
 
@@ -73,9 +73,9 @@ async function generateAppIcon() {
     .png()
     .toBuffer();
 
-    // Calculate position to perfectly center logo
-    const logoX = Math.floor((SIZE - LOGO_SIZE) / 2);
-    const logoY = Math.floor((SIZE - LOGO_SIZE) / 2);
+    // Position logo to fill entire icon (no padding)
+    const logoX = 0;
+    const logoY = 0;
 
     // Composite processed logo (without black pixels) onto coral background
     // The coral background will show through where black pixels were removed
