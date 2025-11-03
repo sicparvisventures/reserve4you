@@ -4,11 +4,9 @@ const fs = require('fs');
 
 const CORAL_COLOR = '#FF5A5F'; // Reserve4You brand coral
 const SIZE = 1024; // 1024x1024 for high quality, iOS will scale down
-const LOGO_SIZE = 850; // Even larger logo size for maximum visibility
-const CROP_TOP = 0; // Start from top
-const CROP_PERCENTAGE = 0.60; // Crop to show only top 60% (R4Y part, remove bottom "reserve4you" text)
+const LOGO_SIZE = 900; // Large logo size to fill the icon nicely
 const OUTPUT_PATH = path.join(__dirname, '..', 'public', 'apple-touch-icon.png');
-const LOGO_PATH = path.join(__dirname, '..', 'public', 'raylogo.png');
+const LOGO_PATH = path.join(__dirname, '..', 'public', 'raylogo2.png');
 
 async function generateAppIcon() {
   try {
@@ -30,33 +28,27 @@ async function generateAppIcon() {
     })
     .png();
 
-    // Load logo, crop to show only R4Y part (remove bottom text), and resize
-    const logoMetadata = await sharp(LOGO_PATH).metadata();
-    const cropHeight = Math.floor(logoMetadata.height * CROP_PERCENTAGE); // Crop to show only R4Y part, remove "reserve4you" text
-    
-    // First, crop the logo to remove bottom text (keep only R4Y part)
-    const croppedLogo = await sharp(LOGO_PATH)
-      .extract({
-        left: 0,
-        top: CROP_TOP,
-        width: logoMetadata.width,
-        height: cropHeight
-      })
+    // Load logo and resize to fit nicely
+    // Remove any black borders by using the coral background and ensuring proper fit
+    // Use 'contain' to ensure logo fits within bounds without cropping
+    const logo = await sharp(LOGO_PATH)
       .resize(LOGO_SIZE, LOGO_SIZE, {
-        fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background for logo
+        fit: 'contain', // Ensures whole logo fits, no cropping
+        background: { r: 255, g: 90, b: 95 } // Coral background fills any gaps (no black borders)
       })
+      .png() // Ensure PNG format
       .toBuffer();
 
-    // Calculate position to center logo (slightly higher for better balance)
+    // Calculate position to perfectly center logo
     const logoX = Math.floor((SIZE - LOGO_SIZE) / 2);
-    const logoY = Math.floor((SIZE - LOGO_SIZE) / 2) - 30; // Move up more for better visual balance with cropped logo
+    const logoY = Math.floor((SIZE - LOGO_SIZE) / 2);
 
-    // Composite cropped logo onto coral background
+    // Composite logo onto coral background
+    // This ensures no black borders are visible - the coral background fills any gaps
     const finalIcon = await background
       .composite([
         {
-          input: croppedLogo,
+          input: logo,
           top: logoY,
           left: logoX,
         }
@@ -68,8 +60,8 @@ async function generateAppIcon() {
     console.log(`   Output: ${OUTPUT_PATH}`);
     console.log(`   Size: ${SIZE}x${SIZE}px`);
     console.log(`   Background: ${CORAL_COLOR} (Reserve4You Coral)`);
-    console.log(`   Logo size: ${LOGO_SIZE}x${LOGO_SIZE}px (centered, cropped to show R4Y only)`);
-    console.log(`   Original logo cropped: top ${CROP_TOP}px, height ${cropHeight}px (removed bottom text)`);
+    console.log(`   Logo size: ${LOGO_SIZE}x${LOGO_SIZE}px (centered, no black borders)`);
+    console.log(`   Logo: raylogo2.png`);
     
     return OUTPUT_PATH;
   } catch (error) {
