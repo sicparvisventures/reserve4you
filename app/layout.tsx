@@ -45,11 +45,16 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//vercel.live" />
         <link rel="dns-prefetch" href="//translate.google.com" />
         <meta name="color-scheme" content="light" />
-        {/* iOS App Icon - Coral background with Ray logo */}
+        {/* iOS App Icon - Optimized for iPhone */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon.png" />
+        {/* iOS Splash Screen */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Reserve4You" />
       </head>
       <body className={`min-h-[100dvh] bg-background ${manrope.className}`} suppressHydrationWarning={true}>
         <GoogleTranslateWidget />
