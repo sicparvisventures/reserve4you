@@ -15,10 +15,10 @@ async function createFullFillIcon() {
       throw new Error(`Logo not found at: ${LOGO_PATH}`);
     }
 
-    // First, scale up the logo significantly (130%) to ensure it fills beyond edges
+    // First, scale up the logo significantly (150%) to ensure it fills beyond edges
     // This removes any coral border by cropping the edges
     const scaledLogo = await sharp(LOGO_PATH)
-      .resize(Math.floor(SIZE * 1.30), Math.floor(SIZE * 1.30), {
+      .resize(Math.floor(SIZE * 1.50), Math.floor(SIZE * 1.50), {
         fit: 'contain', // Keep aspect ratio
         background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
       })
@@ -28,8 +28,8 @@ async function createFullFillIcon() {
     // and ensures the logo fills the entire icon
     await sharp(scaledLogo)
       .extract({
-        left: Math.floor((Math.floor(SIZE * 1.30) - SIZE) / 2),
-        top: Math.floor((Math.floor(SIZE * 1.30) - SIZE) / 2),
+        left: Math.floor((Math.floor(SIZE * 1.50) - SIZE) / 2),
+        top: Math.floor((Math.floor(SIZE * 1.50) - SIZE) / 2),
         width: SIZE,
         height: SIZE
       })
