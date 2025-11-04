@@ -27,43 +27,28 @@ async function optimizeAppleIcon() {
     // 3. Design should be centered with safe area (iOS may add padding)
     // 4. RGB format preferred (no alpha channel needed for edges)
 
-    // Load the icon
-    const icon = await sharp(INPUT_PATH)
-      .ensureAlpha() // Ensure alpha channel exists
+    // Resize icon to fill entire 1024x1024px - no padding, no coral border
+    // Use 'fill' to stretch and fill entire space (no coral border, no cropping)
+    // This ensures the icon fills 100% of the space
+    const optimizedIcon = await sharp(INPUT_PATH)
       .resize(SIZE, SIZE, {
-        fit: 'contain', // Fit within bounds, maintain aspect ratio
-        background: { r: 255, g: 90, b: 95, alpha: 1 } // Coral background for any padding
+        fit: 'fill', // Stretch to fill entire space exactly (no coral border)
+        withoutEnlargement: false // Allow upscaling if needed
       })
-      .png()
+      .png({
+        quality: 100, // Maximum quality
+        compressionLevel: 6 // Balance between size and quality
+      })
       .toBuffer();
-
-    // Create a solid background (no transparency at edges)
-    // This ensures iOS can properly add rounded corners
-    const optimizedIcon = await sharp({
-      create: {
-        width: SIZE,
-        height: SIZE,
-        channels: 3, // RGB only - no alpha needed for iOS
-        background: { r: 255, g: 90, b: 95 } // Reserve4You Coral background
-      }
-    })
-    .png()
-    .composite([
-      {
-        input: icon,
-        gravity: 'center' // Center the icon content
-      }
-    ])
-    .png({
-      quality: 100, // Maximum quality
-      compressionLevel: 6 // Balance between size and quality
-    })
-    .toFile(OUTPUT_PATH);
+    
+    // Write the optimized icon to file
+    await sharp(optimizedIcon)
+      .toFile(OUTPUT_PATH);
 
     console.log('✅ Apple Touch Icon optimized successfully!');
     console.log(`   Output: ${OUTPUT_PATH}`);
     console.log(`   Size: ${SIZE}x${SIZE}px (iOS optimized)`);
-    console.log(`   Format: PNG (no edge transparency)`);
+    console.log(`   Format: PNG (fills entire icon, no coral border)`);
     console.log(`   Ready for iOS home screen`);
     
     return OUTPUT_PATH;
