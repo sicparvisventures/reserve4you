@@ -310,7 +310,6 @@ export function VideoHeroSection() {
               }`}
               style={{ willChange: 'auto' }}
               crossOrigin="anonymous"
-              fetchPriority="high"
               onError={(e) => {
                 console.error('Video error:', e);
                 const video = e.currentTarget;
