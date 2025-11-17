@@ -534,3 +534,4 @@ Na het opslaan:
 
 **Klaar!** Je Reserve4You confirm sign up email is nu geconfigureerd en klaar voor gebruik. 🎉
 
+

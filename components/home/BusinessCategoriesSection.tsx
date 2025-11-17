@@ -111,7 +111,7 @@ export function BusinessCategoriesSection({ className }: BusinessCategoriesSecti
             Ontdek alle categorieën
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
-            Reserveer bij professionele bedrijven in heel België
+            Van diner tot trimmer, van dokter tot trainer
           </p>
         </div>
         <Link href="/discover" className="hidden md:block">

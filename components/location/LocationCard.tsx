@@ -64,10 +64,10 @@ export function LocationCard({
   const imageUrl = location.image_url || location.hero_image_url;
   
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group bg-white border-0 shadow-sm rounded-xl">
       <Link href={`/p/${location.slug}`} className="block">
-        {/* Image */}
-        <div className="relative h-48 bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+        {/* Image - Vinted style: larger, square aspect ratio */}
+        <div className="relative aspect-square bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -85,7 +85,7 @@ export function LocationCard({
             </div>
           )}
 
-          {/* Favorite Button */}
+          {/* Favorite Button - Vinted style: top right, minimal */}
           {onFavoriteToggle && (
             <button
               onClick={(e) => {
@@ -93,94 +93,85 @@ export function LocationCard({
                 onFavoriteToggle(location.id);
               }}
               className={cn(
-                'absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-colors',
+                'absolute top-2 right-2 p-1.5 rounded-full transition-all z-10',
                 isFavorite
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background/70 text-foreground hover:bg-background'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white/90 text-gray-600 hover:bg-white hover:shadow-md'
               )}
             >
               <Heart
-                className={cn('h-5 w-5', isFavorite && 'fill-current')}
+                className={cn('h-4 w-4', isFavorite && 'fill-current')}
               />
             </button>
           )}
 
-          {/* Cuisine Badge */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
-            {cuisine && (
-              <Badge variant="secondary" className="backdrop-blur-sm">
-                {cuisine}
+          {/* Badges - Vinted style: minimal, top left */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+            {location.has_deals && (
+              <Badge className="bg-primary text-white border-0 shadow-sm text-xs font-medium px-2 py-0.5">
+                Aanbieding
               </Badge>
             )}
-            {location.has_deals && (
-              <Badge className="backdrop-blur-sm bg-gradient-to-r from-accent-sunset to-secondary-amber text-white border-0 shadow-md">
-                Aanbieding
+            {cuisine && (
+              <Badge variant="secondary" className="bg-white/95 text-gray-700 border-0 shadow-sm text-xs font-medium px-2 py-0.5">
+                {cuisine}
               </Badge>
             )}
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <div className="mb-3">
-            <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-              {location.name}
-            </h3>
-            
-            {/* Rating */}
-            {location.average_rating && location.review_count && location.review_count > 0 && (
-              <div className="mb-2">
-                <div className="flex items-center gap-2">
-                  <StarRating 
-                    rating={location.average_rating} 
-                    size="sm"
-                    showNumber={true}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    ({location.review_count} {location.review_count === 1 ? 'beoordeling' : 'beoordelingen'})
-                  </span>
-                </div>
+        {/* Content - Vinted style: compact, clean */}
+        <div className="p-3">
+          <h3 className="text-base font-semibold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-primary transition-colors">
+            {location.name}
+          </h3>
+          
+          {/* Rating - Compact */}
+          {location.average_rating && location.review_count && location.review_count > 0 && (
+            <div className="mb-1.5">
+              <div className="flex items-center gap-1.5">
+                <StarRating 
+                  rating={location.average_rating} 
+                  size="sm"
+                  showNumber={true}
+                />
+                <span className="text-xs text-gray-500">
+                  ({location.review_count})
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Location & Price - Vinted style: minimal */}
+          <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+            {city && (
+              <div className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                <span className="line-clamp-1">{city}</span>
               </div>
             )}
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {city && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{city}</span>
-                </div>
-              )}
-              {location.price_range && (
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: location.price_range }).map((_, i) => (
-                    <Euro key={i} className="h-3 w-3" />
-                  ))}
-                </div>
-              )}
-            </div>
+            {location.price_range && (
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: location.price_range }).map((_, i) => (
+                  <Euro key={i} className="h-3 w-3" />
+                ))}
+              </div>
+            )}
           </div>
 
-          {location.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {location.description}
-            </p>
-          )}
-
-          {/* Actions */}
+          {/* Actions - Vinted style: full width, minimal */}
           {showBookButton && (
-            <div className="flex gap-2 mt-4">
-              <Button
-                size="sm"
-                className="flex-1"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsBookingModalOpen(true);
-                }}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {t.booking.verb || 'Reserveren'}
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              className="w-full mt-2 h-9 text-sm font-medium rounded-lg"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsBookingModalOpen(true);
+              }}
+            >
+              <Calendar className="mr-1.5 h-3.5 w-3.5" />
+              {t.booking.verb || 'Reserveren'}
+            </Button>
           )}
         </div>
       </Link>

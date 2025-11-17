@@ -12,7 +12,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Ontdek Locaties - Reserve4You',
-  description: 'Ontdek en boek bij professionele bedrijven in België. Filter op categorie, specialisatie en meer.',
+  description: 'Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner. Filter op categorie, specialisatie en meer.',
 };
 
 export const dynamic = 'force-dynamic';

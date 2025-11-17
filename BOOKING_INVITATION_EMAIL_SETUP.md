@@ -174,3 +174,4 @@ Aantal personen: [Aantal]
 
 **Klaar!** De booking invitation email flow is nu volledig geïmplementeerd. 🎉
 
+

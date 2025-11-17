@@ -20,10 +20,11 @@ export function NewsletterPopup() {
     const hasBeenShown = localStorage.getItem(NEWSLETTER_STORAGE_KEY);
     
     if (!hasBeenShown) {
-      // Show popup after 2 seconds delay for better UX
+      // Wait for video hero to finish (5.2s exit delay + 0.65s animation = ~6s)
+      // Then add 1 second buffer, so show after 7 seconds
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 2000);
+      }, 7000);
 
       return () => clearTimeout(timer);
     }

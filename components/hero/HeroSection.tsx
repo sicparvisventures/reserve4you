@@ -72,7 +72,7 @@ export function HeroSection() {
   };
 
   return (
-    <div className="relative overflow-hidden border-b border-border min-h-[600px] sm:min-h-[550px] md:h-[420px]">
+    <div className="relative overflow-hidden border-b border-border h-screen min-h-[100vh]">
       {/* Background Image - heray.png met 70% opacity */}
       <div className="absolute inset-0 w-full h-full">
         <Image
@@ -91,10 +91,10 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-6 sm:py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 h-full items-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-8 sm:py-10 lg:py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 h-full items-center">
           {/* Left Column - Text Content */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-start pt-4 sm:pt-6 lg:pt-8">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 leading-tight drop-shadow-lg">
               Stop guessing
               <br />
@@ -102,27 +102,27 @@ export function HeroSection() {
                 Start booking
               </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-foreground/90 mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-md font-medium">
-              Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness.
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/90 mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-md font-medium">
+              Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner.
             </p>
           </div>
 
           {/* Right Column - Filter Selection Card */}
           <div className="flex items-center justify-center">
-            <div className="w-full max-w-md bg-white/80 backdrop-blur-lg border border-border/60 rounded-xl p-4 sm:p-5 shadow-2xl">
-              <div className="flex items-center justify-between mb-3">
+            <div className="w-full max-w-md bg-white/85 backdrop-blur-lg border border-border/60 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   Selecteer filters
                 </h3>
                 {selectedFilters.size > 0 && (
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                  <span className="text-[11px] sm:text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
                     {selectedFilters.size} {selectedFilters.size === 1 ? 'filter' : 'filters'}
                   </span>
                 )}
               </div>
 
               {/* Filter Buttons Grid - Compact 2 columns */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 mb-3 sm:mb-4">
                 {filterOptions.map((option) => {
                   const Icon = option.icon;
                   const isSelected = selectedFilters.has(option.key);
@@ -132,11 +132,11 @@ export function HeroSection() {
                       key={option.key}
                       onClick={() => toggleFilter(option.key)}
                       className={`
-                        relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 p-2.5 sm:p-3 rounded-lg
-                        border-2 transition-all duration-200 group min-h-[60px] sm:min-h-[70px]
+                        relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 p-2.5 sm:p-3.5 rounded-lg
+                        border transition-all duration-200 group min-h-[60px] sm:min-h-[70px]
                         ${
                           isSelected
-                            ? 'bg-primary/10 border-primary text-primary shadow-md shadow-primary/20 scale-[1.02]'
+                            ? 'bg-primary/10 border-primary text-primary shadow-md shadow-primary/20 scale-[1.01]'
                             : 'bg-background/50 border-border/50 hover:border-primary/30 hover:bg-background/80'
                         }
                       `}
@@ -149,7 +149,7 @@ export function HeroSection() {
                       )}
                       
                       <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
-                      <span className={`text-[10px] sm:text-xs font-medium text-center leading-tight ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                      <span className={`text-[11px] sm:text-xs font-medium text-center leading-tight ${isSelected ? 'text-primary' : 'text-foreground'}`}>
                         {option.label}
                       </span>
                     </button>
@@ -160,13 +160,13 @@ export function HeroSection() {
                 <button
                   onClick={() => router.push('/search')}
                   className="
-                    relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 p-2.5 sm:p-3 rounded-lg
-                    border-2 transition-all duration-200 group min-h-[60px] sm:min-h-[70px]
+                    relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 p-2.5 sm:p-3.5 rounded-lg
+                    border transition-all duration-200 group min-h-[60px] sm:min-h-[70px]
                     bg-background/50 border-border/50 hover:border-primary/30 hover:bg-background/80
                   "
                 >
                   <SearchIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground group-hover:text-foreground" />
-                  <span className="text-[10px] sm:text-xs font-medium text-center leading-tight text-foreground">
+                  <span className="text-[11px] sm:text-xs font-medium text-center leading-tight text-foreground">
                     Zoeken
                   </span>
                 </button>
@@ -175,7 +175,7 @@ export function HeroSection() {
               {/* Search Action Button - Compact */}
               <Button
                 onClick={handleSearch}
-                className="w-full gap-2 shadow-lg hover:shadow-xl transition-shadow h-10 sm:h-11 text-sm sm:text-base"
+                className="w-full gap-2 shadow-lg hover:shadow-xl transition-shadow h-11 sm:h-12 text-sm sm:text-base font-semibold"
               >
                 {selectedFilters.size > 0 ? (
                   <>

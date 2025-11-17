@@ -11,7 +11,7 @@ import { getOptionalUser } from '@/lib/auth/dal';
 
 export const metadata: Metadata = {
   title: 'Reserve4You - Stop guessing Start booking',
-  description: 'Ontdek en boek bij professionele bedrijven in heel België. Van restaurants tot kappers, van artsen tot fitness - Direct online boeken.',
+  description: 'Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner. Direct online boeken bij professionele bedrijven in heel België.',
   icons: {
     apple: '/apple-touch-icon.png',
   },
