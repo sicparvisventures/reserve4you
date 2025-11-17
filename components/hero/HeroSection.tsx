@@ -72,7 +72,7 @@ export function HeroSection() {
   };
 
   return (
-    <div className="relative overflow-hidden border-b border-border h-screen min-h-[100vh]">
+    <div className="relative overflow-hidden border-b border-border h-screen min-h-[100vh] md:min-h-[100vh]">
       {/* Background Image - heray.png met 70% opacity */}
       <div className="absolute inset-0 w-full h-full">
         <Image
@@ -91,8 +91,8 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-4 sm:py-8 md:py-10 lg:py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 h-full items-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-3 sm:py-6 md:py-10 lg:py-14 flex items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-8 lg:gap-10 w-full items-center">
           {/* Filter Selection Card - First on mobile, Right on desktop */}
           <div className="flex flex-col items-center justify-center order-1 md:order-2 gap-2 md:gap-0">
             <div className="w-full max-w-md bg-white/85 backdrop-blur-lg border border-border/60 rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 shadow-2xl">
