@@ -305,9 +305,7 @@ export function VideoHeroSection() {
               playsInline
               loop
               preload="auto"
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                videoReady ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="absolute inset-0 h-full w-full object-cover"
               style={{ willChange: 'auto' }}
               crossOrigin="anonymous"
               onError={(e) => {
