@@ -29,7 +29,7 @@ export function VideoHeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasInteractedRef = useRef(false); // Use ref to track interaction state in event handlers
 
-  // Ensure video plays automatically and continues playing
+  // Start loading video immediately on mount for instant playback
   useEffect(() => {
     if (videoRef.current && isMounted) {
       const video = videoRef.current;
@@ -41,6 +41,16 @@ export function VideoHeroSection() {
       video.preload = 'auto';
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
+      
+      // Start loading immediately - don't wait
+      video.load();
+    }
+  }, [isMounted]);
+
+  // Ensure video plays automatically and continues playing
+  useEffect(() => {
+    if (videoRef.current && isMounted) {
+      const video = videoRef.current;
       
       // Function to attempt playing the video
       const attemptPlay = () => {
@@ -63,7 +73,7 @@ export function VideoHeroSection() {
         }
       };
 
-      // Try to play when video can play
+      // Try to play when video can play - immediate attempt
       const handleCanPlay = () => {
         console.log('🎬 Video can play - attempting to start...');
         attemptPlay();
@@ -76,6 +86,7 @@ export function VideoHeroSection() {
 
       const handleLoadedMetadata = () => {
         console.log('📋 Video metadata loaded');
+        // Try immediately if ready
         if (video.readyState >= 2) {
           attemptPlay();
         }
@@ -115,19 +126,16 @@ export function VideoHeroSection() {
       };
 
       // Add event listeners
-      video.addEventListener('canplay', handleCanPlay);
-      video.addEventListener('loadeddata', handleLoadedData);
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('canplay', handleCanPlay, { once: false });
+      video.addEventListener('loadeddata', handleLoadedData, { once: false });
+      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: false });
       video.addEventListener('pause', handlePause);
       video.addEventListener('ended', handleEnded);
       
-      // Load the video explicitly
-      video.load();
-      
-      // Try to play after a short delay
-      const playTimeout = setTimeout(() => {
+      // Try to play immediately if video is already ready
+      if (video.readyState >= 2) {
         attemptPlay();
-      }, 200);
+      }
 
       // Add page-level interaction listeners as fallback
       const handlePageInteraction = () => {
@@ -142,7 +150,6 @@ export function VideoHeroSection() {
       document.addEventListener('pointermove', handlePageInteraction, { once: true, capture: true });
 
       return () => {
-        clearTimeout(playTimeout);
         video.removeEventListener('canplay', handleCanPlay);
         video.removeEventListener('loadeddata', handleLoadedData);
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -272,6 +279,8 @@ export function VideoHeroSection() {
               preload="auto"
               className="absolute inset-0 h-full w-full object-cover"
               poster="/raylogo.png"
+              style={{ willChange: 'auto' }}
+              crossOrigin="anonymous"
               onError={(e) => {
                 console.error('Video error:', e);
                 const video = e.currentTarget;

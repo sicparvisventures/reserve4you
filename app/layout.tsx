@@ -44,6 +44,8 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//vercel.live" />
         <link rel="dns-prefetch" href="//translate.google.com" />
+        {/* Preload hero video for instant playback */}
+        <link rel="preload" href="/hero-video.mp4" as="video" type="video/mp4" />
         <meta name="color-scheme" content="light" />
         {/* iOS App Icon - Optimized for iPhone */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
