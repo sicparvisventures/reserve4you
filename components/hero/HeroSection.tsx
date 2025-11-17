@@ -179,16 +179,16 @@ export function HeroSection() {
           </div>
 
           {/* Left Column - Text Content - First on mobile, Left on desktop */}
-          <div className="flex flex-col justify-start -mt-12 sm:-mt-6 md:mt-0 sm:pt-2 md:pt-6 lg:pt-8 order-1 md:order-1">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight drop-shadow-lg">
+          <div className="flex flex-col justify-start -mt-16 sm:-mt-8 md:mt-0 sm:pt-2 md:pt-6 lg:pt-8 order-1 md:order-1">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 md:mb-3 lg:mb-4 leading-tight drop-shadow-lg">
               Stop guessing
               <br />
               <span className="text-primary drop-shadow-lg">
                 Start booking
               </span>
             </h1>
-            <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-foreground/90 mb-0 sm:mb-2 md:mb-4 lg:mb-6 max-w-2xl leading-snug sm:leading-relaxed drop-shadow-md font-medium">
-              Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner.
+            <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-foreground/90 mb-4 sm:mb-6 md:mb-4 lg:mb-6 max-w-2xl leading-snug sm:leading-relaxed drop-shadow-md font-medium">
+              Van diner tot trimmer, van dokter tot trainer Reserve4You, jouw boekingspartner.
             </p>
           </div>
         </div>
