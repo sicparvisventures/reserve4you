@@ -40,12 +40,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* CRITICAL: Preload hero video FIRST with highest priority */}
+        <link rel="preload" href="/hero-video.mp4" as="video" type="video/mp4" fetchPriority="high" />
         {/* Performance optimizations */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//vercel.live" />
         <link rel="dns-prefetch" href="//translate.google.com" />
-        {/* Preload hero video for instant playback */}
-        <link rel="preload" href="/hero-video.mp4" as="video" type="video/mp4" />
         <meta name="color-scheme" content="light" />
         {/* iOS App Icon - Optimized for iPhone */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -59,6 +59,17 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Reserve4You" />
       </head>
       <body className={`min-h-[100dvh] bg-background ${manrope.className}`} suppressHydrationWarning={true}>
+        {/* Hidden video preloader - starts loading immediately before React hydration */}
+        <video
+          preload="auto"
+          muted
+          playsInline
+          loop
+          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          aria-hidden="true"
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
         <GoogleTranslateWidget />
         <AuthProvider initialDbUser={initialDbUser}>
           <ConditionalHeader />

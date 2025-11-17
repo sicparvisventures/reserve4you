@@ -30,6 +30,7 @@ export function VideoHeroSection() {
   const hasInteractedRef = useRef(false); // Use ref to track interaction state in event handlers
 
   // Start loading video immediately on mount for instant playback
+  // Note: Video may already be preloaded by hidden element in layout
   useEffect(() => {
     if (videoRef.current && isMounted) {
       const video = videoRef.current;
@@ -42,8 +43,15 @@ export function VideoHeroSection() {
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       
-      // Start loading immediately - don't wait
-      video.load();
+      // If video is already loaded (from preloader), use it immediately
+      // Otherwise start loading
+      if (video.readyState >= 2) {
+        // Video already loaded, try to play immediately
+        video.play().catch(() => {});
+      } else {
+        // Start loading immediately - don't wait
+        video.load();
+      }
     }
   }, [isMounted]);
 
@@ -281,6 +289,7 @@ export function VideoHeroSection() {
               poster="/raylogo.png"
               style={{ willChange: 'auto' }}
               crossOrigin="anonymous"
+              fetchPriority="high"
               onError={(e) => {
                 console.error('Video error:', e);
                 const video = e.currentTarget;
