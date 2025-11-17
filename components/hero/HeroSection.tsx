@@ -93,6 +93,20 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-8 sm:py-10 lg:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 h-full items-center">
+          {/* Logo - Only visible on mobile, between filters and text */}
+          <div className="flex items-center justify-center order-1.5 md:hidden py-4">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28">
+              <Image
+                src="/raylogo.png"
+                alt="Reserve4You"
+                fill
+                className="object-contain drop-shadow-lg"
+                priority
+                sizes="(max-width: 768px) 112px, 0px"
+              />
+            </div>
+          </div>
+
           {/* Filter Selection Card - First on mobile, Right on desktop */}
           <div className="flex items-center justify-center order-1 md:order-2">
             <div className="w-full max-w-md bg-white/85 backdrop-blur-lg border border-border/60 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-2xl">
