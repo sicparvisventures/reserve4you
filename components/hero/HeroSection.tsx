@@ -93,22 +93,8 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-8 sm:py-10 lg:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 h-full items-center">
-          {/* Left Column - Text Content */}
-          <div className="flex flex-col justify-start pt-4 sm:pt-6 lg:pt-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 leading-tight drop-shadow-lg">
-              Stop guessing
-              <br />
-              <span className="text-primary drop-shadow-lg">
-                Start booking
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/90 mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-md font-medium">
-              Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner.
-            </p>
-          </div>
-
-          {/* Right Column - Filter Selection Card */}
-          <div className="flex items-center justify-center">
+          {/* Filter Selection Card - First on mobile, Right on desktop */}
+          <div className="flex items-center justify-center order-1 md:order-2">
             <div className="w-full max-w-md bg-white/85 backdrop-blur-lg border border-border/60 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -190,6 +176,20 @@ export function HeroSection() {
                 )}
               </Button>
             </div>
+          </div>
+
+          {/* Left Column - Text Content - Second on mobile, Left on desktop */}
+          <div className="flex flex-col justify-start pt-4 sm:pt-6 lg:pt-8 order-2 md:order-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 leading-tight drop-shadow-lg">
+              Stop guessing
+              <br />
+              <span className="text-primary drop-shadow-lg">
+                Start booking
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/90 mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-md font-medium">
+              Van diner tot trimmer, van dokter tot trainer – Reserve4You, jouw boekingspartner.
+            </p>
           </div>
         </div>
       </div>
