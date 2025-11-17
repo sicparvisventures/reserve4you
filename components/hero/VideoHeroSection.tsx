@@ -26,6 +26,7 @@ export function VideoHeroSection() {
   const [isExiting, setIsExiting] = useState(false);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasInteractedRef = useRef(false); // Use ref to track interaction state in event handlers
 
@@ -46,11 +47,20 @@ export function VideoHeroSection() {
       // If video is already loaded (from preloader), use it immediately
       // Otherwise start loading
       if (video.readyState >= 2) {
-        // Video already loaded, try to play immediately
+        // Video already loaded, make it visible and play immediately
+        setVideoReady(true);
         video.play().catch(() => {});
       } else {
         // Start loading immediately - don't wait
         video.load();
+        // Also check if video becomes ready quickly
+        const checkReady = () => {
+          if (video.readyState >= 2) {
+            setVideoReady(true);
+          }
+        };
+        video.addEventListener('loadeddata', checkReady, { once: true });
+        video.addEventListener('canplay', checkReady, { once: true });
       }
     }
   }, [isMounted]);
@@ -89,15 +99,23 @@ export function VideoHeroSection() {
 
       const handleLoadedData = () => {
         console.log('📦 Video data loaded');
+        setVideoReady(true);
         attemptPlay();
       };
 
       const handleLoadedMetadata = () => {
         console.log('📋 Video metadata loaded');
+        setVideoReady(true);
         // Try immediately if ready
         if (video.readyState >= 2) {
           attemptPlay();
         }
+      };
+
+      const handleCanPlayThrough = () => {
+        console.log('🎯 Video can play through');
+        setVideoReady(true);
+        attemptPlay();
       };
 
       // Function to start video on user interaction (fallback if autoplay blocked)
@@ -135,6 +153,7 @@ export function VideoHeroSection() {
 
       // Add event listeners
       video.addEventListener('canplay', handleCanPlay, { once: false });
+      video.addEventListener('canplaythrough', handleCanPlayThrough, { once: false });
       video.addEventListener('loadeddata', handleLoadedData, { once: false });
       video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: false });
       video.addEventListener('pause', handlePause);
@@ -159,6 +178,7 @@ export function VideoHeroSection() {
 
       return () => {
         video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('canplaythrough', handleCanPlayThrough);
         video.removeEventListener('loadeddata', handleLoadedData);
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('pause', handlePause);
@@ -272,12 +292,12 @@ export function VideoHeroSection() {
               video.play().catch(() => {});
             }
           }}
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 1 }}
           animate={{ opacity: isExiting ? 0 : 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Video background */}
-          <div className="absolute inset-0">
+          {/* Video background - no poster, black background until video loads */}
+          <div className="absolute inset-0 bg-black">
             <video
               ref={videoRef}
               autoPlay
@@ -285,8 +305,9 @@ export function VideoHeroSection() {
               playsInline
               loop
               preload="auto"
-              className="absolute inset-0 h-full w-full object-cover"
-              poster="/raylogo.png"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                videoReady ? 'opacity-100' : 'opacity-0'
+              }`}
               style={{ willChange: 'auto' }}
               crossOrigin="anonymous"
               fetchPriority="high"
@@ -311,12 +332,19 @@ export function VideoHeroSection() {
               }}
               onLoadedMetadata={() => {
                 console.log('Video metadata loaded');
+                setVideoReady(true);
+              }}
+              onCanPlayThrough={() => {
+                console.log('Video can play through');
+                setVideoReady(true);
               }}
               onPlay={() => {
                 console.log('✅ Video started playing');
+                setVideoReady(true);
               }}
               onPlaying={() => {
                 console.log('▶️ Video is playing');
+                setVideoReady(true);
               }}
             >
               <source src="/hero-video.mp4" type="video/mp4" />

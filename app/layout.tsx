@@ -65,8 +65,10 @@ export default async function RootLayout({
           muted
           playsInline
           loop
-          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          autoPlay
+          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none', zIndex: -1 }}
           aria-hidden="true"
+          fetchPriority="high"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
