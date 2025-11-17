@@ -94,15 +94,15 @@ export function HeroSection() {
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-8 sm:py-10 lg:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 h-full items-center">
           {/* Logo - Only visible on mobile, between filters and text */}
-          <div className="flex items-center justify-center order-1.5 md:hidden py-4">
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28">
+          <div className="flex items-center justify-center order-1.5 md:hidden py-2 sm:py-3">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24">
               <Image
                 src="/raylogo.png"
                 alt="Reserve4You"
                 fill
                 className="object-contain drop-shadow-lg"
                 priority
-                sizes="(max-width: 768px) 112px, 0px"
+                sizes="(max-width: 768px) 96px, 0px"
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ export function HeroSection() {
           </div>
 
           {/* Left Column - Text Content - Second on mobile, Left on desktop */}
-          <div className="flex flex-col justify-start pt-4 sm:pt-6 lg:pt-8 order-2 md:order-1">
+          <div className="flex flex-col justify-start pt-2 sm:pt-4 md:pt-6 lg:pt-8 order-2 md:order-1">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 leading-tight drop-shadow-lg">
               Stop guessing
               <br />
