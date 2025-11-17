@@ -92,9 +92,9 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full py-3 sm:py-6 md:py-10 lg:py-14 flex items-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-8 lg:gap-10 w-full items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-8 lg:gap-10 w-full items-center">
           {/* Filter Selection Card - First on mobile, Right on desktop */}
-          <div className="flex items-center justify-center order-1 md:order-2">
+          <div className="flex items-center justify-center order-1 md:order-2 -mt-4 sm:mt-0">
             <div className="w-full max-w-md bg-white/85 backdrop-blur-lg border border-border/60 rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
                 <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -179,7 +179,7 @@ export function HeroSection() {
           </div>
 
           {/* Left Column - Text Content - Second on mobile, Left on desktop */}
-          <div className="flex flex-col justify-start -mt-2 sm:mt-0 sm:pt-2 md:pt-6 lg:pt-8 order-2 md:order-1">
+          <div className="flex flex-col justify-start mt-4 sm:mt-0 sm:pt-2 md:pt-6 lg:pt-8 order-2 md:order-1">
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight drop-shadow-lg">
               Stop guessing
               <br />
